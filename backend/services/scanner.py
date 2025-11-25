@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 
-from backend.models.scan import ScanJob, ScanStatus
-from backend.models.finding import Finding
-from backend.services.git_utils import GitUtils
-from backend.core.config import config
+from models.scan import ScanJob, ScanStatus
+from models.finding import Finding
+from services.git_utils import GitUtils
+from core.config import config
 
 logger = logging.getLogger(__name__)
 
