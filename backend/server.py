@@ -6,11 +6,11 @@ import logging
 import os
 from pathlib import Path
 
-from backend.core.database import get_db, init_db
-from backend.models.scan import ScanJob, ScanStatus
-from backend.models.finding import Finding
-from backend.services.scanner import Scanner
-from backend.core.config import config
+from core.database import get_db, init_db
+from models.scan import ScanJob, ScanStatus
+from models.finding import Finding
+from services.scanner import Scanner
+from core.config import config
 from sqlalchemy.orm import Session
 
 # Configure logging
