@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Integer, DateTime, Text, ForeignKey
 from sqlalchemy.sql import func
 import uuid
-from backend.core.database import Base
+from core.database import Base
 
 class Finding(Base):
     __tablename__ = "findings"
