@@ -4,12 +4,64 @@
   box-sizing: border-box;
 }
 
+:root {
+  --primary: #1C4CE0;
+  --accent: #F97316;
+  --background: #F5F7FB;
+  --card-bg: #ffffff;
+  --text-primary: #111827;
+  --text-muted: #6B7280;
+}
+
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: #fafafa;
-  color: #1a1a1a;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: var(--background);
+  color: var(--text-primary);
 }
 
 .App {
   min-height: 100vh;
+}
+
+/* Custom color utilities */
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.bg-background {
+  background-color: var(--background);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.border-primary {
+  border-color: var(--primary);
+}
+
+.hover\:bg-primary\/90:hover {
+  background-color: rgba(28, 76, 224, 0.9);
+}
+
+.hover\:text-primary:hover {
+  color: var(--primary);
+}
+
+/* Button transitions */
+button {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+/* Link transitions */
+a {
+  transition: color 0.2s;
 }
