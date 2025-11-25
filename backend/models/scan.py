@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, DateTime, Text, Enum as SQLEnum
 from sqlalchemy.sql import func
 import uuid
 import enum
-from backend.core.database import Base
+from core.database import Base
 
 class ScanStatus(enum.Enum):
     PENDING = "PENDING"
