@@ -1,0 +1,27 @@
+scan:
+  file_extensions:
+    - ".py"
+    - ".js"
+    - ".ts"
+    - ".tsx"
+    - ".jsx"
+    - ".ipynb"
+  max_file_size_bytes: 500000
+  exclude_paths:
+    - "node_modules"
+    - ".git"
+    - "dist"
+    - "build"
+    - "__pycache__"
+    - ".venv"
+    - "venv"
+    - ".pytest_cache"
+    - ".mypy_cache"
+
+storage:
+  type: "sqlite"
+  sqlite_path: "./backend/app.db"
+
+git:
+  shallow_clone: true
+  depth: 1

@@ -1,0 +1,94 @@
+frameworks:
+  openai:
+    description: "Direct usage of OpenAI client SDK"
+    patterns:
+      - name: "openai_chat_completion_old"
+        regex: "\\bopenai\\.ChatCompletion\\.create\\b"
+        enabled: true
+      - name: "openai_chat_completion_new"
+        regex: "\\bclient\\.chat\\.completions\\.create\\b"
+        enabled: true
+      - name: "openai_client_init"
+        regex: "\\bOpenAI\\("
+        enabled: true
+      - name: "openai_import"
+        regex: "\\bfrom openai import\\b|\\bimport openai\\b"
+        enabled: true
+
+  anthropic:
+    description: "Anthropic Claude client usage"
+    patterns:
+      - name: "anthropic_client"
+        regex: "\\banthropic\\.Client\\b|\\bAnthropic\\("
+        enabled: true
+      - name: "anthropic_messages_create"
+        regex: "\\bclient\\.messages\\.create\\b"
+        enabled: true
+      - name: "anthropic_import"
+        regex: "\\bfrom anthropic import\\b|\\bimport anthropic\\b"
+        enabled: true
+
+  langchain:
+    description: "LangChain LLM orchestration"
+    patterns:
+      - name: "langchain_import"
+        regex: "\\bfrom langchain\\b|\\bimport langchain\\b"
+        enabled: true
+      - name: "langchain_llm_chain"
+        regex: "\\bLLMChain\\b"
+        enabled: true
+      - name: "langchain_chat_openai"
+        regex: "\\bChatOpenAI\\b"
+        enabled: true
+      - name: "langchain_chat_anthropic"
+        regex: "\\bChatAnthropic\\b"
+        enabled: true
+
+  transformers:
+    description: "HuggingFace Transformers"
+    patterns:
+      - name: "transformers_import"
+        regex: "\\bfrom transformers import\\b"
+        enabled: true
+      - name: "transformers_pipeline_text_gen"
+        regex: "pipeline\\(['\"]text-generation['\"]"
+        enabled: true
+      - name: "transformers_auto_model"
+        regex: "\\bAutoModel(ForCausalLM|ForSeq2SeqLM)?\\b"
+        enabled: true
+
+  vllm:
+    description: "vLLM local models"
+    patterns:
+      - name: "vllm_import"
+        regex: "\\bfrom vllm import LLM\\b"
+        enabled: true
+      - name: "vllm_llm_init"
+        regex: "\\bLLM\\("
+        enabled: true
+
+  rag_generic:
+    description: "Generic RAG patterns"
+    patterns:
+      - name: "rag_vectorstore"
+        regex: "\\bvectorstore\\b|\\bVectorStore\\b"
+        enabled: true
+      - name: "rag_as_retriever"
+        regex: "\\bas_retriever\\("
+        enabled: true
+      - name: "rag_chroma"
+        regex: "\\bChroma\\b"
+        enabled: true
+      - name: "rag_pinecone"
+        regex: "\\bPinecone\\b"
+        enabled: true
+
+  llamaindex:
+    description: "LlamaIndex framework"
+    patterns:
+      - name: "llamaindex_import"
+        regex: "\\bfrom llama_index import\\b|\\bimport llama_index\\b"
+        enabled: true
+      - name: "llamaindex_service_context"
+        regex: "\\bServiceContext\\b"
+        enabled: true
