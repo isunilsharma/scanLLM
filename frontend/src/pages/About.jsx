@@ -56,16 +56,18 @@ const About = () => {
         <section className="bg-primary/5 rounded-2xl p-8 border border-primary/20">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Get in touch</h2>
           <p className="text-gray-700 mb-6">
-            Interested in early access for your team? Reach out and tell us about your AI stack.
+            Interested in early access for your team? Book a live demo and tell us about your AI stack.
           </p>
           <a
-            href="mailto:hello@scanllm.ai"
+            href="https://calendly.com/sunildec1991/30min"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            hello@scanllm.ai
+            Book a Demo
           </a>
         </section>
       </div>
