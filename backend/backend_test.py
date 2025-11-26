@@ -112,10 +112,57 @@ class AIDepScannerTester:
             print(f"   Files scanned: {response.get('files_count', 0)}")
             print(f"   Total occurrences: {response.get('total_occurrences', 0)}")
             
+            # Test enhanced features
+            print(f"\n   📊 Enhanced Features:")
+            
+            # Test frameworks_summary
+            if 'frameworks_summary' in response:
+                print(f"   ✅ frameworks_summary present: {len(response['frameworks_summary'])} frameworks")
+                for fw in response['frameworks_summary'][:2]:
+                    print(f"      - {fw.get('framework')}: {fw.get('total_matches')} matches, {fw.get('files_count')} files")
+                    if fw.get('categories'):
+                        print(f"        Categories: {[c.get('category') for c in fw['categories'][:3]]}")
+            else:
+                print(f"   ❌ frameworks_summary MISSING")
+            
+            # Test hotspots
+            if 'hotspots' in response:
+                print(f"   ✅ hotspots present: {len(response['hotspots'])} hotspots")
+                for hs in response['hotspots'][:2]:
+                    print(f"      - {hs.get('directory')}: {hs.get('files_with_ai')} files, {hs.get('total_matches')} matches")
+            else:
+                print(f"   ❌ hotspots MISSING")
+            
+            # Test risk_flags
+            if 'risk_flags' in response:
+                print(f"   ✅ risk_flags present: {len(response['risk_flags'])} flags")
+                for rf in response['risk_flags'][:2]:
+                    print(f"      - {rf.get('label')} (severity: {rf.get('severity')})")
+            else:
+                print(f"   ❌ risk_flags MISSING")
+            
+            # Test recommended_actions
+            if 'recommended_actions' in response:
+                print(f"   ✅ recommended_actions present: {len(response['recommended_actions'])} actions")
+                for ra in response['recommended_actions'][:2]:
+                    print(f"      - {ra.get('title')}")
+            else:
+                print(f"   ❌ recommended_actions MISSING")
+            
+            # Test enhanced occurrence metadata
             if response.get('files'):
-                print(f"   Sample files:")
-                for file in response.get('files', [])[:3]:
-                    print(f"     - {file.get('file_path')}: {file.get('frameworks', [])}")
+                print(f"\n   📄 Sample file with enhanced metadata:")
+                sample_file = response['files'][0]
+                print(f"      File: {sample_file.get('file_path')}")
+                if sample_file.get('occurrences'):
+                    occ = sample_file['occurrences'][0]
+                    print(f"      - pattern_category: {occ.get('pattern_category', 'MISSING')}")
+                    print(f"      - pattern_severity: {occ.get('pattern_severity', 'MISSING')}")
+                    print(f"      - pattern_description: {occ.get('pattern_description', 'MISSING')[:50]}...")
+                    print(f"      - snippet present: {'Yes' if occ.get('snippet') else 'No'}")
+                    if occ.get('snippet'):
+                        has_hit_marker = '[[[HIT]]]' in occ['snippet']
+                        print(f"      - snippet has [[[HIT]]] marker: {'Yes' if has_hit_marker else 'No'}")
         
         return success, response
 
