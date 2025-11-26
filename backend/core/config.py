@@ -14,7 +14,7 @@ class Config:
             return yaml.safe_load(f)
     
     def get_enabled_patterns(self) -> List[Dict[str, Any]]:
-        """Get all enabled patterns from config"""
+        """Get all enabled patterns from config with full metadata"""
         enabled = []
         for framework, data in self.patterns.get('frameworks', {}).items():
             for pattern in data.get('patterns', []):
@@ -22,7 +22,11 @@ class Config:
                     enabled.append({
                         'framework': framework,
                         'name': pattern['name'],
-                        'regex': pattern['regex']
+                        'regex': pattern['regex'],
+                        'category': pattern.get('category', 'misc'),
+                        'severity': pattern.get('severity', 'low'),
+                        'description': pattern.get('description', ''),
+                        'tags': pattern.get('tags', [])
                     })
         return enabled
     
