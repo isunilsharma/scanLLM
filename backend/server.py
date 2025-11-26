@@ -90,6 +90,13 @@ async def get_scan(scan_id: str, db: Session = Depends(get_db)):
     """
     Retrieve a previously completed scan.
     """
+    from services.insights import (
+        compute_frameworks_summary,
+        compute_hotspots,
+        compute_risk_flags,
+        compute_recommended_actions
+    )
+    
     scan_job = db.query(ScanJob).filter(ScanJob.id == scan_id).first()
     if not scan_job:
         raise HTTPException(status_code=404, detail="Scan not found")
@@ -101,24 +108,43 @@ async def get_scan(scan_id: str, db: Session = Depends(get_db)):
         )
     
     # Get findings
-    findings = db.query(Finding).filter(Finding.scan_id == scan_id).all()
+    findings_objs = db.query(Finding).filter(Finding.scan_id == scan_id).all()
+    
+    # Convert to dict format
+    findings = []
+    for f in findings_objs:
+        findings.append({
+            'file_path': f.file_path,
+            'line_number': f.line_number,
+            'line_text': f.line_text,
+            'framework': f.framework,
+            'pattern_name': f.pattern_name,
+            'pattern_category': f.pattern_category,
+            'pattern_severity': f.pattern_severity,
+            'pattern_description': f.pattern_description,
+            'snippet': f.snippet
+        })
     
     # Build response
     files_map = {}
     for finding in findings:
-        if finding.file_path not in files_map:
-            files_map[finding.file_path] = {
-                'file_path': finding.file_path,
+        if finding['file_path'] not in files_map:
+            files_map[finding['file_path']] = {
+                'file_path': finding['file_path'],
                 'frameworks': set(),
                 'occurrences': []
             }
         
-        files_map[finding.file_path]['frameworks'].add(finding.framework)
-        files_map[finding.file_path]['occurrences'].append({
-            'line_number': finding.line_number,
-            'line_text': finding.line_text,
-            'framework': finding.framework,
-            'pattern_name': finding.pattern_name
+        files_map[finding['file_path']]['frameworks'].add(finding['framework'])
+        files_map[finding['file_path']]['occurrences'].append({
+            'line_number': finding['line_number'],
+            'line_text': finding['line_text'],
+            'framework': finding['framework'],
+            'pattern_name': finding['pattern_name'],
+            'pattern_category': finding.get('pattern_category'),
+            'pattern_severity': finding.get('pattern_severity'),
+            'pattern_description': finding.get('pattern_description'),
+            'snippet': finding.get('snippet')
         })
     
     files_list = []
@@ -128,13 +154,23 @@ async def get_scan(scan_id: str, db: Session = Depends(get_db)):
     
     files_list.sort(key=lambda x: x['file_path'])
     
+    # Compute insights
+    frameworks_summary = compute_frameworks_summary(findings)
+    hotspots = compute_hotspots(findings)
+    risk_flags = compute_risk_flags(findings, frameworks_summary)
+    recommended_actions = compute_recommended_actions(risk_flags, frameworks_summary)
+    
     return {
         'scan_id': scan_job.id,
         'status': scan_job.status.value,
         'repo_url': scan_job.repo_url,
         'total_occurrences': scan_job.total_occurrences,
         'files_count': scan_job.files_count,
-        'files': files_list
+        'files': files_list,
+        'frameworks_summary': frameworks_summary,
+        'hotspots': hotspots,
+        'risk_flags': risk_flags,
+        'recommended_actions': recommended_actions
     }
 
 @api_router.get("/config/patterns", response_model=PatternConfigResponse)
