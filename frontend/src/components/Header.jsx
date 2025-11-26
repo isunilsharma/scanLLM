@@ -29,6 +29,9 @@ const Header = () => {
             <Link to="/how-it-works" className={navLinkClass('/how-it-works')}>
               How It Works
             </Link>
+            <Link to="/blog" className={navLinkClass('/blog')}>
+              Blog
+            </Link>
             <Link to="/about" className={navLinkClass('/about')}>
               About Us
             </Link>
