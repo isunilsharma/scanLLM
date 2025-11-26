@@ -47,6 +47,10 @@ class ScanResponse(BaseModel):
     total_occurrences: int
     files_count: int
     files: List[Dict[str, Any]]
+    frameworks_summary: List[Dict[str, Any]] = []
+    hotspots: List[Dict[str, Any]] = []
+    risk_flags: List[Dict[str, Any]] = []
+    recommended_actions: List[Dict[str, Any]] = []
 
 class PatternConfigResponse(BaseModel):
     frameworks: List[Dict[str, Any]]
