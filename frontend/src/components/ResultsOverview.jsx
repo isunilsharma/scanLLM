@@ -60,6 +60,9 @@ const ResultsOverview = ({ result, frameworks }) => {
 
   return (
     <div className="space-y-8">
+      {/* Key Insights */}
+      <KeyInsights result={result} />
+
       {/* Framework Badges */}
       <div>
         <h3 className="text-sm font-medium text-slate-900 mb-3">Detected Frameworks</h3>
@@ -71,6 +74,21 @@ const ResultsOverview = ({ result, frameworks }) => {
           ))}
         </div>
       </div>
+
+      <Separator />
+
+      {/* Risk Flags */}
+      <RiskFlags riskFlags={result.risk_flags} />
+
+      <Separator />
+
+      {/* Usage Types */}
+      <UsageTypes frameworksSummary={result.frameworks_summary} />
+
+      <Separator />
+
+      {/* AI Hotspots */}
+      <AIHotspots hotspots={result.hotspots} />
 
       <Separator />
 
