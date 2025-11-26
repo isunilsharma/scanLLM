@@ -57,9 +57,9 @@ const FileList = ({ files }) => {
             value={`file-${idx}`}
             className="border border-slate-200 rounded-lg overflow-hidden"
           >
-            <AccordionTrigger className="px-4 py-3 hover:bg-slate-50 hover:no-underline">
-              <div className="flex items-center justify-between w-full pr-4">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+            <AccordionTrigger className="px-4 py-3 hover:bg-slate-50">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
                   <div className="flex-shrink-0">
                     <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
