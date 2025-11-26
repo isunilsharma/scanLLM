@@ -4,6 +4,39 @@ import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
 
 const FileList = ({ files }) => {
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-300';
+      case 'medium': return 'bg-amber-100 text-amber-800 border-amber-300';
+      case 'low': return 'bg-blue-100 text-blue-800 border-blue-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const highlightSnippet = (snippet) => {
+    if (!snippet) return null;
+    
+    // Replace [[[HIT]]]...[[[ENDHIT]]] with styled span
+    const parts = snippet.split(/\[\[\[HIT\]\]\]|\[\[\[ENDHIT\]\]\]/);
+    const elements = [];
+    
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 0) {
+        // Normal text
+        elements.push(<span key={i}>{parts[i]}</span>);
+      } else {
+        // Highlighted match
+        elements.push(
+          <span key={i} className="bg-yellow-200 font-semibold px-1 rounded">
+            {parts[i]}
+          </span>
+        );
+      }
+    }
+    
+    return elements;
+  };
+
   if (files.length === 0) {
     return (
       <div className="text-center py-12 text-slate-500">
