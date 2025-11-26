@@ -172,9 +172,16 @@ class Scanner:
     
     def _build_response(self, scan_job: ScanJob, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Build API response with aggregated findings.
+        Build API response with aggregated findings and insights.
         """
-        # Group findings by file
+        from services.insights import (
+            compute_frameworks_summary,
+            compute_hotspots,
+            compute_risk_flags,
+            compute_recommended_actions
+        )
+        
+        # Group findings by file (existing logic)
         files_map = {}
         for finding in findings:
             file_path = finding['file_path']
@@ -190,7 +197,11 @@ class Scanner:
                 'line_number': finding['line_number'],
                 'line_text': finding['line_text'],
                 'framework': finding['framework'],
-                'pattern_name': finding['pattern_name']
+                'pattern_name': finding['pattern_name'],
+                'pattern_category': finding.get('pattern_category'),
+                'pattern_severity': finding.get('pattern_severity'),
+                'pattern_description': finding.get('pattern_description'),
+                'snippet': finding.get('snippet')
             })
         
         # Convert to list and sort
@@ -201,11 +212,22 @@ class Scanner:
         
         files_list.sort(key=lambda x: x['file_path'])
         
+        # Compute enhanced insights
+        frameworks_summary = compute_frameworks_summary(findings)
+        hotspots = compute_hotspots(findings)
+        risk_flags = compute_risk_flags(findings, frameworks_summary)
+        recommended_actions = compute_recommended_actions(risk_flags, frameworks_summary)
+        
         return {
             'scan_id': scan_job.id,
             'status': scan_job.status.value,
             'repo_url': scan_job.repo_url,
             'total_occurrences': scan_job.total_occurrences,
             'files_count': scan_job.files_count,
-            'files': files_list
+            'files': files_list,
+            # New enhanced fields
+            'frameworks_summary': frameworks_summary,
+            'hotspots': hotspots,
+            'risk_flags': risk_flags,
+            'recommended_actions': recommended_actions
         }
