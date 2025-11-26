@@ -41,16 +41,16 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="max-w-4xl mx-auto px-6 pt-12 pb-8 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-5 tracking-tight">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 lg:pt-20 pb-8 md:pb-12 text-center">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 tracking-tight max-w-5xl mx-auto">
           Know where AI actually lives in your codebase.
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 font-normal mb-6 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 font-normal mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed">
           ScanLLM.ai scans your GitHub repositories and identifies every AI/LLM integration—giving platform and infra teams a clear, accurate view of their real AI footprint.
         </p>
         
         {/* Feature highlights - compact horizontal row */}
-        <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 mb-10 text-sm text-gray-600">
+        <div className="flex flex-wrap justify-center items-center gap-x-6 md:gap-x-10 gap-y-3 mb-8 md:mb-10 text-xs sm:text-sm text-gray-600 max-w-4xl mx-auto">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -72,7 +72,7 @@ const Home = () => {
         </div>
 
         {/* Scan Card */}
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+        <div className="w-full max-w-2xl lg:max-w-3xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
           <form onSubmit={handleScan} className="space-y-6" data-testid="repo-form">
             <div className="text-left">
               <label htmlFor="repo-url" className="block text-sm font-medium text-gray-900 mb-3">
