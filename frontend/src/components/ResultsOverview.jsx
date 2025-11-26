@@ -171,6 +171,11 @@ const ResultsOverview = ({ result, frameworks }) => {
           </table>
         </div>
       </div>
+
+      <Separator />
+
+      {/* Recommended Actions */}
+      <RecommendedActions actions={result.recommended_actions} />
     </div>
   );
 };
