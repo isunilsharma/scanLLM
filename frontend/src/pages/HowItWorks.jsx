@@ -64,13 +64,8 @@ const HowItWorks = () => {
             <div key={step.number} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 <div className="flex-shrink-0">
-                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center">
                     {step.icon}
-                  </div>
-                  <div className="text-center">
-                    <span className="inline-block bg-primary text-white text-sm font-bold rounded-full w-8 h-8 flex items-center justify-center">
-                      {step.number}
-                    </span>
                   </div>
                 </div>
                 <div className="flex-1">
