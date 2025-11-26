@@ -218,6 +218,8 @@ class Scanner:
         risk_flags = compute_risk_flags(findings, frameworks_summary)
         recommended_actions = compute_recommended_actions(risk_flags, frameworks_summary)
         
+        logger.info(f"Computed insights: frameworks={len(frameworks_summary)}, hotspots={len(hotspots)}, risk_flags={len(risk_flags)}, actions={len(recommended_actions)}")
+        
         return {
             'scan_id': scan_job.id,
             'status': scan_job.status.value,
