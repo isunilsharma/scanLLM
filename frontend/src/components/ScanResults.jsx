@@ -6,6 +6,7 @@ import { Badge } from './ui/badge';
 import ResultsOverview from './ResultsOverview';
 import FileList from './FileList';
 import { Separator } from './ui/separator';
+import { toast } from 'sonner';
 
 const ScanResults = ({ result }) => {
   const [selectedFramework, setSelectedFramework] = useState('all');
