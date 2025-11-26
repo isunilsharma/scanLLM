@@ -152,6 +152,41 @@ const ScanResults = ({ result }) => {
 
         {/* Raw Data Tab */}
         <TabsContent value="raw" className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-gray-900">Raw JSON Data</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+                  toast.success('JSON copied to clipboard!');
+                }}
+                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy JSON
+              </button>
+              <button
+                onClick={() => {
+                  const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `scan-result-${result.scan_id}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success('JSON downloaded!');
+                }}
+                className="px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download JSON
+              </button>
+            </div>
+          </div>
           <div className="bg-slate-50 rounded-lg p-4 overflow-auto max-h-[600px]">
             <pre className="text-xs text-slate-800" data-testid="raw-data">
               {JSON.stringify(result, null, 2)}
