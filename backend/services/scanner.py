@@ -115,7 +115,7 @@ class Scanner:
     
     def _scan_file(self, file_path: Path, root_path: Path, scan_id: str) -> List[Dict[str, Any]]:
         """
-        Scan a single file for pattern matches.
+        Scan a single file for pattern matches with snippet extraction.
         """
         findings = []
         
@@ -129,19 +129,46 @@ class Scanner:
                 for pattern_info in self.patterns:
                     pattern = pattern_info['regex']
                     if re.search(pattern, line):
+                        # Extract snippet with context (3 lines before and after)
+                        snippet = self._extract_snippet(lines, line_num, pattern, line)
+                        
                         findings.append({
                             'scan_id': scan_id,
                             'file_path': relative_path,
                             'line_number': line_num,
-                            'line_text': line.strip()[:500],  # Truncate to 500 chars
+                            'line_text': line.strip()[:500],
                             'framework': pattern_info['framework'],
-                            'pattern_name': pattern_info['name']
+                            'pattern_name': pattern_info['name'],
+                            'pattern_category': pattern_info.get('category', 'misc'),
+                            'pattern_severity': pattern_info.get('severity', 'low'),
+                            'pattern_description': pattern_info.get('description', ''),
+                            'snippet': snippet
                         })
         
         except Exception as e:
             logger.warning(f"Error scanning file {file_path}: {str(e)}")
         
         return findings
+    
+    def _extract_snippet(self, lines: List[str], match_line: int, pattern: str, matched_line: str) -> str:
+        """
+        Extract code snippet with 3 lines before and after the match.
+        Marks the matched portion with [[[HIT]]]...[[[ENDHIT]]] for frontend highlighting.
+        """
+        # Get context lines (3 before, match, 3 after)
+        start_idx = max(0, match_line - 4)  # -1 for 0-indexing, -3 for context
+        end_idx = min(len(lines), match_line + 3)
+        
+        snippet_lines = []
+        for i in range(start_idx, end_idx):
+            if i == match_line - 1:  # The matching line
+                # Highlight the matched portion
+                highlighted = re.sub(pattern, r'[[[HIT]]]\g<0>[[[ENDHIT]]]', lines[i].rstrip())
+                snippet_lines.append(highlighted)
+            else:
+                snippet_lines.append(lines[i].rstrip())
+        
+        return '\n'.join(snippet_lines)
     
     def _build_response(self, scan_job: ScanJob, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
