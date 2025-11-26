@@ -5,15 +5,69 @@ frameworks:
       - name: "openai_chat_completion_old"
         regex: "\\bopenai\\.ChatCompletion\\.create\\b"
         enabled: true
+        category: "llm_call"
+        severity: "medium"
+        description: "Legacy OpenAI chat completion call"
+        tags:
+          - "deprecated"
+          - "chat"
+      
       - name: "openai_chat_completion_new"
         regex: "\\bclient\\.chat\\.completions\\.create\\b"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "OpenAI chat completion (modern client)"
+        tags:
+          - "chat"
+          - "llm"
+      
       - name: "openai_client_init"
         regex: "\\bOpenAI\\("
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "OpenAI client initialization"
+        tags:
+          - "setup"
+      
       - name: "openai_import"
         regex: "\\bfrom openai import\\b|\\bimport openai\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "OpenAI library import"
+        tags:
+          - "import"
+      
+      - name: "openai_embeddings"
+        regex: "\\bclient\\.embeddings\\.create\\b|\\bopenai\\.Embedding\\.create\\b"
+        enabled: true
+        category: "embedding_call"
+        severity: "medium"
+        description: "OpenAI embeddings API call"
+        tags:
+          - "embeddings"
+          - "rag"
+      
+      - name: "openai_images"
+        regex: "\\bclient\\.images\\.generate\\b|\\bopenai\\.Image\\.create\\b"
+        enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "OpenAI image generation call"
+        tags:
+          - "image"
+      
+      - name: "openai_api_key_pattern"
+        regex: "sk-[a-zA-Z0-9]{48}"
+        enabled: true
+        category: "secrets"
+        severity: "high"
+        description: "Possible OpenAI API key in code"
+        tags:
+          - "security"
+          - "secrets"
 
   anthropic:
     description: "Anthropic Claude client usage"
@@ -21,12 +75,30 @@ frameworks:
       - name: "anthropic_client"
         regex: "\\banthropic\\.Client\\b|\\bAnthropic\\("
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "Anthropic client initialization"
+        tags:
+          - "setup"
+      
       - name: "anthropic_messages_create"
         regex: "\\bclient\\.messages\\.create\\b"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "Anthropic message creation call"
+        tags:
+          - "chat"
+          - "llm"
+      
       - name: "anthropic_import"
         regex: "\\bfrom anthropic import\\b|\\bimport anthropic\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "Anthropic library import"
+        tags:
+          - "import"
 
   langchain:
     description: "LangChain LLM orchestration"
@@ -34,15 +106,62 @@ frameworks:
       - name: "langchain_import"
         regex: "\\bfrom langchain\\b|\\bimport langchain\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "LangChain library import"
+        tags:
+          - "import"
+          - "framework"
+      
       - name: "langchain_llm_chain"
         regex: "\\bLLMChain\\b"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "LangChain LLMChain usage"
+        tags:
+          - "chain"
+          - "llm"
+      
       - name: "langchain_chat_openai"
         regex: "\\bChatOpenAI\\b"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "LangChain ChatOpenAI wrapper"
+        tags:
+          - "chat"
+          - "openai"
+      
       - name: "langchain_chat_anthropic"
         regex: "\\bChatAnthropic\\b"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "LangChain ChatAnthropic wrapper"
+        tags:
+          - "chat"
+          - "anthropic"
+      
+      - name: "langchain_retriever"
+        regex: "\\bas_retriever\\(|\\bRetriever\\b"
+        enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "LangChain retriever pattern (RAG)"
+        tags:
+          - "rag"
+          - "retrieval"
+      
+      - name: "langchain_vectorstore"
+        regex: "\\bVectorStore\\b|\\bvectorstore\\b"
+        enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "LangChain vectorstore usage (RAG)"
+        tags:
+          - "rag"
+          - "vectorstore"
 
   transformers:
     description: "HuggingFace Transformers"
@@ -50,12 +169,32 @@ frameworks:
       - name: "transformers_import"
         regex: "\\bfrom transformers import\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "Transformers library import"
+        tags:
+          - "import"
+          - "huggingface"
+      
       - name: "transformers_pipeline_text_gen"
         regex: "pipeline\\(['\"]text-generation['\"]"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "Transformers text generation pipeline"
+        tags:
+          - "generation"
+          - "pipeline"
+      
       - name: "transformers_auto_model"
         regex: "\\bAutoModel(ForCausalLM|ForSeq2SeqLM)?\\b"
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "Transformers AutoModel usage"
+        tags:
+          - "model"
+          - "generation"
 
   vllm:
     description: "vLLM local models"
@@ -63,9 +202,22 @@ frameworks:
       - name: "vllm_import"
         regex: "\\bfrom vllm import LLM\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "vLLM library import"
+        tags:
+          - "import"
+          - "local"
+      
       - name: "vllm_llm_init"
         regex: "\\bLLM\\("
         enabled: true
+        category: "llm_call"
+        severity: "low"
+        description: "vLLM model initialization"
+        tags:
+          - "local"
+          - "model"
 
   rag_generic:
     description: "Generic RAG patterns"
@@ -73,15 +225,52 @@ frameworks:
       - name: "rag_vectorstore"
         regex: "\\bvectorstore\\b|\\bVectorStore\\b"
         enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "Generic vectorstore usage"
+        tags:
+          - "rag"
+          - "vectorstore"
+      
       - name: "rag_as_retriever"
         regex: "\\bas_retriever\\("
         enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "Generic retriever pattern"
+        tags:
+          - "rag"
+          - "retrieval"
+      
       - name: "rag_chroma"
         regex: "\\bChroma\\b"
         enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "Chroma vectorstore usage"
+        tags:
+          - "rag"
+          - "chroma"
+      
       - name: "rag_pinecone"
         regex: "\\bPinecone\\b"
         enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "Pinecone vectorstore usage"
+        tags:
+          - "rag"
+          - "pinecone"
+      
+      - name: "rag_faiss"
+        regex: "\\bFAISS\\b|\\bfaiss\\b"
+        enabled: true
+        category: "rag_pattern"
+        severity: "medium"
+        description: "FAISS vectorstore usage"
+        tags:
+          - "rag"
+          - "faiss"
 
   llamaindex:
     description: "LlamaIndex framework"
@@ -89,6 +278,19 @@ frameworks:
       - name: "llamaindex_import"
         regex: "\\bfrom llama_index import\\b|\\bimport llama_index\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "LlamaIndex library import"
+        tags:
+          - "import"
+          - "framework"
+      
       - name: "llamaindex_service_context"
         regex: "\\bServiceContext\\b"
         enabled: true
+        category: "client_init"
+        severity: "low"
+        description: "LlamaIndex ServiceContext usage"
+        tags:
+          - "setup"
+          - "context"

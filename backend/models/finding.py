@@ -13,4 +13,11 @@ class Finding(Base):
     line_text = Column(Text, nullable=False)
     framework = Column(String, nullable=False)
     pattern_name = Column(String, nullable=False)
+    
+    # New fields for enhanced insights
+    pattern_category = Column(String, nullable=True)  # llm_call, embedding_call, etc.
+    pattern_severity = Column(String, nullable=True)  # low, medium, high
+    pattern_description = Column(Text, nullable=True)
+    snippet = Column(Text, nullable=True)  # Code snippet with context
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
