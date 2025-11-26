@@ -41,34 +41,33 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="max-w-5xl mx-auto px-6 pt-16 pb-12 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
-          Know exactly where your LLMs live in your codebase.
+      <section className="max-w-4xl mx-auto px-6 pt-12 pb-8 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-5 tracking-tight">
+          Know where AI actually lives in your codebase.
         </h1>
-        <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
-          ScanLLM.ai analyzes your GitHub repositories and detects all AI/LLM framework usage, 
-          so platform and infra teams finally get a clean map of their AI surface area.
+        <p className="text-lg md:text-xl text-gray-600 font-normal mb-6 max-w-2xl mx-auto leading-relaxed">
+          ScanLLM.ai scans your GitHub repositories and identifies every AI/LLM integration—giving platform and infra teams a clear, accurate view of their real AI footprint.
         </p>
         
-        {/* Feature bullets */}
-        <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm text-gray-600">
+        {/* Feature highlights - compact horizontal row */}
+        <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 mb-10 text-sm text-gray-600">
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>Detect OpenAI, Anthropic, LangChain, vLLM, and more</span>
+            <span>Detect OpenAI, Anthropic, LangChain, vLLM, Transformers</span>
           </div>
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>Spot risky or shadow AI usage fast</span>
+            <span>Reveal hidden or shadow AI usage</span>
           </div>
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>Run scans in minutes, not days</span>
+            <span>Run lightweight scans in minutes</span>
           </div>
         </div>
 
