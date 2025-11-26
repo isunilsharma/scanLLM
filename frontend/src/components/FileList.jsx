@@ -95,20 +95,42 @@ const FileList = ({ files }) => {
                     key={occIdx}
                     className="bg-slate-50 rounded-lg p-4 border border-slate-200"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant="outline" className="text-xs">
                           Line {occ.line_number}
                         </Badge>
                         <Badge variant="secondary" className="text-xs">
                           {occ.framework}
                         </Badge>
+                        {occ.pattern_severity && (
+                          <Badge className={`text-xs border ${getSeverityColor(occ.pattern_severity)}`}>
+                            {occ.pattern_severity}
+                          </Badge>
+                        )}
+                        {occ.pattern_category && (
+                          <Badge variant="outline" className="text-xs">
+                            {occ.pattern_category.replace(/_/g, ' ')}
+                          </Badge>
+                        )}
                       </div>
                       <span className="text-xs text-slate-500">{occ.pattern_name}</span>
                     </div>
-                    <pre className="text-xs font-mono text-slate-900 bg-white rounded p-3 overflow-x-auto border border-slate-200">
-                      {occ.line_text}
-                    </pre>
+                    
+                    {occ.pattern_description && (
+                      <p className="text-xs text-slate-600 mb-3 italic">{occ.pattern_description}</p>
+                    )}
+                    
+                    {/* Code Snippet with highlighting */}
+                    {occ.snippet ? (
+                      <pre className="text-xs font-mono text-slate-900 bg-white rounded p-3 overflow-x-auto border border-slate-200 whitespace-pre-wrap">
+                        {highlightSnippet(occ.snippet)}
+                      </pre>
+                    ) : (
+                      <pre className="text-xs font-mono text-slate-900 bg-white rounded p-3 overflow-x-auto border border-slate-200">
+                        {occ.line_text}
+                      </pre>
+                    )}
                   </div>
                 ))}
               </div>
