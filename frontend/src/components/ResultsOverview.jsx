@@ -2,12 +2,24 @@ import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import KeyInsights from './KeyInsights';
+import RiskFlags from './RiskFlags';
+import AIHotspots from './AIHotspots';
+import UsageTypes from './UsageTypes';
+import RecommendedActions from './RecommendedActions';
 
 const COLORS = ['#1e293b', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
 
 const ResultsOverview = ({ result, frameworks }) => {
   // Framework distribution data
   const frameworkData = useMemo(() => {
+    if (result.frameworks_summary) {
+      return result.frameworks_summary.map(fw => ({
+        name: fw.framework,
+        count: fw.total_matches
+      }));
+    }
+    // Fallback to old calculation
     const counts = {};
     result.files.forEach(file => {
       file.frameworks.forEach(fw => {
@@ -21,6 +33,13 @@ const ResultsOverview = ({ result, frameworks }) => {
 
   // Files per framework
   const filesPerFramework = useMemo(() => {
+    if (result.frameworks_summary) {
+      return result.frameworks_summary.map(fw => ({
+        name: fw.framework,
+        files: fw.files_count
+      }));
+    }
+    // Fallback
     const counts = {};
     result.files.forEach(file => {
       file.frameworks.forEach(fw => {
