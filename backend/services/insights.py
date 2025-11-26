@@ -150,7 +150,7 @@ def compute_recommended_actions(risk_flags: List[Dict[str, Any]], frameworks_sum
         actions.append({
             'id': 'review_rag_governance',
             'title': 'Review RAG data governance',
-            'description': 'RAG and embedding usage detected. Review what data is being embedded, how it\\'s stored, and who has access. Consider implementing data governance policies.',
+            'description': 'RAG and embedding usage detected. Review what data is being embedded, how it is stored, and who has access. Consider implementing data governance policies.',
             'related_risk_flags': ['rag_present', 'embeddings_present']
         })
     
