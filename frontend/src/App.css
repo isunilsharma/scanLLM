@@ -66,9 +66,16 @@ a {
   transition: color 0.2s;
 }
 
-/* Hide Emergent badge */
-p:has-text("Made with Emergent"),
-a[href*="emergent.sh"]:has(p:has-text("Made with Emergent")) {
+/* Hide Emergent platform badge */
+p:has-text("Made with Emergent") {
   display: none !important;
-  visibility: hidden !important;
+}
+
+a[href*="emergent.sh"] p {
+  display: none !important;
+}
+
+/* Global badge hiding */
+[style*="font-size: 12px"]:has-text("Made") {
+  display: none !important;
 }
