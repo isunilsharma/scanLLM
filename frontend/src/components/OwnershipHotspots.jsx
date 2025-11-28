@@ -3,7 +3,16 @@ import { Badge } from './ui/badge';
 
 const OwnershipHotspots = ({ ownershipSummary }) => {
   if (!ownershipSummary || ownershipSummary.length === 0) {
-    return null;
+    return (
+      <div>
+        <h3 className="text-base font-semibold text-gray-900 mb-4">Ownership Hotspots</h3>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+          <p className="text-sm text-gray-600">
+            No ownership data available. GitHub API may be rate-limited or repository has insufficient commit history.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
