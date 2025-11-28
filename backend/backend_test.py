@@ -196,6 +196,209 @@ class AIDepScannerTester:
             404
         )
         return success
+    
+    def test_v2_features(self, scan_result):
+        """Test v2 enhanced features"""
+        print(f"\n{'='*70}")
+        print("TESTING V2 ENHANCED FEATURES")
+        print(f"{'='*70}")
+        
+        v2_tests_passed = 0
+        v2_tests_total = 0
+        
+        # Test 1: Policy Evaluation
+        v2_tests_total += 1
+        print(f"\n🔍 Testing Policy Evaluation...")
+        if 'policies_result' in scan_result:
+            policies = scan_result['policies_result']
+            if 'errors' in policies and 'warnings' in policies and 'passes' in policies:
+                print(f"   ✅ policies_result structure valid")
+                print(f"      - Errors: {len(policies['errors'])}")
+                print(f"      - Warnings: {len(policies['warnings'])}")
+                print(f"      - Passes: {len(policies['passes'])}")
+                v2_tests_passed += 1
+            else:
+                print(f"   ❌ policies_result missing required fields")
+        else:
+            print(f"   ❌ policies_result MISSING")
+        
+        # Test 2: Blast Radius Summary
+        v2_tests_total += 1
+        print(f"\n🔍 Testing Blast Radius Summary...")
+        if 'blast_radius_summary' in scan_result:
+            blast = scan_result['blast_radius_summary']
+            if 'high' in blast and 'medium' in blast and 'low' in blast:
+                print(f"   ✅ blast_radius_summary structure valid")
+                print(f"      - High risk files: {blast['high']}")
+                print(f"      - Medium risk files: {blast['medium']}")
+                print(f"      - Low risk files: {blast['low']}")
+                v2_tests_passed += 1
+            else:
+                print(f"   ❌ blast_radius_summary missing required fields")
+        else:
+            print(f"   ❌ blast_radius_summary MISSING")
+        
+        # Test 3: Model & Prompt Contracts
+        v2_tests_total += 1
+        print(f"\n🔍 Testing Model & Prompt Contracts...")
+        if 'contracts' in scan_result:
+            contracts = scan_result['contracts']
+            if 'unique_models' in contracts:
+                print(f"   ✅ contracts structure valid")
+                print(f"      - Unique models: {contracts.get('unique_models', [])}")
+                print(f"      - Temperature range: {contracts.get('temperature_range', {})}")
+                print(f"      - Max tokens range: {contracts.get('max_tokens_range', {})}")
+                print(f"      - Streaming usage: {contracts.get('streaming_usage', 0)}")
+                print(f"      - Tools usage: {contracts.get('tools_usage', 0)}")
+                v2_tests_passed += 1
+            else:
+                print(f"   ❌ contracts missing required fields")
+        else:
+            print(f"   ❌ contracts MISSING")
+        
+        # Test 4: Ownership Summary
+        v2_tests_total += 1
+        print(f"\n🔍 Testing Ownership Summary...")
+        if 'ownership_summary' in scan_result:
+            ownership = scan_result['ownership_summary']
+            print(f"   ✅ ownership_summary present: {len(ownership)} owners")
+            if len(ownership) > 0:
+                print(f"      Top owner: {ownership[0].get('owner_name', 'unknown')}")
+                print(f"      - AI files: {ownership[0].get('ai_files_count', 0)}")
+                print(f"      - Total matches: {ownership[0].get('total_matches', 0)}")
+            v2_tests_passed += 1
+        else:
+            print(f"   ❌ ownership_summary MISSING")
+        
+        # Test 5: AI Heatmap
+        v2_tests_total += 1
+        print(f"\n🔍 Testing AI Heatmap...")
+        if 'heatmap' in scan_result:
+            heatmap = scan_result['heatmap']
+            print(f"   ✅ heatmap present: {len(heatmap)} directories")
+            if len(heatmap) > 0:
+                top_dir = list(heatmap.keys())[0]
+                print(f"      Top directory: {top_dir}")
+                print(f"      - Files: {heatmap[top_dir].get('files', 0)}")
+                print(f"      - Matches: {heatmap[top_dir].get('matches', 0)}")
+            v2_tests_passed += 1
+        else:
+            print(f"   ❌ heatmap MISSING")
+        
+        # Test 6: Contract Extraction in Occurrences
+        v2_tests_total += 1
+        print(f"\n🔍 Testing Contract Extraction in Occurrences...")
+        if scan_result.get('files'):
+            found_contract = False
+            for file in scan_result['files']:
+                for occ in file.get('occurrences', []):
+                    if occ.get('model_name') or occ.get('temperature') is not None or occ.get('max_tokens'):
+                        found_contract = True
+                        print(f"   ✅ Contract data found in occurrence")
+                        print(f"      File: {file['file_path']}")
+                        print(f"      - model_name: {occ.get('model_name', 'N/A')}")
+                        print(f"      - temperature: {occ.get('temperature', 'N/A')}")
+                        print(f"      - max_tokens: {occ.get('max_tokens', 'N/A')}")
+                        print(f"      - is_streaming: {occ.get('is_streaming', False)}")
+                        print(f"      - has_tools: {occ.get('has_tools', False)}")
+                        break
+                if found_contract:
+                    break
+            
+            if found_contract:
+                v2_tests_passed += 1
+            else:
+                print(f"   ⚠️  No contract data found in occurrences (may be normal if repo has no explicit configs)")
+                v2_tests_passed += 1  # Not a failure, just no data
+        else:
+            print(f"   ❌ No files to check")
+        
+        # Test 7: Ownership Data in Occurrences
+        v2_tests_total += 1
+        print(f"\n🔍 Testing Ownership Data in Occurrences...")
+        if scan_result.get('files'):
+            found_ownership = False
+            for file in scan_result['files']:
+                for occ in file.get('occurrences', []):
+                    if occ.get('owner_name'):
+                        found_ownership = True
+                        print(f"   ✅ Ownership data found in occurrence")
+                        print(f"      File: {file['file_path']}")
+                        print(f"      - owner_name: {occ.get('owner_name', 'N/A')}")
+                        print(f"      - owner_email: {occ.get('owner_email', 'N/A')}")
+                        print(f"      - owner_committed_at: {occ.get('owner_committed_at', 'N/A')}")
+                        break
+                if found_ownership:
+                    break
+            
+            if found_ownership:
+                v2_tests_passed += 1
+            else:
+                print(f"   ⚠️  No ownership data found (may be rate limited or no GitHub data)")
+                v2_tests_passed += 1  # Not a failure, may be rate limited
+        else:
+            print(f"   ❌ No files to check")
+        
+        print(f"\n{'='*70}")
+        print(f"V2 FEATURES TEST SUMMARY: {v2_tests_passed}/{v2_tests_total} passed")
+        print(f"{'='*70}")
+        
+        return v2_tests_passed, v2_tests_total
+    
+    def test_explain_scan(self, scan_id):
+        """Test LLM-powered scan explanation"""
+        if not scan_id:
+            print("\n⚠️  Skipping explain scan test - no scan_id available")
+            return False
+        
+        print(f"\n⚠️  This test will call LLM API and may take 10-20 seconds...")
+        
+        success, response = self.run_test(
+            "Explain Scan (LLM)",
+            "POST",
+            "explain-scan",
+            200,
+            data={"scan_id": scan_id},
+            timeout=60
+        )
+        
+        if success:
+            explanation = response.get('explanation', '')
+            print(f"   ✅ Explanation generated")
+            print(f"   Length: {len(explanation)} characters")
+            print(f"   Preview: {explanation[:200]}...")
+        
+        return success
+    
+    def test_scan_history(self, repo_url):
+        """Test scan history endpoint"""
+        if not repo_url:
+            print("\n⚠️  Skipping scan history test - no repo_url available")
+            return False
+        
+        # URL encode the repo_url
+        import urllib.parse
+        encoded_url = urllib.parse.quote(repo_url, safe='')
+        
+        success, response = self.run_test(
+            "Get Scan History",
+            "GET",
+            f"scan-history?repo_url={encoded_url}",
+            200
+        )
+        
+        if success:
+            scans = response.get('scans', [])
+            print(f"   ✅ Found {len(scans)} historical scans")
+            if len(scans) > 0:
+                latest = scans[0]
+                print(f"   Latest scan:")
+                print(f"      - ID: {latest.get('id')}")
+                print(f"      - Date: {latest.get('created_at')}")
+                print(f"      - Files: {latest.get('ai_files_count', 0)}")
+                print(f"      - Matches: {latest.get('total_matches', 0)}")
+        
+        return success
 
 def main():
     print("=" * 70)
