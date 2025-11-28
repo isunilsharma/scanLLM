@@ -65,3 +65,10 @@ button {
 a {
   transition: color 0.2s;
 }
+
+/* Hide Emergent badge */
+p:has-text("Made with Emergent"),
+a[href*="emergent.sh"]:has(p:has-text("Made with Emergent")) {
+  display: none !important;
+  visibility: hidden !important;
+}
