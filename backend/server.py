@@ -100,14 +100,9 @@ async def create_scan(request: ScanRequest, db: Session = Depends(get_db)):
 @api_router.get("/scans/{scan_id}", response_model=ScanResponse)
 async def get_scan(scan_id: str, db: Session = Depends(get_db)):
     """
-    Retrieve a previously completed scan.
+    Retrieve a previously completed scan with v2 data.
     """
-    from services.insights import (
-        compute_frameworks_summary,
-        compute_hotspots,
-        compute_risk_flags,
-        compute_recommended_actions
-    )
+    from services.scanner_v2 import ScannerV2
     
     scan_job = db.query(ScanJob).filter(ScanJob.id == scan_id).first()
     if not scan_job:
@@ -122,7 +117,7 @@ async def get_scan(scan_id: str, db: Session = Depends(get_db)):
     # Get findings
     findings_objs = db.query(Finding).filter(Finding.scan_id == scan_id).all()
     
-    # Convert to dict format
+    # Convert to dict format with all v2 fields
     findings = []
     for f in findings_objs:
         findings.append({
@@ -134,56 +129,20 @@ async def get_scan(scan_id: str, db: Session = Depends(get_db)):
             'pattern_category': f.pattern_category,
             'pattern_severity': f.pattern_severity,
             'pattern_description': f.pattern_description,
-            'snippet': f.snippet
+            'snippet': f.snippet,
+            'model_name': f.model_name,
+            'temperature': f.temperature,
+            'max_tokens': f.max_tokens,
+            'is_streaming': f.is_streaming,
+            'has_tools': f.has_tools,
+            'owner_name': f.owner_name,
+            'owner_email': f.owner_email,
+            'owner_committed_at': f.owner_committed_at.isoformat() if f.owner_committed_at else None
         })
     
-    # Build response
-    files_map = {}
-    for finding in findings:
-        if finding['file_path'] not in files_map:
-            files_map[finding['file_path']] = {
-                'file_path': finding['file_path'],
-                'frameworks': set(),
-                'occurrences': []
-            }
-        
-        files_map[finding['file_path']]['frameworks'].add(finding['framework'])
-        files_map[finding['file_path']]['occurrences'].append({
-            'line_number': finding['line_number'],
-            'line_text': finding['line_text'],
-            'framework': finding['framework'],
-            'pattern_name': finding['pattern_name'],
-            'pattern_category': finding.get('pattern_category'),
-            'pattern_severity': finding.get('pattern_severity'),
-            'pattern_description': finding.get('pattern_description'),
-            'snippet': finding.get('snippet')
-        })
-    
-    files_list = []
-    for file_data in files_map.values():
-        file_data['frameworks'] = sorted(list(file_data['frameworks']))
-        files_list.append(file_data)
-    
-    files_list.sort(key=lambda x: x['file_path'])
-    
-    # Compute insights
-    frameworks_summary = compute_frameworks_summary(findings)
-    hotspots = compute_hotspots(findings)
-    risk_flags = compute_risk_flags(findings, frameworks_summary)
-    recommended_actions = compute_recommended_actions(risk_flags, frameworks_summary)
-    
-    return {
-        'scan_id': scan_job.id,
-        'status': scan_job.status.value,
-        'repo_url': scan_job.repo_url,
-        'total_occurrences': scan_job.total_occurrences,
-        'files_count': scan_job.files_count,
-        'files': files_list,
-        'frameworks_summary': frameworks_summary,
-        'hotspots': hotspots,
-        'risk_flags': risk_flags,
-        'recommended_actions': recommended_actions
-    }
+    # Use ScannerV2 to build response
+    scanner = ScannerV2(db)
+    return scanner._build_response_v2(scan_job, findings)
 
 @api_router.get("/config/patterns", response_model=PatternConfigResponse)
 async def get_patterns():
