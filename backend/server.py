@@ -9,9 +9,11 @@ from pathlib import Path
 from core.database import get_db, init_db
 from models.scan import ScanJob, ScanStatus
 from models.finding import Finding
-from services.scanner import Scanner
+from services.scanner_v2 import ScannerV2
+from services.llm_explainer import explain_scan
 from core.config import config
 from sqlalchemy.orm import Session
+import json
 
 # Configure logging
 logging.basicConfig(
