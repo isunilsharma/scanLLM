@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, Text, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, Text, ForeignKey, Float, Boolean
 from sqlalchemy.sql import func
 import uuid
 from core.database import Base
@@ -6,6 +6,7 @@ from core.database import Base
 class Finding(Base):
     __tablename__ = "findings"
     
+    # Original fields
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     scan_id = Column(String, ForeignKey('scan_jobs.id'), nullable=False)
     file_path = Column(String, nullable=False)
@@ -14,10 +15,22 @@ class Finding(Base):
     framework = Column(String, nullable=False)
     pattern_name = Column(String, nullable=False)
     
-    # New fields for enhanced insights
-    pattern_category = Column(String, nullable=True)  # llm_call, embedding_call, etc.
-    pattern_severity = Column(String, nullable=True)  # low, medium, high
+    # Enhanced fields v1
+    pattern_category = Column(String, nullable=True)
+    pattern_severity = Column(String, nullable=True)
     pattern_description = Column(Text, nullable=True)
-    snippet = Column(Text, nullable=True)  # Code snippet with context
+    snippet = Column(Text, nullable=True)
+    
+    # Contract extraction v2
+    model_name = Column(String, nullable=True)
+    temperature = Column(Float, nullable=True)
+    max_tokens = Column(Integer, nullable=True)
+    is_streaming = Column(Boolean, nullable=True)
+    has_tools = Column(Boolean, nullable=True)
+    
+    # Ownership mapping v2
+    owner_name = Column(String, nullable=True)
+    owner_email = Column(String, nullable=True)
+    owner_committed_at = Column(DateTime, nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -13,6 +13,7 @@ class ScanStatus(enum.Enum):
 class ScanJob(Base):
     __tablename__ = "scan_jobs"
     
+    # Original fields
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     repo_url = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -20,3 +21,11 @@ class ScanJob(Base):
     error_message = Column(Text, nullable=True)
     total_occurrences = Column(Integer, default=0)
     files_count = Column(Integer, default=0)
+    
+    # Enhanced fields v2
+    total_matches = Column(Integer, default=0)
+    ai_files_count = Column(Integer, default=0)
+    frameworks_json = Column(Text, nullable=True)  # JSON string
+    risk_flags_json = Column(Text, nullable=True)  # JSON string
+    policies_result_json = Column(Text, nullable=True)  # JSON string
+    summary_json = Column(Text, nullable=True)  # JSON string
