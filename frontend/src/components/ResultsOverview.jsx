@@ -216,22 +216,7 @@ const ResultsOverview = ({ result, frameworks }) => {
 
       <Separator />
 
-      {/* Model & Prompt Contracts */}
-      <ModelContracts contracts={result.contracts} />
-
-      <Separator />
-
-      {/* Ownership Hotspots */}
-      <OwnershipHotspots ownershipSummary={result.ownership_summary} />
-
-      <Separator />
-
-      {/* AI Heatmap */}
-      <AIHeatmap heatmap={result.heatmap} />
-
-      <Separator />
-
-      {/* Scan History */}
+      {/* Scan History & Drift */}
       <ScanHistory repoUrl={result.repo_url} />
     </div>
   );
