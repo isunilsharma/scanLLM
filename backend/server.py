@@ -208,6 +208,93 @@ async def get_patterns():
     
     return {'frameworks': frameworks_list}
 
+# v2 Endpoints
+
+class ExplainRequest(BaseModel):
+    scan_id: str
+
+class ExplainResponse(BaseModel):
+    scan_id: str
+    explanation: str
+
+@api_router.post("/explain-scan", response_model=ExplainResponse)
+async def explain_scan_endpoint(request: ExplainRequest, db: Session = Depends(get_db)):
+    """
+    Generate LLM-powered explanation of scan results.
+    """
+    scan_job = db.query(ScanJob).filter(ScanJob.id == request.scan_id).first()
+    if not scan_job:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    
+    if scan_job.status != ScanStatus.SUCCESS:
+        raise HTTPException(status_code=400, detail="Scan not completed successfully")
+    
+    # Get the full scan data (reuse GET /scans/{id} logic)
+    from services.scanner_v2 import ScannerV2
+    scanner = ScannerV2(db)
+    
+    # Get findings for this scan
+    findings_objs = db.query(Finding).filter(Finding.scan_id == request.scan_id).all()
+    findings = []
+    for f in findings_objs:
+        findings.append({
+            'file_path': f.file_path,
+            'framework': f.framework,
+            'pattern_category': f.pattern_category,
+            'pattern_severity': f.pattern_severity,
+            'model_name': f.model_name,
+            'temperature': f.temperature,
+            'max_tokens': f.max_tokens,
+            'is_streaming': f.is_streaming,
+            'has_tools': f.has_tools
+        })
+    
+    # Build scan data for LLM
+    scan_data = scanner._build_response_v2(scan_job, findings)
+    
+    # Generate explanation
+    explanation = await explain_scan(scan_data)
+    
+    return {
+        'scan_id': request.scan_id,
+        'explanation': explanation
+    }
+
+class ScanHistoryItem(BaseModel):
+    id: str
+    repo_url: str
+    created_at: str
+    status: str
+    total_matches: int
+    ai_files_count: int
+    frameworks_json: str
+
+@api_router.get("/scan-history")
+async def get_scan_history(repo_url: str, db: Session = Depends(get_db)):
+    """
+    Get scan history for a repository.
+    Returns last 10 scans.
+    """
+    scans = db.query(ScanJob).filter(
+        ScanJob.repo_url == repo_url,
+        ScanJob.status == ScanStatus.SUCCESS
+    ).order_by(ScanJob.created_at.desc()).limit(10).all()
+    
+    history = []
+    for scan in scans:
+        history.append({
+            'id': scan.id,
+            'repo_url': scan.repo_url,
+            'created_at': scan.created_at.isoformat() if scan.created_at else None,
+            'status': scan.status.value,
+            'total_matches': scan.total_matches or scan.total_occurrences,
+            'ai_files_count': scan.ai_files_count or scan.files_count,
+            'frameworks_json': scan.frameworks_json or '{}'
+        })
+    
+    return {'scans': history}
+
+
 # Include router
 app.include_router(api_router)
 
