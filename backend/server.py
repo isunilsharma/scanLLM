@@ -198,14 +198,22 @@ async def explain_scan_endpoint(request: ExplainRequest, db: Session = Depends(g
     for f in findings_objs:
         findings.append({
             'file_path': f.file_path,
+            'line_number': f.line_number,
+            'line_text': f.line_text,
             'framework': f.framework,
+            'pattern_name': f.pattern_name,
             'pattern_category': f.pattern_category,
             'pattern_severity': f.pattern_severity,
+            'pattern_description': f.pattern_description,
+            'snippet': f.snippet,
             'model_name': f.model_name,
             'temperature': f.temperature,
             'max_tokens': f.max_tokens,
             'is_streaming': f.is_streaming,
-            'has_tools': f.has_tools
+            'has_tools': f.has_tools,
+            'owner_name': f.owner_name,
+            'owner_email': f.owner_email,
+            'owner_committed_at': f.owner_committed_at.isoformat() if f.owner_committed_at else None
         })
     
     # Build scan data for LLM
