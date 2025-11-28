@@ -85,8 +85,8 @@ async def create_scan(request: ScanRequest, db: Session = Depends(get_db)):
         
         logger.info(f"Starting scan {scan_job.id} for {request.repo_url}")
         
-        # Run scanner
-        scanner = Scanner(db)
+        # Run scanner v2
+        scanner = ScannerV2(db)
         result = scanner.scan_repository(scan_job.id, request.repo_url)
         
         return result
