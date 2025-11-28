@@ -31,7 +31,8 @@ const ExplainRepoButton = ({ scanId }) => {
         <Button
           onClick={handleExplain}
           disabled={isGenerating}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white relative z-10"
+          data-testid="explain-repo-button"
         >
           {isGenerating ? (
             <>
