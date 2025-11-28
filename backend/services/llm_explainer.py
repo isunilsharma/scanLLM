@@ -82,30 +82,30 @@ Keep it concise and actionable for engineering leadership."""
         return f"Unable to generate AI explanation: {str(e)}"
 
 def _build_scan_context(scan_data: Dict[str, Any]) -> Dict[str, str]:
-    \"\"\"Build formatted context sections from scan data\"\"\"
+    """Build formatted context sections from scan data"""
     
     # Usage breakdown
     usage_lines = []
     for fw in scan_data.get('frameworks_summary', []):
-        categories = ', '.join([f\"{c['category']}: {c['count']}\" for c in fw.get('categories', [])])
-        usage_lines.append(f\"- {fw['framework']}: {fw['total_matches']} matches ({categories})\")
+        categories = ', '.join([f"{c['category']}: {c['count']}" for c in fw.get('categories', [])])
+        usage_lines.append(f"- {fw['framework']}: {fw['total_matches']} matches ({categories})")
     
     # Risk flags
     risk_lines = []
     for flag in scan_data.get('risk_flags', []):
-        risk_lines.append(f\"- [{flag.get('severity', 'low').upper()}] {flag.get('label', 'Unknown')}\")
+        risk_lines.append(f"- [{flag.get('severity', 'low').upper()}] {flag.get('label', 'Unknown')}")
     
     # Policies
     policies = scan_data.get('policies_result', {})
     policy_lines = []
-    policy_lines.append(f\"Errors: {len(policies.get('errors', []))}\")
-    policy_lines.append(f\"Warnings: {len(policies.get('warnings', []))}\")
-    policy_lines.append(f\"Passes: {len(policies.get('passes', []))}\")
+    policy_lines.append(f"Errors: {len(policies.get('errors', []))}")
+    policy_lines.append(f"Warnings: {len(policies.get('warnings', []))}")
+    policy_lines.append(f"Passes: {len(policies.get('passes', []))}")
     
     # Hotspots
     hotspot_lines = []
     for hotspot in scan_data.get('hotspots', [])[:3]:
-        hotspot_lines.append(f\"- {hotspot.get('directory', 'unknown')}: {hotspot.get('total_matches', 0)} matches in {hotspot.get('files_with_ai', 0)} files\")
+        hotspot_lines.append(f"- {hotspot.get('directory', 'unknown')}: {hotspot.get('total_matches', 0)} matches in {hotspot.get('files_with_ai', 0)} files")
     
     return {
         'usage_breakdown': '\n'.join(usage_lines) if usage_lines else 'No usage detected',
