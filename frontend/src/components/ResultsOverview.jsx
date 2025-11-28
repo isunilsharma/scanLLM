@@ -114,6 +114,21 @@ const ResultsOverview = ({ result, frameworks }) => {
 
       <Separator />
 
+      {/* Ownership Hotspots */}
+      <OwnershipHotspots ownershipSummary={result.ownership_summary} />
+
+      <Separator />
+
+      {/* Model & Prompt Contracts */}
+      <ModelContracts contracts={result.contracts} />
+
+      <Separator />
+
+      {/* AI Heatmap */}
+      <AIHeatmap heatmap={result.heatmap} />
+
+      <Separator />
+
       {/* Charts Row */}
       <div className="grid md:grid-cols-2 gap-8">
         {/* Occurrences by Framework */}
