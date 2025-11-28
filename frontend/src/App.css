@@ -65,17 +65,3 @@ button {
 a {
   transition: color 0.2s;
 }
-
-/* Hide Emergent platform badge */
-p:has-text("Made with Emergent") {
-  display: none !important;
-}
-
-a[href*="emergent.sh"] p {
-  display: none !important;
-}
-
-/* Global badge hiding */
-[style*="font-size: 12px"]:has-text("Made") {
-  display: none !important;
-}
