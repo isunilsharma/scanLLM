@@ -198,6 +198,26 @@ const ResultsOverview = ({ result, frameworks }) => {
 
       {/* Recommended Actions */}
       <RecommendedActions actions={result.recommended_actions} />
+
+      <Separator />
+
+      {/* Model & Prompt Contracts */}
+      <ModelContracts contracts={result.contracts} />
+
+      <Separator />
+
+      {/* Ownership Hotspots */}
+      <OwnershipHotspots ownershipSummary={result.ownership_summary} />
+
+      <Separator />
+
+      {/* AI Heatmap */}
+      <AIHeatmap heatmap={result.heatmap} />
+
+      <Separator />
+
+      {/* Scan History */}
+      <ScanHistory repoUrl={result.repo_url} />
     </div>
   );
 };
