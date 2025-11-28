@@ -8,6 +8,7 @@ class Config:
     def __init__(self):
         self.patterns = self._load_yaml(CONFIG_DIR / "patterns.yml")
         self.settings = self._load_yaml(CONFIG_DIR / "settings.yml")
+        self.policies = self._load_yaml(CONFIG_DIR / "policies.yml")
     
     def _load_yaml(self, file_path: Path) -> Dict[str, Any]:
         with open(file_path, 'r') as f:
