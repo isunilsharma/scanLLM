@@ -402,10 +402,11 @@ class AIDepScannerTester:
 
 def main():
     print("=" * 70)
-    print("AI DEPENDENCY SCANNER - BACKEND API TESTS")
+    print("AI DEPENDENCY SCANNER - BACKEND API TESTS (V2)")
     print("=" * 70)
     
     tester = AIDepScannerTester()
+    test_repo = "https://github.com/openai/openai-python"
     
     # Test 1: Health check
     if not tester.test_health():
@@ -420,7 +421,6 @@ def main():
     
     # Test 4: Valid repo scan - using a small repo with known LLM usage
     # Using openai-python repo as it's guaranteed to have openai imports
-    test_repo = "https://github.com/openai/openai-python"
     success, scan_result = tester.test_create_scan_valid_repo(test_repo)
     
     # Test 5: Get scan by ID
@@ -430,9 +430,31 @@ def main():
     # Test 6: Get non-existent scan
     tester.test_get_scan_not_found()
     
+    # Test 7-13: V2 Enhanced Features
+    v2_passed = 0
+    v2_total = 0
+    if success and scan_result:
+        v2_passed, v2_total = tester.test_v2_features(scan_result)
+    
+    # Test 14: Explain Scan (LLM)
+    if success and tester.scan_id:
+        if tester.test_explain_scan(tester.scan_id):
+            tester.tests_passed += 1
+        tester.tests_run += 1
+    
+    # Test 15: Scan History
+    if success:
+        if tester.test_scan_history(test_repo):
+            tester.tests_passed += 1
+        tester.tests_run += 1
+    
+    # Add v2 tests to totals
+    tester.tests_run += v2_total
+    tester.tests_passed += v2_passed
+    
     # Print summary
     print("\n" + "=" * 70)
-    print("TEST SUMMARY")
+    print("FINAL TEST SUMMARY")
     print("=" * 70)
     print(f"Tests run: {tester.tests_run}")
     print(f"Tests passed: {tester.tests_passed}")
