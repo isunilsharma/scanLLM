@@ -23,7 +23,7 @@ async def explain_scan(scan_data: Dict[str, Any]) -> str:
         # Get API key from environment
         api_key = os.getenv('EMERGENT_LLM_KEY')
         if not api_key:
-            raise ValueError(\"EMERGENT_LLM_KEY not found in environment\")
+            raise ValueError("EMERGENT_LLM_KEY not found in environment")
         
         # Build context from scan data
         context = _build_scan_context(scan_data)
@@ -31,15 +31,15 @@ async def explain_scan(scan_data: Dict[str, Any]) -> str:
         # Initialize LLM chat
         chat = LlmChat(
             api_key=api_key,
-            session_id=f\"scan_{scan_data.get('scan_id', 'unknown')}\",
-            system_message=\"You are an AI engineering consultant analyzing code scan results. Provide clear, actionable insights for engineering leaders about their AI/LLM usage.\"
+            session_id=f"scan_{scan_data.get('scan_id', 'unknown')}",
+            system_message="You are an AI engineering consultant analyzing code scan results. Provide clear, actionable insights for engineering leaders about their AI/LLM usage."
         )
         
         # Use GPT-4o-mini for cost efficiency
-        chat.with_model(\"openai\", \"gpt-4o-mini\")
+        chat.with_model("openai", "gpt-4o-mini")
         
         # Create prompt
-        prompt = f\"\"\"Analyze this AI dependency scan and provide a clear executive summary:
+        prompt = f"""Analyze this AI dependency scan and provide a clear executive summary:
 
 REPOSITORY: {scan_data.get('repo_url')}
 SCAN RESULTS:
@@ -70,7 +70,7 @@ Please provide:
 3. Migration concerns (if any)
 4. Top 2-3 recommended actions
 
-Keep it concise and actionable for engineering leadership.\"\"\"
+Keep it concise and actionable for engineering leadership."""
         
         user_message = UserMessage(text=prompt)
         response = await chat.send_message(user_message)
