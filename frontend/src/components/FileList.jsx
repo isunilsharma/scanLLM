@@ -131,6 +131,50 @@ const FileList = ({ files }) => {
                         {occ.line_text}
                       </pre>
                     )}
+                    
+                    {/* Contract metadata */}
+                    {(occ.model_name || occ.temperature !== null || occ.max_tokens || occ.is_streaming || occ.has_tools) && (
+                      <div className="bg-blue-50 rounded p-3 mt-3 text-xs">
+                        <h5 className="font-semibold text-blue-900 mb-2">Detected Configuration</h5>
+                        <div className="grid grid-cols-2 gap-2 text-blue-900">
+                          {occ.model_name && (
+                            <div>
+                              <span className="text-blue-700">Model:</span> <span className="font-mono">{occ.model_name}</span>
+                            </div>
+                          )}
+                          {occ.temperature !== null && (
+                            <div>
+                              <span className="text-blue-700">Temperature:</span> {occ.temperature}
+                            </div>
+                          )}
+                          {occ.max_tokens && (
+                            <div>
+                              <span className="text-blue-700">Max Tokens:</span> {occ.max_tokens}
+                            </div>
+                          )}
+                          {occ.is_streaming && (
+                            <div>
+                              <span className="text-blue-700">Streaming:</span> Yes
+                            </div>
+                          )}
+                          {occ.has_tools && (
+                            <div>
+                              <span className="text-blue-700">Tools/Functions:</span> Yes
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Ownership info */}
+                    {occ.owner_name && (
+                      <div className="text-xs text-slate-600 mt-2 flex items-center gap-4">
+                        <span><span className="font-medium">Owner:</span> {occ.owner_name}</span>
+                        {occ.owner_committed_at && (
+                          <span><span className="font-medium">Last modified:</span> {new Date(occ.owner_committed_at).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
