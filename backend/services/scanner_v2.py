@@ -155,7 +155,7 @@ class ScannerV2:
             try:
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     file_contents[str(file_path.relative_to(root_path))] = f.read()
-            except:
+            except Exception:
                 pass
         
         return findings
