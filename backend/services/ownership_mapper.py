@@ -54,10 +54,20 @@ class OwnershipMapper:
                 return {}
             
             commit = data[0]
+            commit_date_str = commit.get('commit', {}).get('committer', {}).get('date')
+            
+            # Parse ISO date string to datetime object
+            commit_date = None
+            if commit_date_str:
+                try:
+                    commit_date = datetime.fromisoformat(commit_date_str.replace('Z', '+00:00'))
+                except Exception:
+                    logger.debug(f"Failed to parse date: {commit_date_str}")
+            
             ownership = {
                 'owner_name': commit.get('commit', {}).get('author', {}).get('name'),
                 'owner_email': commit.get('commit', {}).get('author', {}).get('email'),
-                'owner_committed_at': commit.get('commit', {}).get('committer', {}).get('date')
+                'owner_committed_at': commit_date  # Now a datetime object
             }
             
             # Cache the result
