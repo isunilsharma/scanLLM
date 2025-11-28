@@ -78,8 +78,8 @@ Keep it concise and actionable for engineering leadership."""
         return response
         
     except Exception as e:
-        logger.error(f\"Failed to generate LLM explanation: {str(e)}\")
-        return f\"Unable to generate AI explanation: {str(e)}\"
+        logger.error(f"Failed to generate LLM explanation: {str(e)}")
+        return f"Unable to generate AI explanation: {str(e)}"
 
 def _build_scan_context(scan_data: Dict[str, Any]) -> Dict[str, str]:
     \"\"\"Build formatted context sections from scan data\"\"\"
