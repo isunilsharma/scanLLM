@@ -70,6 +70,21 @@ const ResultsOverview = ({ result, frameworks }) => {
       {/* Key Insights */}
       <KeyInsights result={result} />
 
+      <Separator />
+
+      {/* Explain My Repo AI Button */}
+      <ExplainRepoButton scanId={result.scan_id} />
+
+      <Separator />
+
+      {/* Policy Evaluation */}
+      <PolicyEvaluation policiesResult={result.policies_result} />
+
+      <Separator />
+
+      {/* Blast Radius Summary */}
+      <BlastRadiusSummary blastRadiusSummary={result.blast_radius_summary} />
+
       {/* Framework Badges */}
       <div>
         <h3 className="text-sm font-medium text-slate-900 mb-3">Detected Frameworks</h3>
