@@ -7,6 +7,13 @@ import RiskFlags from './RiskFlags';
 import AIHotspots from './AIHotspots';
 import UsageTypes from './UsageTypes';
 import RecommendedActions from './RecommendedActions';
+import PolicyEvaluation from './PolicyEvaluation';
+import BlastRadiusSummary from './BlastRadiusSummary';
+import ModelContracts from './ModelContracts';
+import OwnershipHotspots from './OwnershipHotspots';
+import AIHeatmap from './AIHeatmap';
+import ScanHistory from './ScanHistory';
+import ExplainRepoButton from './ExplainRepoButton';
 
 const COLORS = ['#1e293b', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
 
