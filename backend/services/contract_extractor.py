@@ -20,8 +20,7 @@ def extract_contracts(snippet: str) -> Dict[str, Any]:
     
     # Extract model name
     model_patterns = [
-        r'model\s*=\s*["\']([^"\'
-]+)["\']',
+        r'model\s*=\s*["\']([^"\'\n]+)["\']',
         r'"model"\s*:\s*"([^"]+)"',
         r"'model'\s*:\s*'([^']+)'"
     ]
