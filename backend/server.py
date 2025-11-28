@@ -53,6 +53,12 @@ class ScanResponse(BaseModel):
     hotspots: List[Dict[str, Any]] = []
     risk_flags: List[Dict[str, Any]] = []
     recommended_actions: List[Dict[str, Any]] = []
+    # v2 fields
+    policies_result: Dict[str, Any] = {}
+    blast_radius_summary: Dict[str, int] = {}
+    contracts: Dict[str, Any] = {}
+    ownership_summary: List[Dict[str, Any]] = []
+    heatmap: Dict[str, Dict[str, int]] = {}
 
 class PatternConfigResponse(BaseModel):
     frameworks: List[Dict[str, Any]]
