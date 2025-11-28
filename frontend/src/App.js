@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -11,6 +11,28 @@ import { Toaster } from './components/ui/sonner';
 import './App.css';
 
 function App() {
+  useEffect(() => {
+    // Hide "Made with Emergent" badge injected by platform
+    const hideEmergentBadge = () => {
+      const badges = document.querySelectorAll('p, a, div');
+      badges.forEach(el => {
+        if (el.textContent && el.textContent.includes('Made with Emergent')) {
+          const parent = el.closest('a') || el.closest('div') || el;
+          if (parent) {
+            parent.style.display = 'none';
+            parent.style.visibility = 'hidden';
+          }
+        }
+      });
+    };
+    
+    // Run immediately and periodically in case badge is injected later
+    hideEmergentBadge();
+    const interval = setInterval(hideEmergentBadge, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="App flex flex-col min-h-screen">
