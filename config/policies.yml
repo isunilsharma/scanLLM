@@ -1,0 +1,7 @@
+policies:
+  forbid_frameworks:
+    - "none"  # Example: add frameworks to forbid like "anthropic" or "vllm"
+  warn_models:
+    - "gpt-3.5-turbo"  # Deprecated models
+    - "text-davinci-003"
+  require_env_keys: true
