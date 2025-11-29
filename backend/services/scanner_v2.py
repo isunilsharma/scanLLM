@@ -1,18 +1,17 @@
-"""
-Enhanced Scanner v2 with ownership mapping, contract extraction, blast radius, and policy evaluation
-"""
+"""Enhanced Scanner v2 with parallel processing and smart filtering"""
 import re
 import logging
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from sqlalchemy.orm import Session
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 from models.scan import ScanJob, ScanStatus
 from models.finding import Finding
 from services.git_utils import GitUtils
 from services.contract_extractor import extract_contracts
-from services.ownership_mapper import OwnershipMapper
 from services.policy_engine import PolicyEngine
 from services.blast_radius import calculate_blast_radius, aggregate_blast_radius
 from services.heatmap import aggregate_heatmap
@@ -33,13 +32,18 @@ class ScannerV2:
         self.file_extensions = config.get_file_extensions()
         self.exclude_paths = config.get_exclude_paths()
         self.max_file_size = config.get_max_file_size()
-        self.ownership_mapper = OwnershipMapper()
         self.policy_engine = PolicyEngine(config.policies.get('policies', {}))
+        
+        # Smart filtering
+        self.skip_paths = config.settings.get('scan', {}).get('skip_paths', [])
+        self.priority_paths = config.settings.get('scan', {}).get('priority_paths', [])
+        self.default_file_limit = config.settings.get('scan', {}).get('default_file_limit', 1000)
+        self.parallel_workers = config.settings.get('scan', {}).get('parallel_workers', 10)
+        
+        self.db_lock = threading.Lock()
     
-    def scan_repository(self, scan_id: str, repo_url: str) -> Dict[str, Any]:
-        """
-        Main scanning logic with v2 enhancements
-        """
+    def scan_repository(self, scan_id: str, repo_url: str, full_scan: bool = False) -> Dict[str, Any]:
+        """Main scanning with parallel processing"""
         scan_job = self.db.query(ScanJob).filter(ScanJob.id == scan_id).first()
         if not scan_job:
             raise ValueError(f"Scan job {scan_id} not found")
@@ -49,7 +53,6 @@ class ScannerV2:
         
         repo_path = None
         try:
-            # Clone repository
             repo_path = GitUtils.clone_repo(
                 repo_url,
                 shallow=config.settings['git']['shallow_clone'],
@@ -59,54 +62,45 @@ class ScannerV2:
             if not repo_path:
                 raise Exception("Failed to clone repository")
             
-            # Scan files and extract contracts
-            findings = self._scan_directory_v2(repo_path, scan_id, repo_url)
+            # Parallel scan
+            findings = self._scan_directory_parallel(repo_path, scan_id, full_scan)
             
-            # Store findings
-            for finding_data in findings:
-                finding = Finding(**finding_data)
-                self.db.add(finding)
+            # Batch insert
+            with self.db_lock:
+                for finding_data in findings:
+                    finding = Finding(**finding_data)
+                    self.db.add(finding)
+                self.db.commit()
             
-            self.db.commit()
-            
-            # Compute aggregations
+            # Aggregations
             unique_files = list(set(f['file_path'] for f in findings))
             frameworks = list(set(f['framework'] for f in findings))
             
-            # Build summary JSON with all v2 features
-            summary_json = self._build_summary_json(findings, repo_path)
-            
-            # Evaluate policies
+            summary_json = self._build_summary_json(findings)
             policies_result = self.policy_engine.evaluate(findings, frameworks)
-            
-            # Compute risk flags (enhanced with blast radius)
             frameworks_summary = compute_frameworks_summary(findings)
             risk_flags = compute_risk_flags(findings, frameworks_summary)
             
-            # Add blast radius risk if high-risk files exist
             high_blast_count = sum(1 for f in summary_json['files'].values() if f.get('blastRadius') == 'high')
             if high_blast_count > 0:
                 risk_flags.append({
                     'id': 'high_blast_files_exist',
-                    'label': f'High-impact files with AI usage ({high_blast_count} files)',
+                    'label': f'High-impact files ({high_blast_count})',
                     'severity': 'high',
-                    'description': f'Found {high_blast_count} critical files (api/, service/, jobs/) with significant AI usage. Changes could have wide impact.'
+                    'description': f'Found {high_blast_count} critical files with AI usage.'
                 })
             
-            # Update scan job with v2 fields
             scan_job.status = ScanStatus.SUCCESS
             scan_job.total_occurrences = len(findings)
             scan_job.files_count = len(unique_files)
             scan_job.total_matches = len(findings)
             scan_job.ai_files_count = len(unique_files)
-            scan_job.frameworks_json = json.dumps({fw: findings.count(fw) for fw in frameworks})
+            scan_job.frameworks_json = json.dumps({fw: sum(1 for f in findings if f['framework'] == fw) for fw in frameworks})
             scan_job.risk_flags_json = json.dumps(risk_flags)
             scan_job.policies_result_json = json.dumps(policies_result)
             scan_job.summary_json = json.dumps(summary_json)
-            
             self.db.commit()
             
-            # Build response
             return self._build_response_v2(scan_job, findings)
             
         except Exception as e:
@@ -115,64 +109,79 @@ class ScannerV2:
             scan_job.error_message = str(e)
             self.db.commit()
             raise
-        
         finally:
             if repo_path:
                 GitUtils.cleanup_repo(repo_path)
     
-    def _scan_directory_v2(self, root_path: Path, scan_id: str, repo_url: str) -> List[Dict[str, Any]]:
-        """
-        Scan directory with v2 enhancements: contract extraction and ownership mapping
-        """
-        findings = []
-        file_contents = {}  # Cache for blast radius calculation
+    def _scan_directory_parallel(self, root_path: Path, scan_id: str, full_scan: bool) -> List[Dict[str, Any]]:
+        """Parallel file scanning"""
+        files_to_scan = self._collect_files_smart(root_path, full_scan)
+        logger.info(f"Scanning {len(files_to_scan)} files with {self.parallel_workers} workers")
+        
+        all_findings = []
+        with ThreadPoolExecutor(max_workers=self.parallel_workers) as executor:
+            futures = {
+                executor.submit(self._scan_single_file, fp, root_path, scan_id): fp 
+                for fp in files_to_scan
+            }
+            
+            for future in as_completed(futures):
+                try:
+                    all_findings.extend(future.result())
+                except Exception as e:
+                    logger.debug(f"Error: {str(e)}")
+        
+        return all_findings
+    
+    def _collect_files_smart(self, root_path: Path, full_scan: bool) -> List[Path]:
+        """Smart file collection with priority"""
+        priority_files = []
+        other_files = []
         
         for file_path in root_path.rglob('*'):
             if not file_path.is_file():
                 continue
-            
-            # Check if file should be excluded
             if self._should_exclude(file_path, root_path):
                 continue
-            
-            # Check file extension
             if file_path.suffix not in self.file_extensions:
                 continue
             
-            # Check file size
             try:
                 if file_path.stat().st_size > self.max_file_size:
-                    logger.debug(f"Skipping large file: {file_path}")
                     continue
             except OSError:
                 continue
             
-            # Scan file with v2 enhancements
-            file_findings = self._scan_file_v2(file_path, root_path, scan_id, repo_url)
-            findings.extend(file_findings)
+            relative_path = str(file_path.relative_to(root_path))
+            if not full_scan and self._should_skip(relative_path):
+                continue
             
-            # Cache file content for blast radius
-            try:
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    file_contents[str(file_path.relative_to(root_path))] = f.read()
-            except Exception:
-                pass
+            if self._is_priority_file(relative_path):
+                priority_files.append(file_path)
+            else:
+                other_files.append(file_path)
         
-        return findings
+        all_files = priority_files + other_files
+        
+        if not full_scan and len(all_files) > self.default_file_limit:
+            return all_files[:self.default_file_limit]
+        
+        return all_files
     
     def _should_exclude(self, file_path: Path, root_path: Path) -> bool:
-        """Check if file path contains any excluded directories"""
         relative_path = str(file_path.relative_to(root_path))
-        for exclude in self.exclude_paths:
-            if exclude in relative_path.split('/'):
-                return True
-        return False
+        return any(exclude in relative_path.split('/') for exclude in self.exclude_paths)
     
-    def _scan_file_v2(self, file_path: Path, root_path: Path, scan_id: str, repo_url: str) -> List[Dict[str, Any]]:
-        """
-        Scan file with v2 enhancements
-        Ownership mapping is skipped to improve performance (gets rate-limited quickly)
-        """
+    def _should_skip(self, relative_path: str) -> bool:
+        path_parts = relative_path.lower().split('/')
+        return any(skip in path_parts for skip in self.skip_paths)
+    
+    def _is_priority_file(self, relative_path: str) -> bool:
+        path_parts = relative_path.lower().split('/')
+        return any(priority in path_parts for priority in self.priority_paths)
+    
+    def _scan_single_file(self, file_path: Path, root_path: Path, scan_id: str) -> List[Dict[str, Any]]:
+        """Scan single file (thread-safe)"""
         findings = []
         
         try:
@@ -181,19 +190,10 @@ class ScannerV2:
             
             relative_path = str(file_path.relative_to(root_path))
             
-            # Skip ownership mapping to improve scan speed
-            # GitHub API rate limits at 60 requests/hour unauthenticated
-            # For 100 files, this causes 10+ second delays
-            ownership = {}  # Disabled for performance
-            
             for line_num, line in enumerate(lines, start=1):
                 for pattern_info in self.patterns:
-                    pattern = pattern_info['regex']
-                    if re.search(pattern, line):
-                        # Extract snippet
-                        snippet = self._extract_snippet(lines, line_num, pattern, line)
-                        
-                        # Extract contracts from snippet
+                    if re.search(pattern_info['regex'], line):
+                        snippet = self._extract_snippet(lines, line_num, pattern_info['regex'])
                         contracts = extract_contracts(snippet)
                         
                         findings.append({
@@ -207,25 +207,21 @@ class ScannerV2:
                             'pattern_severity': pattern_info.get('severity', 'low'),
                             'pattern_description': pattern_info.get('description', ''),
                             'snippet': snippet,
-                            # Contract fields
                             'model_name': contracts.get('model_name'),
                             'temperature': contracts.get('temperature'),
                             'max_tokens': contracts.get('max_tokens'),
                             'is_streaming': contracts.get('is_streaming'),
                             'has_tools': contracts.get('has_tools'),
-                            # Ownership fields (disabled for performance)
                             'owner_name': None,
                             'owner_email': None,
                             'owner_committed_at': None
                         })
-        
-        except Exception as e:
-            logger.warning(f"Error scanning file {file_path}: {str(e)}")
+        except Exception:
+            pass
         
         return findings
     
-    def _extract_snippet(self, lines: List[str], match_line: int, pattern: str, matched_line: str) -> str:
-        """Extract code snippet with context and highlighting"""
+    def _extract_snippet(self, lines: List[str], match_line: int, pattern: str) -> str:
         start_idx = max(0, match_line - 4)
         end_idx = min(len(lines), match_line + 3)
         
@@ -239,11 +235,7 @@ class ScannerV2:
         
         return '\n'.join(snippet_lines)
     
-    def _build_summary_json(self, findings: List[Dict[str, Any]], repo_path: Path) -> Dict[str, Any]:
-        """
-        Build comprehensive summary JSON for v2
-        """
-        # File-level aggregation with blast radius
+    def _build_summary_json(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         files_data = {}
         for finding in findings:
             file_path = finding['file_path']
@@ -260,38 +252,21 @@ class ScannerV2:
             if finding.get('pattern_category'):
                 files_data[file_path]['categories'].add(finding['pattern_category'])
         
-        # Calculate blast radius for each file
         for file_path, data in files_data.items():
-            data['blastRadius'] = calculate_blast_radius(
-                file_path,
-                data['matchCount']
-            )
-            # Convert sets to lists for JSON serialization
+            data['blastRadius'] = calculate_blast_radius(file_path, data['matchCount'])
             data['frameworks'] = list(data['frameworks'])
             data['categories'] = list(data['categories'])
         
-        # Heatmap aggregation
         directories = aggregate_heatmap(findings)
         
-        return {
-            'files': files_data,
-            'directories': directories
-        }
+        return {'files': files_data, 'directories': directories}
     
     def _build_response_v2(self, scan_job: ScanJob, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """
-        Build complete v2 API response
-        """
-        # Group findings by file
         files_map = {}
         for finding in findings:
             file_path = finding['file_path']
             if file_path not in files_map:
-                files_map[file_path] = {
-                    'file_path': file_path,
-                    'frameworks': set(),
-                    'occurrences': []
-                }
+                files_map[file_path] = {'file_path': file_path, 'frameworks': set(), 'occurrences': []}
             
             files_map[file_path]['frameworks'].add(finding['framework'])
             files_map[file_path]['occurrences'].append({
@@ -317,24 +292,15 @@ class ScannerV2:
         for file_data in files_map.values():
             file_data['frameworks'] = sorted(list(file_data['frameworks']))
             files_list.append(file_data)
-        
         files_list.sort(key=lambda x: x['file_path'])
         
-        # Parse stored JSON fields
         summary_json = json.loads(scan_job.summary_json) if scan_job.summary_json else {}
         risk_flags = json.loads(scan_job.risk_flags_json) if scan_job.risk_flags_json else []
         policies_result = json.loads(scan_job.policies_result_json) if scan_job.policies_result_json else {}
         frameworks_summary = compute_frameworks_summary(findings)
         hotspots = compute_hotspots(findings)
         recommended_actions = compute_recommended_actions(risk_flags, frameworks_summary)
-        
-        # Model & prompt contracts aggregation
         contracts = self._aggregate_contracts(findings)
-        
-        # Ownership aggregation
-        ownership_summary = self._aggregate_ownership(findings)
-        
-        # Blast radius summary
         blast_radius_summary = aggregate_blast_radius(summary_json.get('files', {}))
         
         return {
@@ -344,21 +310,18 @@ class ScannerV2:
             'total_occurrences': scan_job.total_occurrences,
             'files_count': scan_job.files_count,
             'files': files_list,
-            # v1 insights
             'frameworks_summary': frameworks_summary,
             'hotspots': hotspots,
             'risk_flags': risk_flags,
             'recommended_actions': recommended_actions,
-            # v2 enhancements
             'policies_result': policies_result,
             'blast_radius_summary': blast_radius_summary,
             'contracts': contracts,
-            'ownership_summary': ownership_summary,
+            'ownership_summary': [],
             'heatmap': summary_json.get('directories', {})
         }
     
     def _aggregate_contracts(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Aggregate model and prompt contracts"""
         models = set()
         temperatures = []
         max_tokens_list = []
@@ -392,24 +355,3 @@ class ScannerV2:
             'streaming_usage': streaming_count,
             'tools_usage': tools_count
         }
-    
-    def _aggregate_ownership(self, findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Aggregate ownership by owner name"""
-        from collections import defaultdict
-        
-        owner_data = defaultdict(lambda: {'files': set(), 'matches': 0})
-        
-        for finding in findings:
-            if finding.get('owner_name'):
-                owner_data[finding['owner_name']]['files'].add(finding['file_path'])
-                owner_data[finding['owner_name']]['matches'] += 1
-        
-        ownership_list = []
-        for owner, data in owner_data.items():
-            ownership_list.append({
-                'owner_name': owner,
-                'ai_files_count': len(data['files']),
-                'total_matches': data['matches']
-            })
-        
-        return sorted(ownership_list, key=lambda x: -x['total_matches'])[:5]
