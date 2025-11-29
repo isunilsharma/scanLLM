@@ -13,6 +13,7 @@ const Home = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [error, setError] = useState(null);
+  const [scanDuration, setScanDuration] = useState(null);
 
   const handleScan = async (e) => {
     e.preventDefault();
@@ -21,14 +22,19 @@ const Home = () => {
     setIsScanning(true);
     setError(null);
     setScanResult(null);
+    setScanDuration(null);
+    
+    const startTime = Date.now();
 
     try {
       const response = await axios.post(`${API}/scans`, {
         repo_url: repoUrl.trim()
       });
 
+      const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+      setScanDuration(duration);
       setScanResult(response.data);
-      toast.success('Scan completed successfully!');
+      toast.success(`Scan completed in ${duration}s!`);
     } catch (err) {
       const errorMsg = err.response?.data?.detail || 'Failed to scan repository';
       setError(errorMsg);
