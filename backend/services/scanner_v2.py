@@ -117,6 +117,147 @@ class ScannerV2:
         """Parallel file scanning"""
         files_to_scan = self._collect_files_smart(root_path, full_scan)
         logger.info(f"Scanning {len(files_to_scan)} files with {self.parallel_workers} workers")
+
+    def _scan_directory_parallel(self, root_path: Path, scan_id: str, full_scan: bool) -> List[Dict[str, Any]]:
+        """Parallel file scanning"""
+        files_to_scan = self._collect_files_smart(root_path, full_scan)
+        logger.info(f"Scanning {len(files_to_scan)} files with {self.parallel_workers} workers")
+        
+        all_findings = []
+        with ThreadPoolExecutor(max_workers=self.parallel_workers) as executor:
+            futures = {executor.submit(self._scan_single_file, fp, root_path, scan_id): fp for fp in files_to_scan}
+            
+            for future in as_completed(futures):
+                try:
+                    all_findings.extend(future.result())
+                except Exception as e:
+                    logger.debug(f"Error: {str(e)}")
+        
+        return all_findings
+    
+    def _collect_files_smart(self, root_path: Path, full_scan: bool) -> List[Path]:
+        """Smart file collection"""
+        priority_files = []
+        other_files = []
+        
+        for file_path in root_path.rglob('*'):
+            if not file_path.is_file():
+                continue
+            if self._should_exclude(file_path, root_path):
+                continue
+            if file_path.suffix not in self.file_extensions:
+                continue
+            
+            try:
+                if file_path.stat().st_size > self.max_file_size:
+                    continue
+            except OSError:
+                continue
+            
+            relative_path = str(file_path.relative_to(root_path))
+            if not full_scan and self._should_skip(relative_path):
+                continue
+            
+            if self._is_priority_file(relative_path):
+                priority_files.append(file_path)
+            else:
+                other_files.append(file_path)
+        
+        all_files = priority_files + other_files
+        
+        if not full_scan and len(all_files) > self.default_file_limit:
+            return all_files[:self.default_file_limit]
+        
+        return all_files
+    
+    def _should_exclude(self, file_path: Path, root_path: Path) -> bool:
+        relative_path = str(file_path.relative_to(root_path))
+        return any(exclude in relative_path.split('/') for exclude in self.exclude_paths)
+    
+    def _should_skip(self, relative_path: str) -> bool:
+        path_parts = relative_path.lower().split('/')
+        return any(skip in path_parts for skip in self.skip_paths)
+    
+    def _is_priority_file(self, relative_path: str) -> bool:
+        path_parts = relative_path.lower().split('/')
+        return any(priority in path_parts for priority in self.priority_paths)
+    
+    def _scan_single_file(self, file_path: Path, root_path: Path, scan_id: str) -> List[Dict[str, Any]]:
+        """Scan single file"""
+        findings = []
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
+            
+            relative_path = str(file_path.relative_to(root_path))
+            
+            for line_num, line in enumerate(lines, start=1):
+                for pattern_info in self.patterns:
+                    if re.search(pattern_info['regex'], line):
+                        snippet = self._extract_snippet(lines, line_num, pattern_info['regex'])
+                        contracts = extract_contracts(snippet)
+                        
+                        findings.append({
+                            'scan_id': scan_id,
+                            'file_path': relative_path,
+                            'line_number': line_num,
+                            'line_text': line.strip()[:500],
+                            'framework': pattern_info['framework'],
+                            'pattern_name': pattern_info['name'],
+                            'pattern_category': pattern_info.get('category', 'misc'),
+                            'pattern_severity': pattern_info.get('severity', 'low'),
+                            'pattern_description': pattern_info.get('description', ''),
+                            'snippet': snippet,
+                            'model_name': contracts.get('model_name'),
+                            'temperature': contracts.get('temperature'),
+                            'max_tokens': contracts.get('max_tokens'),
+                            'is_streaming': contracts.get('is_streaming'),
+                            'has_tools': contracts.get('has_tools'),
+                            'owner_name': None,
+                            'owner_email': None,
+                            'owner_committed_at': None
+                        })
+        except Exception:
+            pass
+        
+        return findings
+    
+    def _extract_snippet(self, lines: List[str], match_line: int, pattern: str) -> str:
+        start_idx = max(0, match_line - 4)
+        end_idx = min(len(lines), match_line + 3)
+        
+        snippet_lines = []
+        for i in range(start_idx, end_idx):
+            if i == match_line - 1:
+                highlighted = re.sub(pattern, r'[[[HIT]]]\g<0>[[[ENDHIT]]]', lines[i].rstrip())
+                snippet_lines.append(highlighted)
+            else:
+                snippet_lines.append(lines[i].rstrip())
+        
+        return '\n'.join(snippet_lines)
+    
+    def _build_summary_json(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
+        files_data = {}
+        for finding in findings:
+            file_path = finding['file_path']
+            if file_path not in files_data:
+                files_data[file_path] = {'matchCount': 0, 'frameworks': set(), 'categories': set(), 'blastRadius': 'low'}
+            
+            files_data[file_path]['matchCount'] += 1
+            files_data[file_path]['frameworks'].add(finding['framework'])
+            if finding.get('pattern_category'):
+                files_data[file_path]['categories'].add(finding['pattern_category'])
+        
+        for file_path, data in files_data.items():
+            data['blastRadius'] = calculate_blast_radius(file_path, data['matchCount'])
+            data['frameworks'] = list(data['frameworks'])
+            data['categories'] = list(data['categories'])
+        
+        directories = aggregate_heatmap(findings)
+        
+        return {'files': files_data, 'directories': directories}
+
         
         all_findings = []
         with ThreadPoolExecutor(max_workers=self.parallel_workers) as executor:
