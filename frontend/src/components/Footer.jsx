@@ -19,7 +19,9 @@ const Footer = () => {
           {/* Right section - Social links */}
           <div className="flex items-center gap-6">
             <a
-              href="#"
+              href="https://www.linkedin.com/company/scanllm-ai/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-gray-600 hover:text-primary transition-colors"
               aria-label="LinkedIn"
             >
