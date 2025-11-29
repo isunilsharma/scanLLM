@@ -7,6 +7,7 @@ import HowItWorks from './pages/HowItWorks';
 import About from './pages/About';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import QuickRepoExamplesPreview from './pages/QuickRepoExamplesPreview';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
 
