@@ -34,7 +34,7 @@ const Home = () => {
       const duration = ((Date.now() - startTime) / 1000).toFixed(1);
       setScanDuration(duration);
       setScanResult(response.data);
-      toast.success(`Scan completed in ${duration}s!`);
+      // Toast removed - duration badge shows the timing instead
     } catch (err) {
       const errorMsg = err.response?.data?.detail || 'Failed to scan repository';
       setError(errorMsg);
