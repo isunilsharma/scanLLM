@@ -12,11 +12,13 @@ const Home = () => {
   const [scanResult, setScanResult] = useState(null);
   const [error, setError] = useState(null);
   const [scanDuration, setScanDuration] = useState(null);
+  const [isFullScan, setIsFullScan] = useState(false);
 
   const handleScan = async (repoUrlParam, fullScan = false) => {
     const startTime = Date.now();
 
     setIsScanning(true);
+    setIsFullScan(fullScan);
     setError(null);
     setScanResult(null);
     setScanDuration(null);
