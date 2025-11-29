@@ -138,9 +138,10 @@ AI systems introduce new operational risks, and monitoring must evolve according
   
   const categories = ['all', ...new Set(blogs.map(blog => blog.category))];
   
+  // Filter all blogs (including featured) when category is selected
   const filteredBlogs = selectedCategory === 'all' 
     ? latestBlogs 
-    : latestBlogs.filter(blog => blog.category === selectedCategory);
+    : blogs.filter(blog => blog.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-background py-16">
