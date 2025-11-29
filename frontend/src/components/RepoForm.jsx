@@ -39,7 +39,7 @@ const RepoForm = ({ onScan, isScanning }) => {
 
       {/* Full Scan Toggle - Compact Row */}
       <div className="space-y-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <label
             htmlFor="full-scan"
             className="text-sm font-medium text-gray-900 cursor-pointer"
@@ -72,22 +72,23 @@ const RepoForm = ({ onScan, isScanning }) => {
             disabled={isScanning}
             data-testid="full-scan-toggle"
             aria-label="Toggle full repository scan"
+            className="data-[state=checked]:bg-primary"
           />
-        </div>
-        
-        {/* Conditional warning - pill/badge style */}
-        {fullScan && (
-          <div className="transition-all duration-200 ease-in-out animate-in fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-2 bg-amber-100 border border-amber-300 rounded-full">
-              <svg className="w-4 h-4 flex-shrink-0 text-amber-700" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-              <p className="text-xs font-medium text-amber-800">
-                Full repo scans may take 30+ seconds for large repositories
-              </p>
+          
+          {/* Conditional warning - inline on desktop, wraps on mobile */}
+          {fullScan && (
+            <div className="transition-all duration-200 ease-in-out animate-in fade-in">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-100 border border-amber-300 rounded-full">
+                <svg className="w-3.5 h-3.5 flex-shrink-0 text-amber-700" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <p className="text-xs font-medium text-amber-800">
+                  May take 30+ seconds for large repos
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <Button
