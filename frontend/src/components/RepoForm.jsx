@@ -72,7 +72,6 @@ const RepoForm = ({ onScan, isScanning }) => {
             disabled={isScanning}
             data-testid="full-scan-toggle"
             aria-label="Toggle full repository scan"
-            className="data-[state=checked]:bg-primary"
           />
           
           {/* Conditional warning - inline on desktop, wraps on mobile */}
