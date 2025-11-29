@@ -84,11 +84,11 @@ async def create_scan(request: ScanRequest, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(scan_job)
         
-        logger.info(f"Starting scan {scan_job.id} for {request.repo_url}")
+        logger.info(f"Starting scan {scan_job.id} for {request.repo_url} (full_scan={request.full_scan})")
         
         # Run scanner v2
         scanner = ScannerV2(db)
-        result = scanner.scan_repository(scan_job.id, request.repo_url)
+        result = scanner.scan_repository(scan_job.id, request.repo_url, request.full_scan)
         
         return result
         
