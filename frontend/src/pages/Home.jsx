@@ -74,8 +74,8 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Scan Card */}
-        <div className="w-full max-w-2xl lg:max-w-3xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
+        {/* Scan Card - Widened on desktop */}
+        <div className="w-full max-w-3xl lg:max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
           <RepoForm onScan={handleScan} isScanning={isScanning} />
         </div>
 

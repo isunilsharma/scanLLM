@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Checkbox } from './ui/checkbox';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Info } from 'lucide-react';
 
 const RepoForm = ({ onScan, isScanning }) => {
   const [repoUrl, setRepoUrl] = useState('');
@@ -36,27 +38,55 @@ const RepoForm = ({ onScan, isScanning }) => {
       </div>
 
       {/* Full Scan Option */}
-      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <Checkbox
-          id="full-scan"
-          checked={fullScan}
-          onCheckedChange={setFullScan}
-          disabled={isScanning}
-          data-testid="full-scan-checkbox"
-        />
-        <div className="flex-1">
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="full-scan"
+            checked={fullScan}
+            onCheckedChange={setFullScan}
+            disabled={isScanning}
+            data-testid="full-scan-checkbox"
+            aria-checked={fullScan}
+            aria-label="Scan entire repository"
+          />
           <label
             htmlFor="full-scan"
-            className="text-sm font-medium text-gray-900 cursor-pointer"
+            className="text-sm font-medium text-gray-900 cursor-pointer flex items-center gap-2"
           >
             Scan entire repository (no file limit)
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center"
+                    aria-label="More information about full scan"
+                  >
+                    <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="text-sm">
+                    By default, we scan the first 1,000 files and prioritize src/, lib/, and app/ directories.
+                    Turn this on to scan <strong>all</strong> files in the repository.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </label>
-          <p className="text-xs text-gray-600 mt-1">
-            By default, we scan the first 1,000 files (prioritizing src/, lib/, app/ directories). 
-            Enable this for a complete scan of all files.
-            {fullScan && <span className="text-amber-600 font-medium"> ⚠️ May take 30+ seconds for large repositories.</span>}
-          </p>
         </div>
+        
+        {/* Conditional warning - only shows when checkbox is checked */}
+        {fullScan && (
+          <div className="ml-7 transition-all duration-200 ease-in-out">
+            <p className="text-sm text-amber-600 font-medium flex items-center gap-2">
+              <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              Full repo scans may take 30+ seconds for large repositories.
+            </p>
+          </div>
+        )}
       </div>
 
       <Button
@@ -68,7 +98,7 @@ const RepoForm = ({ onScan, isScanning }) => {
         {isScanning ? (
           <>
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-            Scanning{fullScan ? ' (Full scan in progress...)' : '...'}
+            {fullScan ? 'Scanning (Full scan in progress...)' : 'Scanning...'}
           </>
         ) : (
           <>
