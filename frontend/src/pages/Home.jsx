@@ -110,8 +110,12 @@ const Home = () => {
               <div className="w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin"></div>
               <div className="text-center">
                 <p className="text-lg font-medium text-gray-900">Scanning repository...</p>
-                <p className="text-sm text-gray-600 mt-1">Estimated time: 2-5 seconds</p>
-                <p className="text-xs text-gray-500 mt-2">Analyzing code patterns and extracting insights</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {isFullScan ? 'Full scan: 20-40 seconds' : 'Estimated time: 2-10 seconds'}
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  {isFullScan ? 'Analyzing all files in repository' : 'Scanning first 1,000 files (prioritizing src/, lib/, app/)'}
+                </p>
               </div>
             </div>
           </div>
