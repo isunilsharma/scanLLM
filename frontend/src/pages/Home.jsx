@@ -164,6 +164,16 @@ const Home = () => {
       {/* Results */}
       {scanResult && !isScanning && (
         <div className="max-w-7xl mx-auto px-6 pb-12">
+          {scanDuration && (
+            <div className="mb-4 text-center">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-800 rounded-full text-sm font-medium">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Scan completed in {scanDuration}s
+              </span>
+            </div>
+          )}
           <ScanResults result={scanResult} />
         </div>
       )}
