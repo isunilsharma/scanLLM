@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import ScanResults from '../components/ScanResults';
 import RepoForm from '../components/RepoForm';
 import { toast } from 'sonner';
