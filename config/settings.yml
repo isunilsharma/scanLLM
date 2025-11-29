@@ -17,6 +17,31 @@ scan:
     - "venv"
     - ".pytest_cache"
     - ".mypy_cache"
+  
+  # Smart filtering options
+  skip_paths:
+    - "test"
+    - "tests"
+    - "__test__"
+    - "spec"
+    - "docs"
+    - "documentation"
+    - "examples"
+    - ".github"
+    - "scripts"
+  
+  # Priority directories (scanned first)
+  priority_paths:
+    - "src"
+    - "lib"
+    - "app"
+    - "api"
+    - "server"
+    - "core"
+  
+  # Performance settings
+  default_file_limit: 1000
+  parallel_workers: 10
 
 storage:
   type: "sqlite"
