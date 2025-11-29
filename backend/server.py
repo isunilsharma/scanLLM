@@ -41,6 +41,7 @@ app.add_middleware(
 # Request/Response Models
 class ScanRequest(BaseModel):
     repo_url: str
+    full_scan: bool = False
 
 class ScanResponse(BaseModel):
     scan_id: str
