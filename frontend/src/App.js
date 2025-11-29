@@ -24,6 +24,7 @@ function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/about" element={<About />} />
+            <Route path="/preview-examples" element={<QuickRepoExamplesPreview />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
