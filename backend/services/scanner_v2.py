@@ -171,6 +171,7 @@ class ScannerV2:
     def _scan_file_v2(self, file_path: Path, root_path: Path, scan_id: str, repo_url: str) -> List[Dict[str, Any]]:
         """
         Scan file with v2 enhancements
+        Ownership mapping is skipped to improve performance (gets rate-limited quickly)
         """
         findings = []
         
@@ -180,8 +181,10 @@ class ScannerV2:
             
             relative_path = str(file_path.relative_to(root_path))
             
-            # Get ownership info (with rate limit handling)
-            ownership = self.ownership_mapper.get_file_ownership(repo_url, relative_path)
+            # Skip ownership mapping to improve scan speed
+            # GitHub API rate limits at 60 requests/hour unauthenticated
+            # For 100 files, this causes 10+ second delays
+            ownership = {}  # Disabled for performance
             
             for line_num, line in enumerate(lines, start=1):
                 for pattern_info in self.patterns:
@@ -210,10 +213,10 @@ class ScannerV2:
                             'max_tokens': contracts.get('max_tokens'),
                             'is_streaming': contracts.get('is_streaming'),
                             'has_tools': contracts.get('has_tools'),
-                            # Ownership fields
-                            'owner_name': ownership.get('owner_name'),
-                            'owner_email': ownership.get('owner_email'),
-                            'owner_committed_at': ownership.get('owner_committed_at')
+                            # Ownership fields (disabled for performance)
+                            'owner_name': None,
+                            'owner_email': None,
+                            'owner_committed_at': None
                         })
         
         except Exception as e:
