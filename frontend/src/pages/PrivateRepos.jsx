@@ -64,39 +64,39 @@ const PrivateRepos = () => {
   );
 
   return (
-    <div className=\"min-h-screen bg-background\">
-      <div className=\"max-w-7xl mx-auto px-6 py-8\">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Header with user profile */}
-        <div className=\"flex items-center justify-between mb-8\">
-          <div className=\"flex items-center gap-4\">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
             {user?.avatar_url && (
-              <img src={user.avatar_url} alt={user.login} className=\"w-12 h-12 rounded-full border-2 border-gray-200\" />
+              <img src={user.avatar_url} alt={user.login} className="w-12 h-12 rounded-full border-2 border-gray-200" />
             )}
             <div>
-              <h1 className=\"text-2xl font-bold text-gray-900\">Your Repositories</h1>
-              <p className=\"text-sm text-gray-600\">Signed in as @{user?.login}</p>
+              <h1 className="text-2xl font-bold text-gray-900">Your Repositories</h1>
+              <p className="text-sm text-gray-600">Signed in as @{user?.login}</p>
             </div>
           </div>
-          <Button onClick={logout} variant=\"outline\">
+          <Button onClick={logout} variant="outline">
             Disconnect GitHub
           </Button>
         </div>
 
         {/* Filters */}
-        <div className=\"flex flex-col sm:flex-row gap-4 mb-6\">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <Input
-            placeholder=\"Search repositories...\"
+            placeholder="Search repositories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className=\"sm:flex-1\"
+            className="sm:flex-1"
           />
-          <div className=\"flex gap-2\">
+          <div className="flex gap-2">
             {['all', 'private', 'public'].map(f => (
               <Button
                 key={f}
                 onClick={() => setFilter(f)}
                 variant={filter === f ? 'default' : 'outline'}
-                size=\"sm\"
+                size="sm"
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
               </Button>
@@ -106,28 +106,28 @@ const PrivateRepos = () => {
 
         {/* Repo list */}
         {loading ? (
-          <div className=\"text-center py-12\">
-            <div className=\"w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mx-auto\"></div>
-            <p className=\"text-gray-600 mt-4\">Loading repositories...</p>
+          <div className="text-center py-12">
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading repositories...</p>
           </div>
         ) : filteredRepos.length === 0 ? (
-          <div className=\"text-center py-12 text-gray-500\">
+          <div className="text-center py-12 text-gray-500">
             <p>No repositories found</p>
           </div>
         ) : (
-          <div className=\"space-y-4\">
+          <div className="space-y-4">
             {filteredRepos.map(repo => (
-              <div key={repo.full_name} className=\"bg-white rounded-lg border border-gray-200 p-4\">
-                <div className=\"flex items-start justify-between\">
-                  <div className=\"flex-1\">
-                    <div className=\"flex items-center gap-2 mb-2\">
-                      <h3 className=\"font-semibold text-gray-900\">{repo.full_name}</h3>
-                      {repo.private && <Badge variant=\"secondary\">Private</Badge>}
+              <div key={repo.full_name} className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900">{repo.full_name}</h3>
+                      {repo.private && <Badge variant="secondary">Private</Badge>}
                     </div>
                     {repo.description && (
-                      <p className=\"text-sm text-gray-600 mb-3\">{repo.description}</p>
+                      <p className="text-sm text-gray-600 mb-3">{repo.description}</p>
                     )}
-                    <p className=\"text-xs text-gray-500\">
+                    <p className="text-xs text-gray-500">
                       Updated: {new Date(repo.updated_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -145,7 +145,7 @@ const PrivateRepos = () => {
 
         {/* Scan Results */}
         {scanResult && (
-          <div className=\"mt-8\">
+          <div className="mt-8">
             <ScanResults result={scanResult} />
           </div>
         )}
