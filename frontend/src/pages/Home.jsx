@@ -86,6 +86,68 @@ const Home = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Choose how to scan</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 {/* Try Demo */}
+
+
+      {/* How It Works Section */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            From GitHub URL to actionable insights in seconds
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          {/* Video Placeholder */}
+          <div className="bg-gray-100 rounded-xl aspect-video flex items-center justify-center border-2 border-dashed border-gray-300">
+            <div className="text-center">
+              <svg className="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-sm text-gray-500">Product Demo Video</p>
+              <p className="text-xs text-gray-400 mt-1">(Coming soon)</p>
+            </div>
+          </div>
+
+          {/* Screenshot Placeholder */}
+          <div className="bg-gray-100 rounded-xl aspect-video flex items-center justify-center border-2 border-dashed border-gray-300">
+            <div className="text-center">
+              <svg className="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round\" strokeWidth={2} d=\"M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\" />
+              </svg>
+              <p className=\"text-sm text-gray-500\">Dashboard Screenshot</p>
+              <p className=\"text-xs text-gray-400 mt-1\">(Coming soon)</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Key features */}
+        <div className=\"grid md:grid-cols-3 gap-6\">
+          <div className=\"text-center\">
+            <div className=\"w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3\">
+              <span className=\"text-2xl\">⚡</span>
+            </div>
+            <h4 className=\"font-semibold text-gray-900 mb-2\">Fast Scans</h4>
+            <p className=\"text-sm text-gray-600\">2-15 seconds for most repositories with smart filtering</p>
+          </div>
+          <div className=\"text-center\">
+            <div className=\"w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3\">
+              <span className=\"text-2xl\">🔒</span>
+            </div>
+            <h4 className=\"font-semibold text-gray-900 mb-2\">Private Repos</h4>
+            <p className=\"text-sm text-gray-600\">Secure OAuth integration for your private repositories</p>
+          </div>
+          <div className=\"text-center\">
+            <div className=\"w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3\">
+              <span className=\"text-2xl\">📊</span>
+            </div>
+            <h4 className=\"font-semibold text-gray-900 mb-2\">Rich Insights</h4>
+            <p className=\"text-sm text-gray-600\">Policies, risk flags, blast radius, and AI-powered explanations</p>
+          </div>
+        </div>
+      </section>
+
                 <div className="border-2 border-gray-200 rounded-xl p-6 hover:border-primary transition-colors">
                   <div className="text-center mb-4">
                     <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
