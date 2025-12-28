@@ -29,3 +29,10 @@ class ScanJob(Base):
     risk_flags_json = Column(Text, nullable=True)  # JSON string
     policies_result_json = Column(Text, nullable=True)  # JSON string
     summary_json = Column(Text, nullable=True)  # JSON string
+    
+    # GitHub OAuth fields
+    github_user_id = Column(String, nullable=True)
+    repo_owner = Column(String, nullable=True)
+    repo_name = Column(String, nullable=True)
+    repo_private = Column(Integer, default=0)
+    source = Column(String, default='public_url')
