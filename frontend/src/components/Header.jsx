@@ -7,6 +7,8 @@ import { Button } from './ui/button';
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const isActive = (path) => location.pathname === path;
