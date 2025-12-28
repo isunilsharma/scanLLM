@@ -45,6 +45,19 @@ const Header = () => {
                 {label}
               </Link>
             ))}
+            
+            {/* User profile or Login */}
+            {isAuthenticated && user ? (
+              <button
+                onClick={() => navigate('/private/repos')}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {user.avatar_url && (
+                  <img src={user.avatar_url} alt={user.login} className="w-8 h-8 rounded-full" />
+                )}
+                <span className="text-sm font-medium text-gray-900">@{user.login}</span>
+              </button>
+            ) : null}
           </nav>
 
           {/* Mobile Hamburger Button - Hidden on desktop */}
