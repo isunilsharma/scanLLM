@@ -270,6 +270,12 @@ async def get_scan_history(repo_url: str, db: Session = Depends(get_db)):
 # Include router
 app.include_router(api_router)
 
+# GitHub OAuth routers
+app.include_router(auth_router)
+app.include_router(github_router)
+app.include_router(scan_github_router)
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
