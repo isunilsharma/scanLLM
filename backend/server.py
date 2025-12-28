@@ -10,6 +10,10 @@ from core.database import get_db, init_db
 from models.scan import ScanJob, ScanStatus
 from models.finding import Finding
 from services.scanner_v2 import ScannerV2
+from api.auth_github import router as auth_router
+from api.github_endpoints import router as github_router
+from api.scan_github import router as scan_github_router
+
 from services.llm_explainer import explain_scan
 from core.config import config
 from sqlalchemy.orm import Session
