@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import ScanResults from '../components/ScanResults';
 import RepoForm from '../components/RepoForm';
+import LoginButton from '../components/LoginButton';
+import { useAuth } from '../context/AuthContext';
+import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
