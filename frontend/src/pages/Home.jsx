@@ -123,27 +123,27 @@ const Home = () => {
         </div>
 
         {/* Key features */}
-        <div className=\"grid md:grid-cols-3 gap-6\">
-          <div className=\"text-center\">
-            <div className=\"w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3\">
-              <span className=\"text-2xl\">⚡</span>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">⚡</span>
             </div>
-            <h4 className=\"font-semibold text-gray-900 mb-2\">Fast Scans</h4>
-            <p className=\"text-sm text-gray-600\">2-15 seconds for most repositories with smart filtering</p>
+            <h4 className="font-semibold text-gray-900 mb-2">Fast Scans</h4>
+            <p className="text-sm text-gray-600">2-15 seconds for most repositories with smart filtering</p>
           </div>
-          <div className=\"text-center\">
-            <div className=\"w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3\">
-              <span className=\"text-2xl\">🔒</span>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">🔒</span>
             </div>
-            <h4 className=\"font-semibold text-gray-900 mb-2\">Private Repos</h4>
-            <p className=\"text-sm text-gray-600\">Secure OAuth integration for your private repositories</p>
+            <h4 className="font-semibold text-gray-900 mb-2">Private Repos</h4>
+            <p className="text-sm text-gray-600">Secure OAuth integration for your private repositories</p>
           </div>
-          <div className=\"text-center\">
-            <div className=\"w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3\">
-              <span className=\"text-2xl\">📊</span>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">📊</span>
             </div>
-            <h4 className=\"font-semibold text-gray-900 mb-2\">Rich Insights</h4>
-            <p className=\"text-sm text-gray-600\">Policies, risk flags, blast radius, and AI-powered explanations</p>
+            <h4 className="font-semibold text-gray-900 mb-2">Rich Insights</h4>
+            <p className="text-sm text-gray-600">Policies, risk flags, blast radius, and AI-powered explanations</p>
           </div>
         </div>
       </section>
