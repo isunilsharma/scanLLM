@@ -29,9 +29,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = () => {
-    // Use full backend URL for OAuth (backend endpoint, not frontend route)
-    const oauthUrl = `${BACKEND_URL}/auth/github/login`;
-    window.location.href = oauthUrl;
+    // OAuth endpoint is at /api/auth/github/login (routed to backend)
+    window.location.href = `${BACKEND_URL}/api/auth/github/login`;
   };
 
   const logout = async () => {
