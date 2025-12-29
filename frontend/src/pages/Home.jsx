@@ -152,66 +152,6 @@ const Home = () => {
           </AccordionItem>
         </Accordion>
       </section>
-
-      {/* Demo Modal */}
-      <Dialog open={demoModalOpen} onOpenChange={setDemoModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Try it now (no sign-in)</DialogTitle>
-            <DialogDescription>
-              Analyze a public GitHub repository to see how ScanLLM.ai works
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-4">
-            <div>
-              <Input
-                placeholder="https://github.com/owner/repo"
-                value={demoRepoUrl}
-                onChange={(e) => setDemoRepoUrl(e.target.value)}
-                className="h-12"
-                disabled={isScanning}
-              />
-              <p className="text-xs text-gray-500 mt-2">Enter a public GitHub repository URL</p>
-            </div>
-
-            {/* Example Chips */}
-            <div>
-              <p className="text-sm text-gray-700 font-medium mb-2">Try an example:</p>
-              <div className="flex flex-wrap gap-2">
-                {EXAMPLE_REPOS.map((url, idx) => {
-                  const repoName = url.split('/').pop();
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => setDemoRepoUrl(url)}
-                      className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full transition-colors"
-                      disabled={isScanning}
-                    >
-                      {repoName}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <Button
-              onClick={handleDemoScan}
-              disabled={!demoRepoUrl.trim() || isScanning}
-              className="w-full h-12"
-            >
-              {isScanning ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Analyzing...
-                </>
-              ) : (
-                'Analyze repo'
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
