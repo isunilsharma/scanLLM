@@ -29,8 +29,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = () => {
-    // Redirect to OAuth endpoint on same domain (for cookie sharing)
-    window.location.href = '/auth/github/login';
+    // Use full backend URL for OAuth (backend endpoint, not frontend route)
+    const oauthUrl = `${BACKEND_URL}/auth/github/login`;
+    window.location.href = oauthUrl;
   };
 
   const logout = async () => {
