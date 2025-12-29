@@ -3,12 +3,14 @@ from fastapi.responses import RedirectResponse
 import requests
 import secrets
 import os
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
 from core.database import get_db
 from models.github_user import GitHubUser
 from models.github_token import GitHubToken
+from models.oauth_state import OAuthState
 from services.token_encryption import encrypt_token
 from services.session_manager import create_session_token
 
@@ -22,17 +24,16 @@ GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://scanllm.ai')
 
 @router.get("/github/login")
-async def github_login(response: Response):
+async def github_login(db: Session = Depends(get_db)):
     state = secrets.token_urlsafe(32)
-    # Set cookie with proper security settings for cross-domain OAuth
-    response.set_cookie(
-        key="oauth_state", 
-        value=state, 
-        httponly=True, 
-        max_age=600, 
-        samesite='none',  # Changed from 'lax' to 'none' for OAuth
-        secure=True  # Required for SameSite=none
+    
+    # Store state in database instead of cookie
+    oauth_state = OAuthState(
+        state=state,
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10)
     )
+    db.add(oauth_state)
+    db.commit()
     
     auth_url = (
         f"https://github.com/login/oauth/authorize"
@@ -44,10 +45,10 @@ async def github_login(response: Response):
     return RedirectResponse(auth_url)
 
 @router.get("/github/callback")
-async def github_callback(code: str, state: str, request: Request, response: Response, db: Session = Depends(get_db)):
-    stored_state = request.cookies.get("oauth_state")
-    if not stored_state or stored_state != state:
-        raise HTTPException(status_code=400, detail="Invalid state")
+async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
+    # Verify state from database
+    if not OAuthState.is_valid(state, db):
+        raise HTTPException(status_code=400, detail="Invalid or expired state")
     
     token_response = requests.post(
         "https://github.com/login/oauth/access_token",
