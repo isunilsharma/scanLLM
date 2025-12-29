@@ -29,7 +29,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = () => {
-    window.location.href = `${BACKEND_URL}/auth/github/login`;
+    // Direct redirect to OAuth endpoint
+    const redirectUrl = `${BACKEND_URL}/auth/github/login`;
+    console.log('Redirecting to:', redirectUrl);
+    window.location.href = redirectUrl;
   };
 
   const logout = async () => {
