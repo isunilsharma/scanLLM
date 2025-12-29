@@ -1,55 +1,13 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoginButton from '../components/LoginButton';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const EXAMPLE_REPOS = [
-  'https://github.com/rasbt/LLMs-from-scratch',
-  'https://github.com/huggingface/transformers',
-  'https://github.com/HandsOnLLM/Hands-On-Large-Language-Models',
-  'https://github.com/Hannibal046/Awesome-LLM'
-];
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [demoModalOpen, setDemoModalOpen] = useState(false);
-  const [demoRepoUrl, setDemoRepoUrl] = useState('');
-  const [isScanning, setIsScanning] = useState(false);
-
-  const handleDemoScan = async () => {
-    if (!demoRepoUrl.trim()) {
-      toast.error('Please enter a GitHub repository URL');
-      return;
-    }
-
-    setIsScanning(true);
-    try {
-      const response = await axios.post(`${API}/scans`, {
-        repo_url: demoRepoUrl,
-        full_scan: false
-      });
-      
-      // Navigate to results (store in sessionStorage for demo badge)
-      sessionStorage.setItem('demo_scan', JSON.stringify(response.data));
-      sessionStorage.setItem('is_demo', 'true');
-      window.location.href = '/#results';
-      setDemoModalOpen(false);
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Scan failed');
-    } finally {
-      setIsScanning(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
