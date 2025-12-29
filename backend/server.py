@@ -67,6 +67,8 @@ class ScanResponse(BaseModel):
     contracts: Dict[str, Any] = {}
     ownership_summary: List[Dict[str, Any]] = []
     heatmap: Dict[str, Dict[str, int]] = {}
+    # Cache flag
+    cached: bool = False
 
 class PatternConfigResponse(BaseModel):
     frameworks: List[Dict[str, Any]]
