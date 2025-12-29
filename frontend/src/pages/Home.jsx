@@ -4,11 +4,17 @@ import ScanResults from '../components/ScanResults';
 import RepoForm from '../components/RepoForm';
 import LoginButton from '../components/LoginButton';
 import { useAuth } from '../context/AuthContext';
-import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const SAMPLE_REPOS = [
+  { name: 'LLMs from Scratch', url: 'https://github.com/rasbt/LLMs-from-scratch' },
+  { name: 'Transformers', url: 'https://github.com/huggingface/transformers' },
+  { name: 'Hands-On LLMs', url: 'https://github.com/HandsOnLLM/Hands-On-Large-Language-Models' },
+  { name: 'Awesome LLM', url: 'https://github.com/Hannibal046/Awesome-LLM' }
+];
 
 const Home = () => {
   const { isAuthenticated, user } = useAuth();
@@ -17,6 +23,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [scanDuration, setScanDuration] = useState(null);
   const [isFullScan, setIsFullScan] = useState(false);
+  const [demoRepoUrl, setDemoRepoUrl] = useState('');
 
   const handleScan = async (repoUrlParam, fullScan = false) => {
     const startTime = Date.now();
@@ -45,6 +52,10 @@ const Home = () => {
     }
   };
 
+  const handleSampleClick = (url) => {
+    setDemoRepoUrl(url);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -53,16 +64,16 @@ const Home = () => {
           Know where AI actually lives in your codebase.
         </h1>
         <p className="text-base sm:text-lg md:text-xl text-gray-600 font-normal mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed">
-          ScanLLM.ai scans your GitHub repositories and identifies every AI/LLM integration—giving platform and infra teams a clear, accurate view of their real AI footprint.
+          ScanLLM.ai identifies AI and LLM usage across your repositories—giving platform and infra teams a clear view of their real AI footprint.
         </p>
         
-        {/* Feature highlights - compact horizontal row */}
-        <div className="flex flex-wrap justify-center items-center gap-x-6 md:gap-x-10 gap-y-3 mb-8 md:mb-10 text-xs sm:text-sm text-gray-600 max-w-4xl mx-auto">
+        {/* Feature highlights */}
+        <div className="flex flex-wrap justify-center items-center gap-x-6 md:gap-x-10 gap-y-3 mb-10 md:mb-12 text-xs sm:text-sm text-gray-600 max-w-4xl mx-auto">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>Detect OpenAI, Anthropic, LangChain, vLLM, Transformers</span>
+            <span>Detect OpenAI, vLLM, Transformers, LangChain</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -74,114 +85,77 @@ const Home = () => {
             <svg className="w-4 h-4 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span>Run lightweight scans in minutes</span>
+            <span>Lightweight scans in minutes</span>
           </div>
         </div>
 
-        {/* Scan Card */}
-        <div className="w-full max-w-3xl lg:max-w-4xl mx-auto space-y-6">
-          {/* Dual CTAs */}
-          {!isAuthenticated && (
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Choose how to scan</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* Try Demo */}
-
-
-      {/* How It Works Section */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            From GitHub URL to actionable insights in seconds
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Video Placeholder */}
-          <div className="bg-gray-100 rounded-xl aspect-video flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center">
-              <svg className="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-sm text-gray-500">Product Demo Video</p>
-              <p className="text-xs text-gray-400 mt-1">(Coming soon)</p>
-            </div>
-          </div>
-
-          {/* Screenshot Placeholder */}
-          <div className="bg-gray-100 rounded-xl aspect-video flex items-center justify-center border-2 border-dashed border-gray-300">
-            <div className="text-center">
-              <svg className="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <p className="text-sm text-gray-500">Dashboard Screenshot</p>
-              <p className="text-xs text-gray-400 mt-1">(Coming soon)</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Key features */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">⚡</span>
-            </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Fast Scans</h4>
-            <p className="text-sm text-gray-600">2-15 seconds for most repositories with smart filtering</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">🔒</span>
-            </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Private Repos</h4>
-            <p className="text-sm text-gray-600">Secure OAuth integration for your private repositories</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">📊</span>
-            </div>
-            <h4 className="font-semibold text-gray-900 mb-2">Rich Insights</h4>
-            <p className="text-sm text-gray-600">Policies, risk flags, blast radius, and AI-powered explanations</p>
-          </div>
-        </div>
-      </section>
-
-                <div className="border-2 border-gray-200 rounded-xl p-6 hover:border-primary transition-colors">
-                  <div className="text-center mb-4">
-                    <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <h4 className="font-semibold text-gray-900 mb-2">Try a Demo</h4>
-                    <p className="text-sm text-gray-600 mb-4">Scan any public GitHub repository</p>
-                  </div>
-                </div>
-                
-                {/* Sign in with GitHub */}
-                <div className="border-2 border-primary rounded-xl p-6 bg-blue-50">
-                  <div className="text-center mb-4">
-                    <svg className="w-12 h-12 mx-auto text-primary mb-3" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    <h4 className="font-semibold text-gray-900 mb-2">Scan Private Repos</h4>
-                    <p className="text-sm text-gray-600 mb-4">Connect GitHub to scan your private repositories</p>
-                    <LoginButton className="w-full" />
-                  </div>
-                </div>
+        {/* PRIMARY CTA - Sign in with GitHub */}
+        {!isAuthenticated && (
+          <div className="max-w-2xl mx-auto mb-12">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl p-8 text-white">
+              <div className="text-center">
+                <svg className="w-16 h-16 mx-auto mb-4 opacity-90" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                <h2 className="text-2xl font-bold mb-3">Scan Private Repositories</h2>
+                <p className="text-blue-100 mb-6">
+                  Connect GitHub to scan private repositories securely
+                </p>
+                <LoginButton 
+                  variant="secondary" 
+                  size="lg" 
+                  className="bg-white text-blue-700 hover:bg-blue-50 font-semibold text-base px-8"
+                />
+                <p className="text-xs text-blue-200 mt-4">
+                  Read-only access • No code changes • Secure OAuth
+                </p>
               </div>
             </div>
-          )}
-          
-          {/* Public scan form (always visible or when authenticated) */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{isAuthenticated ? 'Quick Scan (Public Repos)' : 'Try a Demo Scan'}</h3>
+          </div>
+        )}
+
+        {/* SECONDARY - Try Demo Section */}
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Try a Demo Scan</h2>
+            <p className="text-gray-600">
+              Explore ScanLLM using a public GitHub repository. No sign-in required.
+            </p>
+          </div>
+
+          {/* Demo Form */}
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8 mb-6">
             <RepoForm onScan={handleScan} isScanning={isScanning} />
+          </div>
+
+          {/* Sample Repos - Chips/Pills */}
+          <div className="text-center">
+            <p className="text-sm text-gray-700 font-medium mb-3">Quick start with a sample repository</p>
+            <div className="flex flex-wrap justify-center gap-3">
+              {SAMPLE_REPOS.map((repo, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    document.querySelector('[data-testid="repo-url-input"]').value = repo.url;
+                    document.querySelector('[data-testid="repo-url-input"]').dispatchEvent(new Event('input', { bubbles: true }));
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full text-sm font-medium text-gray-700 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                  </svg>
+                  {repo.name}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-4 italic">
+              Demo scans public repositories only. Sign in with GitHub to scan private repos, save results, and view org-wide insights.
+            </p>
           </div>
         </div>
 
-        {/* Note below card */}
-        <p className="text-xs text-gray-500 mt-6 italic max-w-2xl mx-auto">
+        {/* Note */}
+        <p className="text-xs text-gray-500 mt-8 italic max-w-2xl mx-auto">
           We currently support public repositories. Private repository support and enterprise integrations are on the roadmap.
         </p>
       </section>
@@ -239,6 +213,41 @@ const Home = () => {
           <ScanResults result={scanResult} />
         </div>
       )}
+
+      {/* Simplified How It Works */}
+      <section className="max-w-6xl mx-auto px-6 py-16 border-t border-gray-200">
+        <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div>
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Fast Scans</h3>
+            <p className="text-sm text-gray-600">2-15 seconds for most repositories with smart filtering</p>
+          </div>
+          
+          <div>
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Private Repos via GitHub</h3>
+            <p className="text-sm text-gray-600">Secure OAuth integration for your private repositories</p>
+          </div>
+          
+          <div>
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Rich AI Insights</h3>
+            <p className="text-sm text-gray-600">Policies, risk flags, blast radius, and AI-powered explanations</p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
