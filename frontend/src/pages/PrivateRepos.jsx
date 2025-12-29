@@ -137,15 +137,15 @@ const PrivateRepos = () => {
                   </li>
                   <li className="flex gap-2">
                     <span className="font-semibold text-blue-600">2.</span>
-                    <span>Select which repositories to grant access (choose "All repositories" for full access)</span>
+                    <span>Select which repositories to grant access (choose &quot;All repositories&quot; for full access)</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="font-semibold text-blue-600">3.</span>
-                    <span>Click "Install" or "Save"</span>
+                    <span>Click &quot;Install&quot; or &quot;Save&quot;</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="font-semibold text-blue-600">4.</span>
-                    <span>You'll be redirected back here to see all your repositories</span>
+                    <span>You&apos;ll be redirected back here to see all your repositories</span>
                   </li>
                 </ol>
               </div>
