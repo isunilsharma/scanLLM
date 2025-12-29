@@ -21,7 +21,7 @@ GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
 GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://scanllm.ai')
 
-@router.get("/auth/github/login")
+@router.get("/github/login")
 async def github_login(response: Response):
     state = secrets.token_urlsafe(32)
     response.set_cookie(key="oauth_state", value=state, httponly=True, max_age=600, samesite='lax')
