@@ -75,14 +75,36 @@ class PatternConfigResponse(BaseModel):
 @api_router.post("/scans", response_model=ScanResponse)
 async def create_scan(request: ScanRequest, db: Session = Depends(get_db)):
     """
-    Start a new repository scan.
+    Start a new repository scan with demo caching support.
     """
     try:
-        # Validate GitHub URL (basic check)
+        # Validate GitHub URL
         if "github.com" not in request.repo_url.lower():
             raise HTTPException(status_code=400, detail="Only GitHub URLs are supported")
         
-        # Create scan job
+        # Check if this is a sample repo (demo caching)
+        if request.repo_url in SAMPLE_REPOS:
+            scan_mode = 'full' if request.full_scan else 'journal'
+            
+            # Look for cached result
+            cached = db.query(DemoScanCache).filter(
+                DemoScanCache.repo_url == request.repo_url,
+                DemoScanCache.scan_mode == scan_mode,
+                DemoScanCache.scan_version == SCAN_VERSION,
+                DemoScanCache.status == 'COMPLETE',
+                DemoScanCache.expires_at > datetime.now(timezone.utc)
+            ).first()
+            
+            if cached and cached.result_payload_json:
+                # Return cached result immediately
+                logger.info(f"Cache hit for {request.repo_url} (mode={scan_mode})")
+                result = json.loads(cached.result_payload_json)
+                result['cached'] = True
+                return result
+            
+            logger.info(f"Cache miss for {request.repo_url} (mode={scan_mode})")
+        
+        # Create scan job (normal flow or cache miss)
         scan_job = ScanJob(
             repo_url=request.repo_url,
             status=ScanStatus.PENDING
@@ -96,6 +118,33 @@ async def create_scan(request: ScanRequest, db: Session = Depends(get_db)):
         # Run scanner v2
         scanner = ScannerV2(db)
         result = scanner.scan_repository(scan_job.id, request.repo_url, request.full_scan)
+        
+        # If it's a sample repo, cache the result
+        if request.repo_url in SAMPLE_REPOS:
+            scan_mode = 'full' if request.full_scan else 'journal'
+            repo_parts = request.repo_url.replace('https://github.com/', '').split('/')
+            
+            # Delete old cache if exists
+            db.query(DemoScanCache).filter(
+                DemoScanCache.repo_url == request.repo_url,
+                DemoScanCache.scan_mode == scan_mode,
+                DemoScanCache.scan_version == SCAN_VERSION
+            ).delete()
+            
+            cache_entry = DemoScanCache(
+                repo_url=request.repo_url,
+                repo_owner=repo_parts[0] if len(repo_parts) > 0 else None,
+                repo_name=repo_parts[1] if len(repo_parts) > 1 else None,
+                scan_mode=scan_mode,
+                scan_version=SCAN_VERSION,
+                status='COMPLETE',
+                scan_id=scan_job.id,
+                result_payload_json=json.dumps(result),
+                expires_at=datetime.now(timezone.utc) + timedelta(days=7)
+            )
+            db.add(cache_entry)
+            db.commit()
+            logger.info(f"Cached result for {request.repo_url} (mode={scan_mode})")
         
         return result
         
