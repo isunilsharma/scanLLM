@@ -27,7 +27,7 @@ const Home = () => {
             className="w-full sm:w-auto px-8 py-6 text-lg font-semibold"
           />
           <Button
-            onClick={() => setDemoModalOpen(true)}
+            onClick={() => navigate('/demo')}
             variant="outline"
             size="lg"
             className="w-full sm:w-auto px-8 py-6 text-lg"
