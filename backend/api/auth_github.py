@@ -24,7 +24,15 @@ FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://scanllm.ai')
 @router.get("/github/login")
 async def github_login(response: Response):
     state = secrets.token_urlsafe(32)
-    response.set_cookie(key="oauth_state", value=state, httponly=True, max_age=600, samesite='lax')
+    # Set cookie with proper security settings for cross-domain OAuth
+    response.set_cookie(
+        key="oauth_state", 
+        value=state, 
+        httponly=True, 
+        max_age=600, 
+        samesite='none',  # Changed from 'lax' to 'none' for OAuth
+        secure=True  # Required for SameSite=none
+    )
     
     auth_url = (
         f"https://github.com/login/oauth/authorize"
