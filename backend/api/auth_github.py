@@ -14,7 +14,7 @@ from services.session_manager import create_session_token
 
 load_dotenv()
 
-router = APIRouter()
+router = APIRouter(prefix="/api/auth")
 
 GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
