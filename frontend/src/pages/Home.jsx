@@ -56,7 +56,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
-          AI dependency intelligence for your GitHub repos.
+          Know where AI actually lives in your codebase.
         </h1>
         <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
           Detect AI/LLM frameworks, prompt/tooling usage, and risk signals in minutes.
