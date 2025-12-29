@@ -35,7 +35,7 @@ async def github_login(response: Response):
     )
     return RedirectResponse(auth_url)
 
-@router.get("/auth/github/callback")
+@router.get("/github/callback")
 async def github_callback(code: str, state: str, request: Request, response: Response, db: Session = Depends(get_db)):
     stored_state = request.cookies.get("oauth_state")
     if not stored_state or stored_state != state:
