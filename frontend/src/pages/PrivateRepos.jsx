@@ -34,10 +34,16 @@ const PrivateRepos = () => {
       });
       setRepos(response.data.repos || []);
     } catch (error) {
+      console.error('Failed to load repositories:', error);
       toast.error('Failed to load repositories');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInstallApp = () => {
+    // Redirect to GitHub App installation page
+    window.location.href = `https://github.com/apps/scanllm-ai/installations/new`;
   };
 
   const handleScan = async (owner, repoName, branch, fullScan = false) => {
