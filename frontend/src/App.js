@@ -8,10 +8,13 @@ import HowItWorks from './pages/HowItWorks';
 import About from './pages/About';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import DemoPage from './pages/DemoPage';
+import ScanPage from './pages/ScanPage';
 import PrivateRepos from './pages/PrivateRepos';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
+import './shimmer.css';
 
 function App() {
   return (
