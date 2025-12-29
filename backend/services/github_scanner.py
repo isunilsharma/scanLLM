@@ -87,13 +87,17 @@ class GitHubScanner:
         priority_files = []
         other_files = []
         
+        # Only apply skip_paths if repo has > 200 files (avoid over-filtering small repos)
+        total_files = len([item for item in tree if item['type'] == 'blob'])
+        apply_skip = total_files > 200
+        
         for item in tree:
             if item['type'] != 'blob':
                 continue
             path = item['path']
             if not any(path.endswith(ext) for ext in self.file_extensions):
                 continue
-            if not full_scan and self._should_skip(path):
+            if not full_scan and apply_skip and self._should_skip(path):
                 continue
             if item.get('size', 0) > 500000:
                 continue
