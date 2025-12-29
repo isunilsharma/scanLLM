@@ -16,11 +16,22 @@ class OAuthState(Base):
         obj = db.query(OAuthState).filter(OAuthState.state == state).first()
         if not obj:
             return False
-        if obj.expires_at < datetime.now(timezone.utc):
+        
+        # Ensure both datetimes are timezone-aware for comparison
+        now = datetime.now(timezone.utc)
+        expires_at = obj.expires_at
+        
+        # If expires_at is naive, make it aware
+        if expires_at.tzinfo is None:
+            from datetime import timezone as tz
+            expires_at = expires_at.replace(tzinfo=tz.utc)
+        
+        if expires_at < now:
             db.delete(obj)
             db.commit()
             return False
-        # Delete after use
+        
+        # Delete after use (one-time token)
         db.delete(obj)
         db.commit()
         return True
