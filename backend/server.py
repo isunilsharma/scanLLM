@@ -17,6 +17,9 @@ from api.scan_github import router as scan_github_router
 from services.llm_explainer import explain_scan
 from core.config import config
 from sqlalchemy.orm import Session
+from core.constants import SAMPLE_REPOS, SCAN_VERSION
+from models.demo_scan_cache import DemoScanCache
+from datetime import datetime, timezone
 import json
 
 # Configure logging
