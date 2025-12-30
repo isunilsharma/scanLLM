@@ -192,7 +192,10 @@ AI systems introduce new operational risks, and monitoring must evolve according
               Start scanning your repositories today with ScanLLM.ai
             </p>
             <Button
-              onClick={() => navigate('/')}
+              onClick={() => {
+                navigate('/');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="bg-primary hover:bg-primary/90"
             >
               Run Your First Scan
