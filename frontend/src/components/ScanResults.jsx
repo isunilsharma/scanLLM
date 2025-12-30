@@ -1,17 +1,31 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import ResultsOverview from './ResultsOverview';
 import FileList from './FileList';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner';
 
-const ScanResults = ({ result }) => {
+const ScanResults = ({ result, showRescan = true }) => {
+  const navigate = useNavigate();
   const [selectedFramework, setSelectedFramework] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
+
+  const handleRescan = () => {
+    // Extract owner/repo from result URL
+    if (result.repo_url) {
+      const parts = result.repo_url.replace('https://github.com/', '').split('/');
+      if (parts.length >= 2) {
+        navigate(`/app/repo/${parts[0]}/${parts[1]}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
 
   // Extract unique frameworks
   const frameworks = useMemo(() => {
