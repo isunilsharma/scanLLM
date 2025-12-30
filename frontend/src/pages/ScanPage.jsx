@@ -79,40 +79,15 @@ const ScanPage = () => {
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Loading State */}
+        {/* Loading State with Animated Narrative */}
         {(status === 'PENDING' || status === 'RUNNING') && (
           <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-12">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {STATUS_MESSAGES[messageIndex]}
-                </h2>
-                <p className="text-gray-600 mb-4">
-                  Elapsed: {elapsed}s
-                </p>
-              </div>
-
-              {/* Horizontal Shimmer Bar */}
-              <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500 to-transparent shimmer"></div>
-              </div>
-
-              <p className="text-sm text-gray-500 text-center mt-6">
-                This can take 10-40 seconds depending on repository size
-              </p>
-
-              <div className="text-center mt-6">
-                <button
-                  onClick={() => navigate('/demo')}
-                  className="text-sm text-gray-600 hover:text-gray-900 underline"
-                >
-                  Back to demo
-                </button>
-              </div>
-            </div>
+            <ScanLoader
+              repoName={repoInfo.name}
+              branch={repoInfo.branch}
+              commit={repoInfo.commit}
+              startTime={startTime}
+            />
           </div>
         )}
 
