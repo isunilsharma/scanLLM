@@ -326,7 +326,7 @@ class ScanHistoryItem(BaseModel):
     frameworks_json: str
 
 @api_router.get("/scan-history")
-async def get_scan_history(repo_url: str, db: Session = Depends(get_db)):
+async def get_repo_scan_history(repo_url: str, db: Session = Depends(get_db)):
     """
     Get scan history for a repository.
     Returns last 10 scans.
