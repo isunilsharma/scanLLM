@@ -125,7 +125,7 @@ const ScanPage = () => {
           </div>
         )}
 
-        {/* Error State */}
+        {/* Error State with Friendly Messages */}
         {error && (
           <div className="max-w-3xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
@@ -133,13 +133,16 @@ const ScanPage = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h2 className="text-xl font-semibold text-red-900 mb-2">Scan Failed</h2>
-              <p className="text-red-700 mb-6">{error}</p>
-              <div className="flex gap-4 justify-center">
-                <Button onClick={() => navigate('/demo')} variant="outline">
-                  Try another repo
+              <p className="text-red-700 mb-1">{getFriendlyErrorMessage(error)}</p>
+              {scanId && (
+                <p className="text-xs text-red-600 font-mono mt-2">Scan ID: {scanId}</p>
+              )}
+              <div className="flex gap-4 justify-center mt-6">
+                <Button onClick={() => window.location.reload()} variant="outline">
+                  Retry Scan
                 </Button>
-                <Button onClick={() => navigate('/')}>
-                  Sign in with GitHub
+                <Button onClick={() => navigate('/demo')}>
+                  Back to Demo
                 </Button>
               </div>
             </div>
