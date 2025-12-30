@@ -40,8 +40,13 @@ const AppSidebar = () => {
     repo.full_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const isRepoActive = (owner, repo) => {
-    return location.pathname.includes(`/app/repo/${owner}/${repo}`);
+  const isRepoActive = (repoFullName) => {
+    // Extract owner and repo from current route
+    const pathMatch = location.pathname.match(/\/app\/repo\/([^\/]+)\/([^\/]+)/);
+    if (!pathMatch) return false;
+    
+    const activeFullName = `${pathMatch[1]}/${pathMatch[2]}`;
+    return activeFullName === repoFullName;
   };
 
   return (
