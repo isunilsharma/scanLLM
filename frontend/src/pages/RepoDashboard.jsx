@@ -14,6 +14,30 @@ const RepoDashboard = () => {
   const [branch, setBranch] = useState('main');
   const [fullScan, setFullScan] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [recentScans, setRecentScans] = useState([]);
+  const [loadingScans, setLoadingScans] = useState(true);
+
+  useEffect(() => {
+    loadRecentScans();
+  }, [owner, repo]);
+
+  const loadRecentScans = async () => {
+    setLoadingScans(true);
+    try {
+      const response = await axios.get(`${API}/scans`, {
+        params: { 
+          repo_full_name: `${owner}/${repo}`,
+          limit: 4 
+        },
+        withCredentials: true
+      });
+      setRecentScans(response.data.scans || []);
+    } catch (error) {
+      console.error('Failed to load recent scans:', error);
+    } finally {
+      setLoadingScans(false);
+    }
+  };
 
   const handleRunScan = async () => {
     setIsScanning(true);
