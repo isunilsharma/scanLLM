@@ -107,10 +107,51 @@ const RepoDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Scans Placeholder */}
+        {/* Recent Scans */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Scans</h2>
-          <p className="text-sm text-gray-500">Scan history will appear here</p>
+          {loadingScans ? (
+            <div className="space-y-3">
+              {[1,2,3].map(i => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+              ))}
+            </div>
+          ) : recentScans.length === 0 ? (
+            <p className="text-sm text-gray-500">No scans yet. Run your first scan.</p>
+          ) : (
+            <div className="space-y-3">
+              {recentScans.map(scan => (
+                <div key={scan.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {new Date(scan.created_at).toLocaleString()}
+                      </span>
+                      {scan.status === 'SUCCESS' && (
+                        <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded">SUCCESS</span>
+                      )}
+                      {scan.status === 'FAILED' && (
+                        <span className="px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded">FAILED</span>
+                      )}
+                      {scan.status === 'RUNNING' && (
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded">RUNNING</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {scan.total_matches || 0} matches • {scan.files_count || 0} files
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => navigate(`/app/repo/${owner}/${repo}/scan/${scan.id}`)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    View
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
