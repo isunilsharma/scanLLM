@@ -115,28 +115,32 @@ const ScanPage = () => {
         {/* Results State */}
         {scanData && status === 'SUCCESS' && (
           <div>
-            {/* Demo Badge */}
-            <div className="mb-6 text-center">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-800 border border-blue-200 rounded-full text-sm font-medium">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Demo Scan
-              </span>
-            </div>
+            {/* Demo Badge - Only show if NOT authenticated */}
+            {!isAuthenticated && (
+              <div className="mb-6 text-center">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-800 border border-blue-200 rounded-full text-sm font-medium">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Demo Scan
+                </span>
+              </div>
+            )}
 
-            {/* CTA Banner */}
-            <div className="mb-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white text-center">
-              <h3 className="text-xl font-semibold mb-2">Want to scan your private repos?</h3>
-              <p className="text-blue-100 mb-4">Sign in with GitHub to access all features</p>
-              <Button
-                onClick={() => navigate('/')}
-                variant="secondary"
-                className="bg-white text-blue-700 hover:bg-blue-50"
-              >
-                Sign in with GitHub
-              </Button>
-            </div>
+            {/* CTA Banner - Only show if NOT authenticated */}
+            {!isAuthenticated && (
+              <div className="mb-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white text-center">
+                <h3 className="text-xl font-semibold mb-2">Want to scan your private repos?</h3>
+                <p className="text-blue-100 mb-4">Sign in with GitHub to access all features</p>
+                <Button
+                  onClick={login}
+                  variant="secondary"
+                  className="bg-white text-blue-700 hover:bg-blue-50"
+                >
+                  Sign in with GitHub
+                </Button>
+              </div>
+            )}
 
             {/* Results */}
             <ScanResults result={scanData} />
