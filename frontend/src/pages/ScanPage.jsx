@@ -2,18 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ScanResults from '../components/ScanResults';
+import ScanLoader from '../components/ScanLoader';
 import { Button } from '../components/ui/button';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
-
-const STATUS_MESSAGES = [
-  'Queuing scan...',
-  'Cloning repository...',
-  'Analyzing dependencies...',
-  'Detecting AI/LLM usage...',
-  'Generating report...'
-];
 
 const ScanPage = () => {
   const { scanId } = useParams();
