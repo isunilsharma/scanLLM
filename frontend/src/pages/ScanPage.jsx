@@ -12,6 +12,7 @@ const API = `${BACKEND_URL}/api`;
 const ScanPage = () => {
   const { scanId } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated, login } = useAuth();
   const [scanData, setScanData] = useState(null);
   const [status, setStatus] = useState('PENDING');
   const [error, setError] = useState(null);
