@@ -98,7 +98,7 @@ const AppSidebar = () => {
                   key={repo.full_name}
                   onClick={() => navigate(`/app/repo/${repo.owner}/${repo.name}`)}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    isRepoActive(repo.owner, repo.name)
+                    isRepoActive(repo.full_name)
                       ? 'bg-blue-50 border border-blue-200'
                       : 'hover:bg-gray-50 border border-transparent'
                   }`}
