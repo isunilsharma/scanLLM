@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import AppShell from './components/AppShell';
 import Home from './pages/Home';
 import HowItWorks from './pages/HowItWorks';
 import About from './pages/About';
@@ -10,7 +11,8 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import DemoPage from './pages/DemoPage';
 import ScanPage from './pages/ScanPage';
-import PrivateRepos from './pages/PrivateRepos';
+import AppRepos from './pages/AppRepos';
+import RepoDashboard from './pages/RepoDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
@@ -20,31 +22,78 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="App flex flex-col min-h-screen">
-          <Toaster position="top-right" />
-          <Header />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/demo" element={<DemoPage />} />
-              <Route path="/scan/:scanId" element={<ScanPage />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<BlogPost />} />
-              <Route path="/about" element={<About />} />
-              <Route 
-                path="/private/repos" 
-                element={
-                  <ProtectedRoute>
-                    <PrivateRepos />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+        <Toaster position="top-right" />
+        <Routes>
+          {/* Marketing Routes */}
+          <Route path="/" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><Home /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/how-it-works" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><HowItWorks /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/blog" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><Blog /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/blog/:id" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><BlogPost /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/about" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><About /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/demo" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><DemoPage /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/scan/:scanId" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><ScanPage /></main>
+              <Footer />
+            </div>
+          } />
+          
+          {/* App Routes with Sidebar */}
+          <Route path="/app" element={
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Navigate to="/app/repos" replace />} />
+            <Route path="repos" element={<AppRepos />} />
+            <Route path="repo/:owner/:repo" element={<RepoDashboard />} />
+            <Route path="repo/:owner/:repo/scan/:scanId" element={<ScanPage />} />
+            <Route path="history" element={<div className="p-8"><h1 className="text-2xl font-bold">Scan History (Coming Soon)</h1></div>} />
+            <Route path="settings" element={<div className="p-8"><h1 className="text-2xl font-bold">Settings (Coming Soon)</h1></div>} />
+          </Route>
+          
+          {/* Legacy redirect */}
+          <Route path="/private/repos" element={<Navigate to="/app/repos" replace />} />
+          
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </BrowserRouter>
     </AuthProvider>
   );
