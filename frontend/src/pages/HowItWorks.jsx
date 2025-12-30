@@ -104,7 +104,10 @@ const HowItWorks = () => {
             Want to see this on your own repo? Head back to the Home page and run your first scan.
           </p>
           <Button
-            onClick={() => navigate('/')}
+            onClick={() => {
+              navigate('/');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             size="lg"
             className="bg-primary hover:bg-primary/90"
           >
