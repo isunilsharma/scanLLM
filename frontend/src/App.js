@@ -13,6 +13,8 @@ import DemoPage from './pages/DemoPage';
 import ScanPage from './pages/ScanPage';
 import AppRepos from './pages/AppRepos';
 import RepoDashboard from './pages/RepoDashboard';
+import ScanHistory from './pages/ScanHistory';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
