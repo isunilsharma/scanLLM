@@ -17,11 +17,7 @@ const RepoDashboard = () => {
   const [recentScans, setRecentScans] = useState([]);
   const [loadingScans, setLoadingScans] = useState(true);
 
-  useEffect(() => {
-    loadRecentScans();
-  }, [loadRecentScans]);
-
-  const loadRecentScans = useCallback(async () => {
+  const loadRecentScans = async () => {
     setLoadingScans(true);
     try {
       const response = await axios.get(`${API}/scans`, {
@@ -37,6 +33,10 @@ const RepoDashboard = () => {
     } finally {
       setLoadingScans(false);
     }
+  };
+
+  useEffect(() => {
+    loadRecentScans();
   }, [owner, repo]);
 
   const handleRunScan = async () => {
