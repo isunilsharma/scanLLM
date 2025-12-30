@@ -30,7 +30,9 @@ const ScanPage = () => {
 
   const pollScanStatus = async () => {
     let attempts = 0;
-    const maxAttempts = 60; // 60 attempts * 2s = 2 minutes max
+    const maxAttempts = 60;
+    const minLoaderTime = 600; // Minimum 600ms to prevent flash
+    const loaderStartTime = Date.now();
     
     const poll = async () => {
       try {
@@ -50,17 +52,23 @@ const ScanPage = () => {
         }
         
         if (data.status === 'SUCCESS') {
-          setScanData(data);
-          return; // Stop polling
+          // Ensure loader was visible for at least minLoaderTime
+          const elapsed = Date.now() - loaderStartTime;
+          const delay = Math.max(0, minLoaderTime - elapsed);
+          
+          setTimeout(() => {
+            setScanData(data);
+          }, delay);
+          return;
         } else if (data.status === 'FAILED') {
           setError(data.error_message || 'Scan failed');
           return;
         }
         
-        // Continue polling if PENDING or RUNNING
+        // Continue polling
         attempts++;
         if (attempts < maxAttempts) {
-          setTimeout(poll, 2000); // Poll every 2 seconds
+          setTimeout(poll, 2000);
         } else {
           setError('Scan timed out');
         }
