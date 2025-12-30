@@ -26,16 +26,6 @@ const ScanPage = () => {
     pollScanStatus();
   }, [scanId]);
 
-  useEffect(() => {
-    // Cycle through status messages while scanning
-    if (status === 'RUNNING' || status === 'PENDING') {
-      const interval = setInterval(() => {
-        setMessageIndex(prev => (prev + 1) % STATUS_MESSAGES.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [status]);
-
   const pollScanStatus = async () => {
     let attempts = 0;
     const maxAttempts = 60; // 60 attempts * 2s = 2 minutes max
