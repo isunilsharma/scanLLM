@@ -14,8 +14,8 @@ const ScanPage = () => {
   const [scanData, setScanData] = useState(null);
   const [status, setStatus] = useState('PENDING');
   const [error, setError] = useState(null);
-  const [messageIndex, setMessageIndex] = useState(0);
   const [startTime] = useState(Date.now());
+  const [repoInfo, setRepoInfo] = useState({ name: '', branch: 'main', commit: null });
 
   useEffect(() => {
     if (!scanId) {
