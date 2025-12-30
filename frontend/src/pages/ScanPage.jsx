@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import ScanResults from '../components/ScanResults';
 import ScanLoader from '../components/ScanLoader';
 import { Button } from '../components/ui/button';
