@@ -102,7 +102,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     
     session_jwt = create_session_token(github_user.id, github_user.github_user_id)
     
-    redirect = RedirectResponse(f"{FRONTEND_URL}/private/repos")
+    redirect = RedirectResponse(f"{FRONTEND_URL}/app/repos")
     # Set session cookie with proper settings
     redirect.set_cookie(
         key="session_token",
