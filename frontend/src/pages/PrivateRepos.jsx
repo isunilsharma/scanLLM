@@ -197,13 +197,6 @@ const PrivateRepos = () => {
             ))}
           </div>
         )}
-
-        {/* Scan Results */}
-        {scanResult && (
-          <div className="mt-8">
-            <ScanResults result={scanResult} />
-          </div>
-        )}
       </div>
     </div>
   );
