@@ -48,7 +48,6 @@ const PrivateRepos = () => {
 
   const handleScan = async (owner, repoName, branch, fullScan = false) => {
     setScanning(`${owner}/${repoName}`);
-    setScanResult(null);
     
     try {
       const response = await axios.post(
@@ -56,11 +55,11 @@ const PrivateRepos = () => {
         { owner, repo: repoName, branch, full_scan: fullScan },
         { withCredentials: true }
       );
-      setScanResult(response.data);
-      toast.success('Scan completed!');
+      
+      // Navigate to scan page with loader (don't show results inline)
+      navigate(`/scan/${response.data.scan_id}`);
     } catch (error) {
       toast.error('Scan failed: ' + (error.response?.data?.detail || 'Unknown error'));
-    } finally {
       setScanning(null);
     }
   };
