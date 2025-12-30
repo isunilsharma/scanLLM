@@ -9,6 +9,32 @@ import { Button } from '../components/ui/button';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Helper function to provide friendly error messages
+const getFriendlyErrorMessage = (error) => {
+  if (!error) return 'An unknown error occurred';
+  
+  const errorLower = error.toLowerCase();
+  
+  if (errorLower.includes('not found') || errorLower.includes('404')) {
+    return '🔍 Scan not found. It may have expired or the link is incorrect.';
+  }
+  if (errorLower.includes('timeout') || errorLower.includes('timed out')) {
+    return '⏱️ Scan took too long. The repository might be too large or the server is busy.';
+  }
+  if (errorLower.includes('rate limit')) {
+    return '🚦 GitHub rate limit reached. Please try again in a few minutes.';
+  }
+  if (errorLower.includes('authentication') || errorLower.includes('unauthorized')) {
+    return '🔐 Authentication failed. Please sign in again.';
+  }
+  if (errorLower.includes('network') || errorLower.includes('connection')) {
+    return '🌐 Network error. Please check your connection and try again.';
+  }
+  
+  // Return original error if no friendly match
+  return error;
+};
+
 const ScanPage = () => {
   const { scanId } = useParams();
   const navigate = useNavigate();
