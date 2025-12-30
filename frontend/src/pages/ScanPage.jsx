@@ -74,8 +74,6 @@ const ScanPage = () => {
     poll();
   };
 
-  const elapsed = Math.floor((Date.now() - startTime) / 1000);
-
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="max-w-6xl mx-auto px-6">
