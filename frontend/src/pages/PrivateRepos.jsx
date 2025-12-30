@@ -18,7 +18,6 @@ const PrivateRepos = () => {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [scanning, setScanning] = useState(null);
-  const [scanResult, setScanResult] = useState(null);
 
   useEffect(() => {
     loadRepos();
