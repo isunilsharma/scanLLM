@@ -87,8 +87,8 @@ function App() {
             <Route path="repos" element={<AppRepos />} />
             <Route path="repo/:owner/:repo" element={<RepoDashboard />} />
             <Route path="repo/:owner/:repo/scan/:scanId" element={<ScanPage />} />
-            <Route path="history" element={<div className="p-8"><h1 className="text-2xl font-bold">Scan History (Coming Soon)</h1></div>} />
-            <Route path="settings" element={<div className="p-8"><h1 className="text-2xl font-bold">Settings (Coming Soon)</h1></div>} />
+            <Route path="history" element={<ScanHistory />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
           
           {/* Legacy redirect */}
