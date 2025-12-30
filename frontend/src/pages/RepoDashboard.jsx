@@ -21,7 +21,7 @@ const RepoDashboard = () => {
     loadRecentScans();
   }, [owner, repo]);
 
-  const loadRecentScans = async () => {
+  const loadRecentScans = useCallback(async () => {
     setLoadingScans(true);
     try {
       const response = await axios.get(`${API}/scans`, {
@@ -37,7 +37,7 @@ const RepoDashboard = () => {
     } finally {
       setLoadingScans(false);
     }
-  };
+  }, [owner, repo]);
 
   const handleRunScan = async () => {
     setIsScanning(true);
