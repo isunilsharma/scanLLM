@@ -271,7 +271,20 @@ async def explain_scan_endpoint(request: ExplainRequest, db: Session = Depends(g
             'is_streaming': f.is_streaming,
             'has_tools': f.has_tools,
             'owner_name': f.owner_name,
-
+            'owner_email': f.owner_email,
+            'owner_committed_at': f.owner_committed_at.isoformat() if f.owner_committed_at else None
+        })
+    
+    # Build scan data for LLM
+    scan_data = scanner._build_response_v2(scan_job, findings)
+    
+    # Generate explanation
+    explanation = await explain_scan(scan_data)
+    
+    return {
+        'scan_id': request.scan_id,
+        'explanation': explanation
+    }
 
 # Scan history endpoint
 @api_router.get("/scans")
