@@ -70,6 +70,24 @@ const ScanResults = ({ result, showRescan = true }) => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200" data-testid="scan-results">
+      {/* Scan Metadata Header */}
+      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold text-gray-900">Scan Results</h3>
+            <p className="text-sm text-gray-600 mt-1">{result.repo_url}</p>
+          </div>
+          {showRescan && (
+            <Button onClick={handleRescan} variant="outline" size="sm">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Rescan
+            </Button>
+          )}
+        </div>
+      </div>
+
       {/* Header */}
       <div className="p-6 border-b border-slate-200">
         <div className="flex items-start justify-between mb-4">
