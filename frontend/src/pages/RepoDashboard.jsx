@@ -19,7 +19,7 @@ const RepoDashboard = () => {
 
   useEffect(() => {
     loadRecentScans();
-  }, [owner, repo]);
+  }, [loadRecentScans]);
 
   const loadRecentScans = useCallback(async () => {
     setLoadingScans(true);
