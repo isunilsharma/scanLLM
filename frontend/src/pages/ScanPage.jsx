@@ -37,6 +37,16 @@ const ScanPage = () => {
         
         setStatus(data.status);
         
+        // Extract repo info from response
+        if (data.repo_url) {
+          const parts = data.repo_url.replace('https://github.com/', '').split('/');
+          setRepoInfo({
+            name: parts.join('/'),
+            branch: 'main',
+            commit: null
+          });
+        }
+        
         if (data.status === 'SUCCESS') {
           setScanData(data);
           return; // Stop polling
