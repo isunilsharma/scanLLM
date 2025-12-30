@@ -316,21 +316,6 @@ async def get_scan_history(
     
     return {'scans': scan_list}
 
-            'owner_email': f.owner_email,
-            'owner_committed_at': f.owner_committed_at.isoformat() if f.owner_committed_at else None
-        })
-    
-    # Build scan data for LLM
-    scan_data = scanner._build_response_v2(scan_job, findings)
-    
-    # Generate explanation
-    explanation = await explain_scan(scan_data)
-    
-    return {
-        'scan_id': request.scan_id,
-        'explanation': explanation
-    }
-
 class ScanHistoryItem(BaseModel):
     id: str
     repo_url: str
