@@ -271,6 +271,38 @@ async def explain_scan_endpoint(request: ExplainRequest, db: Session = Depends(g
             'is_streaming': f.is_streaming,
             'has_tools': f.has_tools,
             'owner_name': f.owner_name,
+
+
+# Scan history endpoint
+@api_router.get("/scans")
+async def get_scan_history(
+    repo_full_name: str = None,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """Get scan history, optionally filtered by repo"""
+    query = db.query(ScanJob)
+    
+    if repo_full_name:
+        query = query.filter(ScanJob.repo_url.contains(repo_full_name))
+    
+    scans = query.order_by(ScanJob.created_at.desc()).limit(limit).all()
+    
+    scan_list = []
+    for scan in scans:
+        scan_list.append({
+            'id': scan.id,
+            'repo_url': scan.repo_url,
+            'repo_owner': scan.repo_owner,
+            'repo_name': scan.repo_name,
+            'status': scan.status.value,
+            'created_at': scan.created_at.isoformat() if scan.created_at else None,
+            'total_matches': scan.total_matches or scan.total_occurrences,
+            'files_count': scan.files_count
+        })
+    
+    return {'scans': scan_list}
+
             'owner_email': f.owner_email,
             'owner_committed_at': f.owner_committed_at.isoformat() if f.owner_committed_at else None
         })
