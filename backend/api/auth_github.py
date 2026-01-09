@@ -25,16 +25,13 @@ GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://scanllm.ai')
 
 @router.get("/github/login")
-async def github_login(db: Session = Depends(get_db)):
-    state = secrets.token_urlsafe(32)
-    
-    # Store state in database instead of cookie
-    oauth_state = OAuthState(
-        state=state,
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=10)
-    )
-    db.add(oauth_state)
-    db.commit()
+async def github_login():
+    # Create JWT-based state (stateless, no database needed)
+    state_payload = {
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'purpose': 'github_oauth'
+    }
+    state = jwt.encode(state_payload, SESSION_SECRET, algorithm=ALGORITHM)
     
     auth_url = (
         f"https://github.com/login/oauth/authorize"
@@ -47,9 +44,15 @@ async def github_login(db: Session = Depends(get_db)):
 
 @router.get("/github/callback")
 async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
-    # Verify state from database
-    if not OAuthState.is_valid(state, db):
-        raise HTTPException(status_code=400, detail="Invalid or expired state")
+    # Verify JWT state (stateless, no database lookup)
+    try:
+        payload = jwt.decode(state, SESSION_SECRET, algorithms=[ALGORITHM])
+        # Verify it's recent (within 10 minutes)
+        state_time = datetime.fromisoformat(payload['timestamp'])
+        if datetime.now(timezone.utc) - state_time > timedelta(minutes=10):
+            raise HTTPException(status_code=400, detail="State expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=400, detail="Invalid state")
     
     token_response = requests.post(
         "https://github.com/login/oauth/access_token",
