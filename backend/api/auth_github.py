@@ -12,7 +12,8 @@ from models.github_user import GitHubUser
 from models.github_token import GitHubToken
 from models.oauth_state import OAuthState
 from services.token_encryption import encrypt_token
-from services.session_manager import create_session_token
+from services.session_manager import create_session_token, SESSION_SECRET, ALGORITHM
+from jose import jwt
 
 load_dotenv()
 
