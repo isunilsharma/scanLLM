@@ -36,11 +36,16 @@ init_db()
 app = FastAPI(title="AI Dependency Scanner")
 api_router = APIRouter(prefix="/api")
 
-# CORS
+# CORS - Must specify origins when using credentials (not wildcard)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://scanllm.ai",
+        "https://ai-reposcan.emergent.host",
+        "https://ai-reposcan.preview.emergentagent.com",
+        "http://localhost:3000"
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
