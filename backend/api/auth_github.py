@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Response, Request, Depends
 from fastapi.responses import RedirectResponse
 import requests
-import secrets
 import os
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
@@ -10,7 +9,6 @@ from sqlalchemy.orm import Session
 from core.database import get_db
 from models.github_user import GitHubUser
 from models.github_token import GitHubToken
-from models.oauth_state import OAuthState
 from services.token_encryption import encrypt_token
 from services.session_manager import create_session_token, SESSION_SECRET, ALGORITHM
 from jose import jwt
