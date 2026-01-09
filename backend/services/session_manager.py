@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SESSION_SECRET = os.getenv('SESSION_SECRET', 'default-change-in-prod')
+SESSION_SECRET = os.getenv('SESSION_SECRET', 'default-secret-change-in-production')
 ALGORITHM = "HS256"
-EXPIRE_HOURS = 24 * 7
+EXPIRE_HOURS = 24 * 7  # 7 days
 
 def create_session_token(user_id: str, github_user_id: str) -> str:
     expires = datetime.utcnow() + timedelta(hours=EXPIRE_HOURS)
