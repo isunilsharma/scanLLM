@@ -45,13 +45,13 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     # Verify JWT state (stateless, no database lookup)
     try:
         payload = jwt.decode(state, SESSION_SECRET, algorithms=[ALGORITHM])
-        # Verify it's recent (within 10 minutes)
         state_time = datetime.fromisoformat(payload['timestamp'])
         if datetime.now(timezone.utc) - state_time > timedelta(minutes=10):
             raise HTTPException(status_code=400, detail="State expired")
     except jwt.JWTError:
         raise HTTPException(status_code=400, detail="Invalid state")
     
+    # Exchange code for token
     token_response = requests.post(
         "https://github.com/login/oauth/access_token",
         data={
@@ -69,6 +69,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     if not access_token:
         raise HTTPException(status_code=400, detail="Failed to get access token")
     
+    # Get user info from GitHub
     user_response = requests.get(
         "https://api.github.com/user",
         headers={'Authorization': f'Bearer {access_token}', 'Accept': 'application/vnd.github+json'},
@@ -76,6 +77,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     )
     user_data = user_response.json()
     
+    # Store or update user in database
     github_user = db.query(GitHubUser).filter(GitHubUser.github_user_id == str(user_data['id'])).first()
     if not github_user:
         github_user = GitHubUser(
@@ -89,6 +91,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(github_user)
     
+    # Store encrypted token
     existing_token = db.query(GitHubToken).filter(GitHubToken.github_user_id == github_user.id).first()
     if existing_token:
         db.delete(existing_token)
@@ -102,17 +105,20 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     db.add(new_token)
     db.commit()
     
+    # Create JWT session token
     session_jwt = create_session_token(github_user.id, github_user.github_user_id)
     
-    redirect = RedirectResponse(f"{FRONTEND_URL}/app/repos")
-    # Set session cookie with proper settings
-    redirect.set_cookie(
-        key="session_token",
-        value=session_jwt,
-        httponly=True,
-        max_age=7*24*3600,
-        samesite='none',  # Required for cross-domain
-        secure=True,
-        path='/'  # Available across all paths
-    )
-    return redirect
+    # Return JWT in response body (NO COOKIES!)
+    # Frontend will handle redirect after storing token
+    return {
+        'token': session_jwt,
+        'user': {
+            'id': github_user.id,
+            'github_user_id': github_user.github_user_id,
+            'login': github_user.login,
+            'name': github_user.name,
+            'email': github_user.email,
+            'avatar_url': github_user.avatar_url
+        },
+        'redirect_to': f"{FRONTEND_URL}/app/repos"
+    }
