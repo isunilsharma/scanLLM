@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
+from fastapi import APIRouter, HTTPException, Depends, Request, Header
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from core.database import get_db
 from models.github_user import GitHubUser
@@ -12,14 +12,19 @@ from services.github_api import GitHubAPI
 
 router = APIRouter(prefix="/api/github")
 
-def get_current_user(request: Request, db: Session = Depends(get_db)):
-    session_token = request.cookies.get("session_token")
-    if not session_token:
+def get_current_user(authorization: Optional[str] = Header(None), db: Session = Depends(get_db)):
+    """Get current user from Authorization header (Bearer token)"""
+    if not authorization:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    payload = verify_session_token(session_token)
+    if not authorization.startswith('Bearer '):
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    
+    token = authorization.replace('Bearer ', '')
+    payload = verify_session_token(token)
+    
     if not payload:
-        raise HTTPException(status_code=401, detail="Invalid session")
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
     
     user = db.query(GitHubUser).filter(GitHubUser.id == payload['user_id']).first()
     if not user:
