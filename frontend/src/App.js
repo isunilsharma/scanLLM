@@ -14,6 +14,7 @@ import ScanPage from './pages/ScanPage';
 import AppRepos from './pages/AppRepos';
 import RepoDashboard from './pages/RepoDashboard';
 import ScanHistory from './pages/ScanHistory';
+import AuthCallback from './pages/AuthCallback';
 import OAuthCallback from './pages/OAuthCallback';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
