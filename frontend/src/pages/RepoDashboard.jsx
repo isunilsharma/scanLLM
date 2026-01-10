@@ -43,11 +43,13 @@ const RepoDashboard = () => {
 
   const handleRunScan = async () => {
     setIsScanning(true);
+    const token = localStorage.getItem('auth_token');
+    
     try {
       const response = await axios.post(
         `${API}/scan/github`,
         { owner, repo, branch, full_scan: fullScan },
-        
+        { headers: token ? { 'Authorization': `Bearer ${token}` } : {} }
       );
       
       // Navigate to scan page with loader
