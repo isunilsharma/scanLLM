@@ -45,7 +45,7 @@ const RepoDashboard = () => {
       const response = await axios.post(
         `${API}/scan/github`,
         { owner, repo, branch, full_scan: fullScan },
-        { withCredentials: true }
+        
       );
       
       // Navigate to scan page with loader
