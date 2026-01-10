@@ -42,7 +42,7 @@ async def github_login():
 
 @router.get("/github/callback")
 async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
-    # Verify JWT state (stateless, no database lookup)
+    # Verify JWT state
     try:
         payload = jwt.decode(state, SESSION_SECRET, algorithms=[ALGORITHM])
         state_time = datetime.fromisoformat(payload['timestamp'])
@@ -69,7 +69,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     if not access_token:
         raise HTTPException(status_code=400, detail="Failed to get access token")
     
-    # Get user info from GitHub
+    # Get user info
     user_response = requests.get(
         "https://api.github.com/user",
         headers={'Authorization': f'Bearer {access_token}', 'Accept': 'application/vnd.github+json'},
@@ -77,7 +77,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     )
     user_data = user_response.json()
     
-    # Store or update user in database
+    # Store user
     github_user = db.query(GitHubUser).filter(GitHubUser.github_user_id == str(user_data['id'])).first()
     if not github_user:
         github_user = GitHubUser(
@@ -91,7 +91,7 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(github_user)
     
-    # Store encrypted token
+    # Store token
     existing_token = db.query(GitHubToken).filter(GitHubToken.github_user_id == github_user.id).first()
     if existing_token:
         db.delete(existing_token)
@@ -105,20 +105,71 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     db.add(new_token)
     db.commit()
     
-    # Create JWT session token
+    # Create session token
     session_jwt = create_session_token(github_user.id, github_user.github_user_id)
     
-    # Return JWT in response body (NO COOKIES!)
-    # Frontend will handle redirect after storing token
-    return {
-        'token': session_jwt,
-        'user': {
-            'id': github_user.id,
-            'github_user_id': github_user.github_user_id,
-            'login': github_user.login,
-            'name': github_user.name,
-            'email': github_user.email,
-            'avatar_url': github_user.avatar_url
-        },
-        'redirect_to': f"{FRONTEND_URL}/app/repos"
+    user_json = {
+        'id': github_user.id,
+        'github_user_id': github_user.github_user_id,
+        'login': github_user.login,
+        'name': github_user.name,
+        'email': github_user.email,
+        'avatar_url': github_user.avatar_url
     }
+    
+    # Return HTML page that stores token and redirects
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Completing sign-in...</title>
+        <style>
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+                background: #f5f7fb;
+            }}
+            .container {{
+                text-center;
+            }}
+            .spinner {{
+                border: 4px solid #e5e7eb;
+                border-top: 4px solid #1C4CE0;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 20px;
+            }}
+            @keyframes spin {{
+                0% {{ transform: rotate(0deg); }}
+                100% {{ transform: rotate(360deg); }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="spinner"></div>
+            <h2>Completing sign-in...</h2>
+            <p>Redirecting to your repositories...</p>
+        </div>
+        <script>
+            // Store token and user in localStorage
+            localStorage.setItem('auth_token', '{session_jwt}');
+            localStorage.setItem('user', '{json.dumps(user_json).replace("'", "\\'")}');
+            
+            // Redirect after storing
+            setTimeout(function() {{
+                window.location.href = '{FRONTEND_URL}/app/repos';
+            }}, 500);
+        </script>
+    </body>
+    </html>
+    """
+    
+    from fastapi.responses import HTMLResponse
+    return HTMLResponse(content=html_content)
