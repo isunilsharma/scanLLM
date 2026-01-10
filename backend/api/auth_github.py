@@ -50,6 +50,128 @@ async def github_login():
     logger.info(f"Redirecting to GitHub OAuth: {auth_url[:100]}...")
     return RedirectResponse(auth_url)
 
+
+
+@router.post("/github/exchange")
+async def exchange_github_code(request: dict, db: Session = Depends(get_db)):
+    """Exchange GitHub OAuth code for token (called by frontend)"""
+    
+    code = request.get('code')
+    state = request.get('state')
+    
+    logger.info("=== GitHub Code Exchange Started (Frontend Proxy) ===")
+    logger.info(f"Code: {code[:20] if code else 'MISSING'}...")
+    logger.info(f"State: {state[:50] if state else 'MISSING'}...")
+    
+    if not code or not state:
+        logger.error("Missing code or state parameter")
+        raise HTTPException(status_code=400, detail="Missing code or state")
+    
+    # Verify JWT state
+    try:
+        logger.info("Verifying state token...")
+        payload = jwt.decode(state, SESSION_SECRET, algorithms=[ALGORITHM])
+        state_time = datetime.fromisoformat(payload['timestamp'])
+        age = (datetime.now(timezone.utc) - state_time).total_seconds()
+        logger.info(f"State age: {age}s")
+        
+        if datetime.now(timezone.utc) - state_time > timedelta(minutes=10):
+            logger.error("State expired!")
+            raise HTTPException(status_code=400, detail="State expired")
+        logger.info("✓ State validated")
+    except jwt.JWTError as e:
+        logger.error(f"State validation failed: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid state")
+    
+    # Exchange code for access token
+    logger.info("Exchanging code for GitHub access token...")
+    token_response = requests.post(
+        "https://github.com/login/oauth/access_token",
+        data={
+            'client_id': GITHUB_CLIENT_ID,
+            'client_secret': GITHUB_CLIENT_SECRET,
+            'code': code,
+            'redirect_uri': GITHUB_REDIRECT_URI
+        },
+        headers={'Accept': 'application/json'},
+        timeout=10
+    )
+    token_data = token_response.json()
+    access_token = token_data.get('access_token')
+    
+    if not access_token:
+        logger.error(f"Failed to get access token: {token_data}")
+        raise HTTPException(status_code=400, detail="Failed to get access token")
+    logger.info(f"✓ Access token received")
+    
+    # Get user info from GitHub
+    logger.info("Fetching user info from GitHub...")
+    user_response = requests.get(
+        "https://api.github.com/user",
+        headers={'Authorization': f'Bearer {access_token}', 'Accept': 'application/vnd.github+json'},
+        timeout=10
+    )
+    user_data = user_response.json()
+    logger.info(f"✓ User: @{user_data.get('login')} (ID: {user_data.get('id')})")
+    
+    # Store or update user in database
+    logger.info("Storing user in database...")
+    github_user = db.query(GitHubUser).filter(GitHubUser.github_user_id == str(user_data['id'])).first()
+    if not github_user:
+        logger.info("Creating new user record")
+        github_user = GitHubUser(
+            github_user_id=str(user_data['id']),
+            login=user_data['login'],
+            name=user_data.get('name'),
+            email=user_data.get('email'),
+            avatar_url=user_data.get('avatar_url')
+        )
+        db.add(github_user)
+        db.commit()
+        db.refresh(github_user)
+        logger.info(f"✓ User created: {github_user.id}")
+    else:
+        logger.info(f"✓ Existing user found: {github_user.id}")
+    
+    # Store encrypted GitHub token
+    logger.info("Storing encrypted GitHub access token...")
+    existing_token = db.query(GitHubToken).filter(GitHubToken.github_user_id == github_user.id).first()
+    if existing_token:
+        db.delete(existing_token)
+        logger.info("Deleted old token")
+    
+    encrypted = encrypt_token(access_token)
+    new_token = GitHubToken(
+        github_user_id=github_user.id,
+        encrypted_token=encrypted,
+        scope=token_data.get('scope', 'repo')
+    )
+    db.add(new_token)
+    db.commit()
+    logger.info("✓ GitHub token stored")
+    
+    # Create session JWT
+    logger.info("Creating session JWT...")
+    session_jwt = create_session_token(github_user.id, github_user.github_user_id)
+    logger.info(f"✓ Session token created: {session_jwt[:50]}...")
+    
+    user_json = {
+        'id': github_user.id,
+        'github_user_id': github_user.github_user_id,
+        'login': github_user.login,
+        'name': github_user.name,
+        'email': github_user.email,
+        'avatar_url': github_user.avatar_url
+    }
+    
+    logger.info("=== Code exchange complete - returning token to frontend ===")
+    
+    # Return JSON (NOT HTML) for frontend to handle
+    return {
+        'token': session_jwt,
+        'user': user_json
+    }
+
 @router.get("/github/callback")
 async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     logger.info("=== GitHub OAuth Callback Received ===")
