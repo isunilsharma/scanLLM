@@ -19,13 +19,15 @@ const RepoDashboard = () => {
 
   const loadRecentScans = async () => {
     setLoadingScans(true);
+    const token = localStorage.getItem('auth_token');
+    
     try {
       const response = await axios.get(`${API}/scans`, {
         params: { 
           repo_full_name: `${owner}/${repo}`,
           limit: 4 
         },
-        withCredentials: true
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       setRecentScans(response.data.scans || []);
     } catch (error) {
