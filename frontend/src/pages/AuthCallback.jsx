@@ -26,6 +26,12 @@ const AuthCallback = () => {
       return;
     }
 
+    // Set timeout for API call
+    const timeoutId = setTimeout(() => {
+      console.error('AuthCallback: Timeout waiting for backend (10s exceeded)');
+      setStatus('error');
+    }, 10000);
+
     try {
       console.log('AuthCallback: Calling backend to exchange code for token...');
       
@@ -34,6 +40,8 @@ const AuthCallback = () => {
         `${BACKEND_URL}/api/auth/github/exchange`,
         { code, state }
       );
+
+      clearTimeout(timeoutId); // Clear timeout on success
 
       const { token, user } = response.data;
       
@@ -45,15 +53,17 @@ const AuthCallback = () => {
       localStorage.setItem('user', JSON.stringify(user));
       
       console.log('AuthCallback: Token and user stored in localStorage');
-      console.log('AuthCallback: Redirecting to /app/repos');
+      console.log('AuthCallback: Redirecting to /app/repos with window.location.href');
 
-      // Small delay then redirect
+      // Use window.location.href for reliable redirect
       setTimeout(() => {
-        navigate('/app/repos');
-      }, 200);
+        window.location.href = '/app/repos';
+      }, 300);
       
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('AuthCallback: Exchange failed', error);
+      console.error('AuthCallback: Error details:', error.response?.data);
       setStatus('error');
       setTimeout(() => navigate('/?error=oauth_failed'), 3000);
     }
