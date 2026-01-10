@@ -79,7 +79,8 @@ function App() {
             </div>
           } />
           
-          {/* OAuth Callback Handler */}
+          {/* OAuth Callback Handlers */}
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/api/auth/github/callback" element={<OAuthCallback />} />
           
           {/* App Routes with Sidebar */}
