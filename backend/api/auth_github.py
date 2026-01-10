@@ -119,54 +119,29 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
     }
     
     # Return HTML page that stores token and redirects
+    user_json_str = json.dumps(user_json)
+    
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <title>Completing sign-in...</title>
         <style>
-            body {{
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-                background: #f5f7fb;
-            }}
-            .container {{
-                text-center;
-            }}
-            .spinner {{
-                border: 4px solid #e5e7eb;
-                border-top: 4px solid #1C4CE0;
-                border-radius: 50%;
-                width: 40px;
-                height: 40px;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 20px;
-            }}
-            @keyframes spin {{
-                0% {{ transform: rotate(0deg); }}
-                100% {{ transform: rotate(360deg); }}
-            }}
+            body {{ font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f5f7fb; }}
+            .spinner {{ border: 4px solid #e5e7eb; border-top: 4px solid #1C4CE0; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }}
+            @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
         </style>
     </head>
     <body>
-        <div class="container">
+        <div>
             <div class="spinner"></div>
             <h2>Completing sign-in...</h2>
             <p>Redirecting to your repositories...</p>
         </div>
         <script>
-            // Store token and user in localStorage
             localStorage.setItem('auth_token', '{session_jwt}');
-            localStorage.setItem('user', '{json.dumps(user_json).replace("'", "\\'")}');
-            
-            // Redirect after storing
-            setTimeout(function() {{
-                window.location.href = '{FRONTEND_URL}/app/repos';
-            }}, 500);
+            localStorage.setItem('user', '{user_json_str}');
+            setTimeout(function() {{ window.location.href = '{FRONTEND_URL}/app/repos'; }}, 500);
         </script>
     </body>
     </html>
