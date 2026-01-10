@@ -23,10 +23,12 @@ const AppSidebar = () => {
 
   const loadRepos = async () => {
     setLoading(true);
+    const token = localStorage.getItem('auth_token');
+    
     try {
       const response = await axios.get(`${API}/github/repos`, {
         params: { visibility: filter },
-        withCredentials: true
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       setRepos(response.data.repos || []);
     } catch (error) {
