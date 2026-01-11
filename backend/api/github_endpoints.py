@@ -55,10 +55,18 @@ async def get_repos(
     user: GitHubUser = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """Get user repositories with strict user isolation"""
+    logger.info(f"Fetching repos for user {user.login} (visibility={visibility})")
+    
     access_token = get_github_token(user, db)
     github_api = GitHubAPI(access_token)
     
-    repos = github_api.get_repos(visibility)
+    try:
+        repos = github_api.get_repos(visibility)
+        logger.info(f"✓ Fetched {len(repos)} repos for user {user.login}")
+    except Exception as e:
+        logger.error(f"Failed to fetch repos for user {user.login}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch repositories")
     
     simplified = []
     for repo in repos:
@@ -72,7 +80,19 @@ async def get_repos(
             'description': repo.get('description')
         })
     
-    return {'repos': simplified}
+    # Strict caching headers for user isolation
+    from fastapi import Response as FastAPIResponse
+    response = FastAPIResponse(
+        content=json.dumps({'repos': simplified}),
+        media_type='application/json',
+        headers={
+            'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+            'Pragma': 'no-cache',
+            'Vary': 'Authorization',
+            'X-User-ID': user.id  # For debugging (never expose sensitive data)
+        }
+    )
+    return response
 
 @router.post("/revoke")
 async def revoke_github(
