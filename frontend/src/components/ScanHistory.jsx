@@ -142,10 +142,10 @@ const ScanHistory = ({ repoUrl }) => {
                     <td className="px-4 py-2 text-xs text-gray-900 text-right font-medium">
                       {scan.total_matches}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 max-w-[140px] md:max-w-none">
                       <div className="flex flex-wrap gap-1">
                         {frameworkNames.map(fw => (
-                          <Badge key={fw} variant="outline" className="text-xs">
+                          <Badge key={fw} variant="outline" className="text-xs truncate max-w-full">
                             {fw}
                           </Badge>
                         ))}
