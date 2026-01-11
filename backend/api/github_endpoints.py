@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Header
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
+import json
+import logging
 
 from core.database import get_db
 from models.github_user import GitHubUser
@@ -9,6 +11,8 @@ from models.github_token import GitHubToken
 from services.token_encryption import decrypt_token
 from services.session_manager import verify_session_token
 from services.github_api import GitHubAPI
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/github")
 
