@@ -189,11 +189,11 @@ const ResultsOverview = ({ result, frameworks }) => {
             <tbody className="divide-y divide-slate-200">
               {topFiles.map((file, idx) => (
                 <tr key={idx} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-sm text-slate-900 font-mono">{file.file_path}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-sm text-slate-900 font-mono max-w-[200px] truncate">{file.file_path}</td>
+                  <td className="px-4 py-3 max-w-[160px] md:max-w-none">
                     <div className="flex flex-wrap gap-1">
                       {file.frameworks.map(fw => (
-                        <Badge key={fw} variant="outline" className="text-xs">
+                        <Badge key={fw} variant="outline" className="text-xs truncate max-w-full">
                           {fw}
                         </Badge>
                       ))}
