@@ -6,8 +6,21 @@ import AppHeader from './AppHeader';
 const AppShell = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
+  // Lock body scroll when sidebar is open on mobile
+  React.useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [sidebarOpen]);
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -16,12 +29,14 @@ const AppShell = () => {
         />
       )}
       
-      {/* Left Sidebar */}
+      {/* Left Sidebar - Responsive Drawer */}
       <div className={`
-        fixed md:static inset-y-0 left-0 z-50 transform transition-transform duration-300
+        fixed md:static inset-y-0 left-0 z-50 
+        w-[90vw] max-w-[420px] md:w-80
+        transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <AppSidebar onRepoSelect={() => setSidebarOpen(false)} />
+        <AppSidebar onRepoSelect={() => setSidebarOpen(false)} onClose={() => setSidebarOpen(false)} />
       </div>
       
       {/* Main Content Area */}
