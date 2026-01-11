@@ -52,7 +52,12 @@ const AuthCallback = () => {
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user', JSON.stringify(user));
       
+      // CRITICAL: Clear any cached repo data to prevent cross-user leakage
+      localStorage.removeItem('cached_repos');
+      sessionStorage.clear(); // Clear any session-based cache
+      
       console.log('AuthCallback: Token and user stored in localStorage');
+      console.log('AuthCallback: Cleared all cached repo data for user isolation');
       console.log('AuthCallback: Redirecting to /app/repos with window.location.href');
 
       // Use window.location.href for reliable redirect
