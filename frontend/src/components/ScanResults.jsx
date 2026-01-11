@@ -71,14 +71,23 @@ const ScanResults = ({ result, showRescan = true }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200" data-testid="scan-results">
       {/* Scan Metadata Header */}
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-gray-900">Scan Results</h3>
-            <p className="text-sm text-gray-600 mt-1">{result.repo_url}</p>
+      <div className="px-4 md:px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900">Scan Results</h2>
+              <Badge 
+                variant={result.status === 'SUCCESS' ? 'default' : 'destructive'}
+                className="text-xs flex-shrink-0"
+                data-testid="scan-status"
+              >
+                {result.status}
+              </Badge>
+            </div>
+            <p className="text-sm text-gray-600 truncate">{result.repo_url}</p>
           </div>
           {showRescan && (
-            <Button onClick={handleRescan} variant="outline" size="sm">
+            <Button onClick={handleRescan} variant="outline" size="sm" className="w-full sm:w-auto">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -88,24 +97,9 @@ const ScanResults = ({ result, showRescan = true }) => {
         </div>
       </div>
 
-      {/* Header */}
-      <div className="p-6 border-b border-slate-200">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">Scan Results</h2>
-            <p className="text-sm text-slate-600 mt-1">{result.repo_url}</p>
-          </div>
-          <Badge 
-            variant={result.status === 'SUCCESS' ? 'default' : 'destructive'}
-            className="text-xs"
-            data-testid="scan-status"
-          >
-            {result.status}
-          </Badge>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+      {/* Quick Stats - Responsive Grid */}
+      <div className="p-4 md:p-6 border-b border-slate-200">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div className="bg-slate-50 rounded-lg p-4">
             <p className="text-xs text-slate-600 mb-1">Total Files</p>
             <p className="text-2xl font-semibold text-slate-900" data-testid="total-files">{result.files_count}</p>
