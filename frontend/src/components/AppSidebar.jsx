@@ -9,7 +9,7 @@ import { ScrollArea } from './ui/scroll-area';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const AppSidebar = ({ onRepoSelect }) => {
+const AppSidebar = ({ onRepoSelect, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [repos, setRepos] = useState([]);
@@ -20,6 +20,18 @@ const AppSidebar = ({ onRepoSelect }) => {
   useEffect(() => {
     loadRepos();
   }, [filter]);
+
+  // ESC key to close drawer
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
 
   const loadRepos = async () => {
     setLoading(true);
