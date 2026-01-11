@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
 import { Menu, X, LogOut, Settings as SettingsIcon } from 'lucide-react';
+import Logo from './Logo';
 
 const AppHeader = ({ onMenuClick, sidebarOpen }) => {
   const { user, logout } = useAuth();
@@ -16,21 +17,17 @@ const AppHeader = ({ onMenuClick, sidebarOpen }) => {
           {/* Mobile Menu Button */}
           <button
             onClick={onMenuClick}
-            className="md:hidden p-2 text-gray-600 hover:text-gray-900"
+            className="md:hidden p-2 text-gray-600 hover:text-gray-900 -ml-2"
             aria-label="Toggle menu"
           >
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           
-          {/* Logo - Icon only on mobile */}
+          {/* Logo - Use actual Logo component, hide text on mobile */}
           <button onClick={() => navigate('/')} className="flex items-center">
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+            <div className="scale-75 md:scale-100 origin-left">
+              <Logo />
             </div>
-            {/* Full brand text - hidden on mobile */}
-            <span className="hidden md:block ml-3 font-bold text-gray-900">ScanLLM.ai</span>
           </button>
         </div>
         
