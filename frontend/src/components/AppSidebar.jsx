@@ -9,7 +9,7 @@ import { ScrollArea } from './ui/scroll-area';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const AppSidebar = () => {
+const AppSidebar = ({ onRepoSelect }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [repos, setRepos] = useState([]);
@@ -25,14 +25,18 @@ const AppSidebar = () => {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     
+    console.log('AppSidebar: Loading repos with filter:', filter);
+    
     try {
       const response = await axios.get(`${API}/github/repos`, {
         params: { visibility: filter },
         headers: token ? { 'Authorization': `Bearer ${token}` } : {}
       });
       setRepos(response.data.repos || []);
+      console.log(`AppSidebar: Loaded ${response.data.repos?.length || 0} repos`);
     } catch (error) {
-      console.error('Failed to load repos:', error);
+      console.error('AppSidebar: Failed to load repos:', error);
+      setRepos([]); // Clear repos on error for security
     } finally {
       setLoading(false);
     }
