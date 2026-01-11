@@ -60,10 +60,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout API call failed:', error);
     } finally {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
+      // CRITICAL: Clear ALL user data and cached state
+      localStorage.clear(); // Clear everything
+      sessionStorage.clear(); // Clear session data
       setUser(null);
       setIsAuthenticated(false);
+      console.log('Logout: All user data cleared for security');
       window.location.href = '/';
     }
   };
