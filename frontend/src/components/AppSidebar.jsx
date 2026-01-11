@@ -102,7 +102,10 @@ const AppSidebar = ({ onRepoSelect }) => {
               {filteredRepos.map(repo => (
                 <button
                   key={repo.full_name}
-                  onClick={() => navigate(`/app/repo/${repo.owner}/${repo.name}`)}
+                  onClick={() => {
+                    navigate(`/app/repo/${repo.owner}/${repo.name}`);
+                    if (onRepoSelect) onRepoSelect(); // Close sidebar on mobile
+                  }}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     isRepoActive(repo.full_name)
                       ? 'bg-blue-50 border border-blue-200'
