@@ -92,7 +92,7 @@ def prewarm_demo_scans():
                         status='COMPLETE',
                         scan_id=scan_job.id,
                         result_payload_json=json.dumps(result),
-                        expires_at=datetime.now(timezone.utc) + timedelta(days=CACHE_TTL_DAYS)
+                        expires_at=None if CACHE_TTL_DAYS is None else datetime.now(timezone.utc) + timedelta(days=CACHE_TTL_DAYS)
                     )
                     db.add(cache_entry)
                     db.commit()
