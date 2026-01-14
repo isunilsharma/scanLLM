@@ -67,7 +67,7 @@ def prewarm_demo_scans():
                         print(f"    ✓ Cache valid (expires {expires_at})")
                         continue
                 
-                print(f"    Running scan...")
+                print("    Running scan...")
                 
                 try:
                     # Create scan job
