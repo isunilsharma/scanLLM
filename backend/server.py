@@ -29,6 +29,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+# Auto-prewarm demo cache on startup
+import threading
+def prewarm_cache_background():
+    """Prewarm demo cache in background thread"""
+    import time
+    time.sleep(10)  # Wait for app to fully start
+    
+    try:
+        logger.info("Auto-prewarming demo cache...")
+        import subprocess
+        result = subprocess.run(
+            ['python3', '/app/scripts/prewarm_demo_scans.py'],
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        if result.returncode == 0:
+            logger.info("✓ Demo cache prewarmed successfully")
+        else:
+            logger.warning(f"Demo cache prewarm failed: {result.stderr}")
+    except Exception as e:
+        logger.warning(f"Failed to prewarm cache: {str(e)}")
+
+# Start prewarm in background (non-blocking)
+threading.Thread(target=prewarm_cache_background, daemon=True).start()
+
+
 # Initialize database
 init_db()
 
