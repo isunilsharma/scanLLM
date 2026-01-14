@@ -52,6 +52,13 @@ def prewarm_demo_scans():
                 if existing_cache:
                     # Handle timezone-aware comparison
                     expires_at = existing_cache.expires_at
+                    
+                    # Check if cache never expires (None) or is still valid
+                    if expires_at is None:
+                        print(f"    ✓ Cache valid (never expires)")
+                        continue
+                    
+                    # Handle timezone for expiring cache
                     if expires_at.tzinfo is None:
                         from datetime import timezone as tz
                         expires_at = expires_at.replace(tzinfo=tz.utc)
