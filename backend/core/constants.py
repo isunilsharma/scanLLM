@@ -9,5 +9,5 @@ SAMPLE_REPOS = [
     'https://github.com/Hannibal046/Awesome-LLM'
 ]
 
-# Cache TTL in days
-CACHE_TTL_DAYS = 7
+# Cache TTL - Set to None for indefinite cache
+CACHE_TTL_DAYS = None  # Never expires!
