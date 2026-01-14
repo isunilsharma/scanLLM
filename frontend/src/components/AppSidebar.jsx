@@ -123,6 +123,40 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
                 <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
               ))}
             </div>
+          ) : repos.length === 0 ? (
+            <div className="p-4">
+              {/* Installation Prompt */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center">
+                <svg className="w-12 h-12 mx-auto text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <h3 className="font-bold text-gray-900 mb-2 text-sm">Install GitHub App</h3>
+                <p className="text-xs text-gray-700 mb-3">
+                  Install ScanLLM.ai to access your repositories
+                </p>
+                
+                <div className="bg-white rounded p-3 mb-3 text-left">
+                  <p className="text-xs font-medium text-gray-700 mb-2">Quick Steps:</p>
+                  <ol className="text-xs text-gray-600 space-y-1">
+                    <li>1. Click Install below</li>
+                    <li>2. Select repositories</li>
+                    <li>3. Click "Install"</li>
+                    <li>4. Return here</li>
+                  </ol>
+                </div>
+                
+                <button
+                  onClick={handleInstallApp}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm transition-colors"
+                >
+                  Install GitHub App
+                </button>
+                
+                <p className="text-xs text-gray-500 mt-2">
+                  Read-only access
+                </p>
+              </div>
+            </div>
           ) : filteredRepos.length === 0 ? (
             <div className="text-center py-8 text-gray-500 text-sm">
               <p>No repositories found</p>
