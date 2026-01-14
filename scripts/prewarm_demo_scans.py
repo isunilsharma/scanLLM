@@ -55,7 +55,7 @@ def prewarm_demo_scans():
                     
                     # Check if cache never expires (None) or is still valid
                     if expires_at is None:
-                        print(f"    ✓ Cache valid (never expires)")
+                        print("    ✓ Cache valid (never expires)")
                         continue
                     
                     # Handle timezone for expiring cache
