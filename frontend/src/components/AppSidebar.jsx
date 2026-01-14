@@ -54,6 +54,11 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
     }
   };
 
+  const handleInstallApp = () => {
+    // Redirect to GitHub App installation
+    window.open('https://github.com/apps/scanllm-ai/installations/new', '_blank');
+  };
+
   const filteredRepos = repos.filter(repo =>
     repo.full_name.toLowerCase().includes(search.toLowerCase())
   );
