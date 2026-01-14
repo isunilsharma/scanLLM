@@ -121,23 +121,26 @@ async def create_scan(request: ScanRequest, db: Session = Depends(get_db)):
         if request.repo_url in SAMPLE_REPOS:
             scan_mode = 'full' if request.full_scan else 'journal'
             
-            # Look for cached result
-            cached = db.query(DemoScanCache).filter(
-                DemoScanCache.repo_url == request.repo_url,
-                DemoScanCache.scan_mode == scan_mode,
-                DemoScanCache.scan_version == SCAN_VERSION,
-                DemoScanCache.status == 'COMPLETE',
-                DemoScanCache.expires_at > datetime.now(timezone.utc)
-            ).first()
-            
-            if cached and cached.result_payload_json:
-                # Return cached result immediately
-                logger.info(f"Cache hit for {request.repo_url} (mode={scan_mode})")
-                result = json.loads(cached.result_payload_json)
-                result['cached'] = True
-                return result
-            
-            logger.info(f"Cache miss for {request.repo_url} (mode={scan_mode})")
+            # Try to get cached result
+            try:
+                cached = db.query(DemoScanCache).filter(
+                    DemoScanCache.repo_url == request.repo_url,
+                    DemoScanCache.scan_mode == scan_mode,
+                    DemoScanCache.scan_version == SCAN_VERSION,
+                    DemoScanCache.status == 'COMPLETE'
+                ).first()
+                
+                if cached and cached.result_payload_json:
+                    # Check if cache is still valid (None = never expires, or future date)
+                    if cached.expires_at is None or cached.expires_at > datetime.now(timezone.utc):
+                        logger.info(f"✓ Demo cache HIT for {request.repo_url} (mode={scan_mode})")
+                        result = json.loads(cached.result_payload_json)
+                        result['cached'] = True
+                        return result
+                
+                logger.info(f"⚠ Demo cache MISS for {request.repo_url} (mode={scan_mode}) - running live scan")
+            except Exception as e:
+                logger.warning(f"Cache lookup failed: {str(e)} - falling back to live scan")
         
         # Create scan job (normal flow or cache miss)
         scan_job = ScanJob(
