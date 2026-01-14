@@ -49,9 +49,16 @@ def prewarm_demo_scans():
                     DemoScanCache.scan_version == SCAN_VERSION
                 ).first()
                 
-                if existing_cache and existing_cache.expires_at > datetime.now(timezone.utc):
-                    print(f"    ✓ Cache valid (expires {existing_cache.expires_at})")
-                    continue
+                if existing_cache:
+                    # Handle timezone-aware comparison
+                    expires_at = existing_cache.expires_at
+                    if expires_at.tzinfo is None:
+                        from datetime import timezone as tz
+                        expires_at = expires_at.replace(tzinfo=tz.utc)
+                    
+                    if expires_at > datetime.now(timezone.utc):
+                        print(f"    ✓ Cache valid (expires {expires_at})")
+                        continue
                 
                 print(f"    Running scan...")
                 
