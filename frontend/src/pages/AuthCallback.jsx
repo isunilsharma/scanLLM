@@ -58,12 +58,10 @@ const AuthCallback = () => {
       
       console.log('AuthCallback: Token and user stored in localStorage');
       console.log('AuthCallback: Cleared all cached repo data for user isolation');
-      console.log('AuthCallback: Redirecting to /app/repos with window.location.href');
+      console.log('AuthCallback: Redirecting to /app/repos with window.location.replace()');
 
-      // Use window.location.href for reliable redirect
-      setTimeout(() => {
-        window.location.href = '/app/repos';
-      }, 300);
+      // Force full page reload (more reliable than href with timeout)
+      window.location.replace('/app/repos');
       
     } catch (error) {
       clearTimeout(timeoutId);
