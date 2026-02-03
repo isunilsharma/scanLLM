@@ -18,7 +18,6 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const hasFetchedRepos = useRef(false);
 
   // Load repos only when authenticated and not already fetched
   useEffect(() => {
