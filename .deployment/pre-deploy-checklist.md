@@ -5,7 +5,7 @@
 ### Frontend Environment Variables
 - [ ] `REACT_APP_BACKEND_URL` is set to production URL
   - ✅ Correct: `https://ai-reposcan.emergent.host` or `https://scanllm.ai`
-  - ❌ Incorrect: `https://ai-reposcan.preview.emergentagent.com` or `http://localhost:8001`
+  - ❌ Incorrect: `https://aireposcan.preview.emergentagent.com` or `http://localhost:8001`
 
 ### Backend Environment Variables
 - [ ] `EMERGENT_LLM_KEY` is set (for AI explanations)

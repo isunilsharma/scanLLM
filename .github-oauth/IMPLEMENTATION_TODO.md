@@ -100,7 +100,7 @@
 
 **Callback URLs Configured:**
 - Production: https://scanllm.ai/auth/github/callback
-- Preview: https://ai-reposcan.preview.emergentagent.com/auth/github/callback
+- Preview: https://aireposcan.preview.emergentagent.com/auth/github/callback
 
 **Permissions Required:**
 - Repository: Contents (Read-only)

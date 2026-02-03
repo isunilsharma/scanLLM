@@ -6,7 +6,7 @@
   "urls": {
     "production": "https://scanllm.ai",
     "backend_default": "https://ai-reposcan.emergent.host",
-    "preview": "https://ai-reposcan.preview.emergentagent.com"
+    "preview": "https://aireposcan.preview.emergentagent.com"
   },
   
   "environment_variables": {
@@ -16,7 +16,7 @@
           "name": "REACT_APP_BACKEND_URL",
           "description": "Backend API base URL",
           "production_value": "https://ai-reposcan.emergent.host",
-          "preview_value": "https://ai-reposcan.preview.emergentagent.com",
+          "preview_value": "https://aireposcan.preview.emergentagent.com",
           "validation": "Must NOT contain 'localhost' or 'preview' for production"
         },
         {

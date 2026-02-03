@@ -71,7 +71,7 @@ app.add_middleware(
     allow_origins=[
         "https://scanllm.ai",
         "https://ai-reposcan.emergent.host",
-        "https://ai-reposcan.preview.emergentagent.com",
+        "https://aireposcan.preview.emergentagent.com",
         "http://localhost:3000"
     ],
     allow_methods=["*"],

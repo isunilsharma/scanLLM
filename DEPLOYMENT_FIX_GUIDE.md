@@ -13,7 +13,7 @@ When React builds, it **bakes** the `REACT_APP_BACKEND_URL` value into the JavaS
 2. Find your app deployment (ai-reposcan)
 3. Look for **"Environment Variables"** or **"Settings"** section
 4. Find `REACT_APP_BACKEND_URL`
-5. Change from: `https://ai-reposcan.preview.emergentagent.com`
+5. Change from: `https://aireposcan.preview.emergentagent.com`
 6. Change to: `https://ai-reposcan.emergent.host`
 7. Click **Save**
 
