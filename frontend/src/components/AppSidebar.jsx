@@ -81,38 +81,6 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  const loadRepos = async () => {
-    setLoading(true);
-    const token = localStorage.getItem('auth_token');
-    
-    // Safety check: don't make API call without token
-    if (!token) {
-      console.warn('AppSidebar: No auth token found, skipping API call');
-      setLoading(false);
-      return;
-    }
-    
-    console.log('AppSidebar: Loading repos with filter:', filter);
-    
-    try {
-      const response = await axios.get(`${API}/github/repos`, {
-        params: { visibility: filter },
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setRepos(response.data.repos || []);
-      console.log(`AppSidebar: Loaded ${response.data.repos?.length || 0} repos`);
-    } catch (error) {
-      console.error('AppSidebar: Failed to load repos:', error);
-      // Only clear repos on 401 (unauthorized), not on other errors
-      if (error.response?.status === 401) {
-        console.log('AppSidebar: 401 response - may need to re-authenticate');
-        setRepos([]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleInstallApp = () => {
     // Redirect to GitHub App installation
     window.open('https://github.com/apps/scanllm-ai/installations/new', '_blank');
