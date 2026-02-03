@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Input } from './ui/input';
@@ -19,7 +19,39 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
 
-  // Load repos only when authenticated and not already fetched
+  const loadRepos = useCallback(async () => {
+    setLoading(true);
+    const token = localStorage.getItem('auth_token');
+    
+    // Safety check: don't make API call without token
+    if (!token) {
+      console.warn('AppSidebar: No auth token found, skipping API call');
+      setLoading(false);
+      return;
+    }
+    
+    console.log('AppSidebar: Loading repos with filter:', filter);
+    
+    try {
+      const response = await axios.get(`${API}/github/repos`, {
+        params: { visibility: filter },
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setRepos(response.data.repos || []);
+      console.log(`AppSidebar: Loaded ${response.data.repos?.length || 0} repos`);
+    } catch (error) {
+      console.error('AppSidebar: Failed to load repos:', error);
+      // Only clear repos on 401 (unauthorized), not on other errors
+      if (error.response?.status === 401) {
+        console.log('AppSidebar: 401 response - may need to re-authenticate');
+        setRepos([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [filter]);
+
+  // Load repos only when authenticated
   useEffect(() => {
     // Wait for auth to be ready before fetching repos
     if (authLoading) {
@@ -35,7 +67,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
     
     // Fetch repos when authenticated
     loadRepos();
-  }, [filter, isAuthenticated, authLoading]);
+  }, [loadRepos, isAuthenticated, authLoading]);
 
   // ESC key to close drawer
   useEffect(() => {
