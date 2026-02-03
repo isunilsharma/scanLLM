@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
+import { useAuth } from '../context/AuthContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -12,14 +13,30 @@ const API = `${BACKEND_URL}/api`;
 const AppSidebar = ({ onRepoSelect, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const hasFetchedRepos = useRef(false);
 
+  // Load repos only when authenticated and not already fetched
   useEffect(() => {
+    // Wait for auth to be ready before fetching repos
+    if (authLoading) {
+      console.log('AppSidebar: Waiting for auth to complete...');
+      return;
+    }
+    
+    if (!isAuthenticated) {
+      console.log('AppSidebar: Not authenticated, skipping repo fetch');
+      setLoading(false);
+      return;
+    }
+    
+    // Fetch repos when authenticated
     loadRepos();
-  }, [filter]);
+  }, [filter, isAuthenticated, authLoading]);
 
   // ESC key to close drawer
   useEffect(() => {
@@ -37,18 +54,29 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
     
+    // Safety check: don't make API call without token
+    if (!token) {
+      console.warn('AppSidebar: No auth token found, skipping API call');
+      setLoading(false);
+      return;
+    }
+    
     console.log('AppSidebar: Loading repos with filter:', filter);
     
     try {
       const response = await axios.get(`${API}/github/repos`, {
         params: { visibility: filter },
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       setRepos(response.data.repos || []);
       console.log(`AppSidebar: Loaded ${response.data.repos?.length || 0} repos`);
     } catch (error) {
       console.error('AppSidebar: Failed to load repos:', error);
-      setRepos([]); // Clear repos on error for security
+      // Only clear repos on 401 (unauthorized), not on other errors
+      if (error.response?.status === 401) {
+        console.log('AppSidebar: 401 response - may need to re-authenticate');
+        setRepos([]);
+      }
     } finally {
       setLoading(false);
     }
