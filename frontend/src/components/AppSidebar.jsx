@@ -167,7 +167,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
                   <ol className="text-xs text-gray-600 space-y-1">
                     <li>1. Click Install below</li>
                     <li>2. Select repositories</li>
-                    <li>3. Click "Install"</li>
+                    <li>3. Click &ldquo;Install&rdquo;</li>
                     <li>4. Return here</li>
                   </ol>
                 </div>
