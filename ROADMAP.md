@@ -234,21 +234,79 @@
 
 ---
 
-## POST-LAUNCH (Months 3-6) — Do NOT build these now
+## NEXT FEATURES — Prioritized Roadmap (Open Source vs Paid)
 
-- Full GitHub App with automated PR scanning (webhooks, Check Runs)
-- Tree-sitter JS/TS deep analysis (upgrade from regex)
-- Drift detection between consecutive scans
-- Prompt injection static detection (AST taint analysis)
-- License risk detection for AI models/packages
-- Slack/email notifications
-- NIST AI RMF / EU AI Act compliance mapping
-- SSO/SAML (enterprise gate feature)
-- Custom scanning rules/policies (enterprise)
-- Multi-SCM support (GitLab, Bitbucket, Azure DevOps)
-- Self-hosted Docker deployment
-- Audit logging
-- AI provider concentration & blast radius analysis
+**Strategy:** OSS gives you genuinely useful single-repo scanning. Paid gives you organizational visibility, historical tracking, compliance outputs, and policy enforcement. The line is natural: individual dev needs (free) vs team/enterprise needs (paid).
+
+---
+
+### P0 — Build Next (Unlocks revenue or drives adoption immediately)
+
+| # | Feature | Tier | Customer Value |
+|---|---------|------|----------------|
+| 1 | **Scan Diff / Drift Detection** | [PAID] | Compare consecutive scans of the same repo. Surface new AI deps added, models swapped, secrets introduced, risk score delta. Answers the #1 question after first scan: "what changed?" Creates retention through historical value. |
+| 2 | **Scheduled / Webhook-Triggered Scanning** | [PAID] | Scan repos automatically on a schedule (daily/weekly) or on every push via GitHub webhook. Eliminates manual re-scanning. Required for continuous compliance evidence. |
+| 3 | **Policy Engine (Pass/Fail Rules)** | [PAID] | Define org policies: "no hardcoded API keys," "no unapproved LLM providers," "risk score < 60." CI/CD blocks merges on violations. Turns ScanLLM from visibility tool into governance tool. Primary revenue driver. |
+| 4 | **PyPI-Published CLI** | [OSS] | `pip install scanllm && scanllm scan .` — zero-config, instant results. Table/JSON/CycloneDX output locally without SaaS. Primary adoption vector. Must work beautifully standalone. |
+| 5 | **Community Signature Contributions** | [OSS] | Make `ai_signatures.yaml` a standalone, well-documented community asset. Accept PRs for new providers, models, frameworks. This is the network effect engine — every contributor improves detection for everyone. |
+| 6 | **GitHub App with PR Annotations** | [PAID] | One-click GitHub App install → scans every PR → posts inline annotations on new AI findings. Lower friction than current GitHub Action approach. Fail checks on policy violations. |
+
+### P1 — Build Soon (High value, strengthens competitive position)
+
+| # | Feature | Tier | Customer Value |
+|---|---------|------|----------------|
+| 7 | **Org-Wide Dashboard with Aggregate Risk** | [PAID] | Roll up scan results across all repos. Show total AI components, risk distribution, most common providers, highest-risk repos, trend charts over time. The view the CISO needs. Justifies per-seat/per-repo pricing. |
+| 8 | **EU AI Act Compliance Mapping** | [PAID] | Map findings to EU AI Act risk categories (unacceptable, high-risk, limited, minimal). Flag high-risk AI system indicators. Generate compliance evidence. **Deadline: Aug 2026** — creates genuine purchase urgency. |
+| 9 | **NIST AI RMF Mapping** | [PAID] | Map findings to NIST AI Risk Management Framework categories. Produce NIST-aligned risk assessment reports. Required by US federal agencies and their contractors. |
+| 10 | **Tree-sitter JS/TS Deep Analysis** | [OSS] | Replace regex-based JS/TS scanning with tree-sitter AST parsing. Catches patterns regex misses: variable aliasing, dynamic imports, indirect API calls. ~60% of AI codebases include JS/TS. |
+| 11 | **License Risk Detection** | [OSS] | Flag AI packages with restrictive licenses (AGPL, SSPL, custom non-commercial). Flag models with non-commercial licenses (LLaMA community, etc.). 68% of codebases have license conflicts — AI model licensing is even more confusing. |
+| 12 | **Multi-SCM Support (GitLab, Bitbucket)** | [PAID] | Support GitLab and Bitbucket Cloud for repo listing and OAuth. Expands TAM beyond GitHub-only shops. |
+| 13 | **Prompt Injection Taint Analysis** | [OSS] | Track user input from request parameters through to LLM prompt construction. Flag cases where user input reaches a prompt without sanitization. OWASP LLM01 — the most-discussed LLM vulnerability. |
+
+### P2 — Build Later (Solidifies enterprise position)
+
+| # | Feature | Tier | Customer Value |
+|---|---------|------|----------------|
+| 14 | **SSO/SAML Authentication** | [PAID] | Okta, Azure AD, Google Workspace SSO. Enterprise gate feature — required for any deal over $10K/year. |
+| 15 | **Custom Scanning Rules** | [PAID] | Org-defined detection patterns beyond ai_signatures.yaml. Example: "flag usage of internal AI wrapper library version < 2.0." |
+| 16 | **Audit Logging** | [PAID] | Log every scan, report download, policy change, user action. Required for SOC 2 Type II and regulatory compliance. |
+| 17 | **API Export to GRC Platforms** | [PAID] | Structured API endpoints exporting AI inventory to ServiceNow, Archer, OneTrust. ScanLLM becomes the "AI discovery layer" in existing compliance toolchains. |
+| 18 | **Slack/Teams/Email Notifications** | [PAID] | Alert on: scan complete, risk score increase, new critical finding, policy violation. Table-stakes for team adoption. |
+| 19 | **Self-Hosted Docker Deployment** | [PAID] | Docker Compose for air-gapped or regulated environments that cannot send code to SaaS. |
+| 20 | **Public Scan Pages (Shareable)** | [OSS] | Unique URL per scan result. Read-only dependency graph + findings. "Scan your own repo" CTA. Viral distribution — OSS maintainers share their AI-BOM publicly. |
+| 21 | **Go/Rust/Java Scanner Support** | [OSS] | Go (go-openai, LangChainGo), Rust (async-openai, rig), Java (LangChain4j, Spring AI). Broadens TAM significantly. |
+
+### P3 — Future Vision (Market expansion plays)
+
+| # | Feature | Tier | Customer Value |
+|---|---------|------|----------------|
+| 22 | **AI Architecture Benchmarking** | [PAID] | "78% of similar architectures also use a fallback LLM provider. You don't." Anonymous, aggregate pattern intelligence that improves with scan volume. |
+| 23 | **Runtime Agent Monitoring Integration** | [PAID] | Lightweight SDK correlating static findings with runtime agent behavior. Bridge "what AI is in the code" → "what is the AI doing." Partnership opportunity with runtime players. |
+| 24 | **AI Supply Chain Vulnerability Database** | [OSS] | Curated DB of AI-specific vulnerabilities: model poisoning incidents, framework CVEs, prompt injection techniques. Like a focused NVD/OSV for AI. Community-contributed, feeds into scans. |
+| 25 | **IDE Extension (VS Code, JetBrains)** | [OSS] | Real-time AI dependency highlighting and OWASP warnings as developers write code. Shift-left to the earliest point. |
+| 26 | **Compliance Report Templates Library** | [PAID] | Pre-built templates for SOC 2 AI addendum, ISO 42001, EU AI Act technical documentation, FDA AI/ML guidance. Maps ScanLLM findings to specific evidence each framework requires. |
+| 27 | **Multi-Cloud Model Gateway Detection** | [OSS] | Detect Azure AI Gateway, AWS Bedrock proxy, LiteLLM, OpenRouter usage. Map the routing layer between application code and model providers. |
+
+---
+
+### Revenue Drivers (Priority Order)
+1. **Policy Engine + CI/CD blocking** (P0) — turns visibility into governance, creates daily engagement
+2. **Scan Diff / Drift Detection** (P0) — creates retention, makes historical data valuable
+3. **EU AI Act Compliance Mapping** (P1) — hard regulatory deadline (Aug 2026) creates purchase urgency
+4. **Org-Wide Dashboard** (P1) — justifies per-seat/per-repo pricing model
+5. **SSO/SAML + Audit Logging** (P2) — enterprise gate features that unlock $10K+ deals
+
+### Adoption Drivers (Priority Order)
+1. **PyPI-published CLI** (P0) — zero-friction first scan experience
+2. **Community signature contributions** (P0) — network effect on detection quality
+3. **Tree-sitter JS/TS upgrade** (P1) — accuracy improvement that builds trust
+4. **Public scan pages** (P2) — viral distribution through OSS maintainers
+5. **IDE extension** (P3) — shift-left developer experience
+
+### Key Timing
+- **EU AI Act high-risk rules effective Aug 2026** — compliance features must ship by Q2 2026
+- **Agentic AI explosion** (CrewAI, LangGraph, OpenAI Agents SDK) — agent-specific scanning and LLM06 detection are timely differentiators
+- **MCP adoption accelerating** — ScanLLM already detects MCP configs, ahead of most competitors
 
 ---
 
