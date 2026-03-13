@@ -1,0 +1,680 @@
+# ScanLLM AI Detection Signatures
+# This file defines all patterns the scanner looks for.
+# Add new providers/frameworks here — no code changes needed.
+# Version: 1.0.0
+
+providers:
+  openai:
+    display_name: "OpenAI"
+    category: "llm_provider"
+    python:
+      imports:
+        - "openai"
+        - "from openai import"
+      calls:
+        - "client.chat.completions.create"
+        - "openai.ChatCompletion.create"
+        - "client.embeddings.create"
+        - "openai.Embedding.create"
+        - "client.images.generate"
+        - "client.audio.transcriptions.create"
+        - "client.moderations.create"
+        - "OpenAI()"
+        - "AsyncOpenAI()"
+      models:
+        - "gpt-4o"
+        - "gpt-4o-mini"
+        - "gpt-4-turbo"
+        - "gpt-4"
+        - "gpt-3.5-turbo"
+        - "o1"
+        - "o1-mini"
+        - "o1-pro"
+        - "o3"
+        - "o3-mini"
+        - "o4-mini"
+        - "text-embedding-3-small"
+        - "text-embedding-3-large"
+        - "text-embedding-ada-002"
+        - "dall-e-3"
+        - "whisper-1"
+        - "tts-1"
+    javascript:
+      imports:
+        - "from 'openai'"
+        - "require('openai')"
+        - "from \"openai\""
+      calls:
+        - "new OpenAI("
+        - "openai.chat.completions.create"
+        - "openai.embeddings.create"
+    env_vars:
+      - "OPENAI_API_KEY"
+      - "OPENAI_ORG_ID"
+      - "OPENAI_BASE_URL"
+      - "OPENAI_API_BASE"
+    endpoint_urls:
+      - "api.openai.com"
+    risk_weight: 1.0
+
+  anthropic:
+    display_name: "Anthropic"
+    category: "llm_provider"
+    python:
+      imports:
+        - "anthropic"
+        - "from anthropic import"
+      calls:
+        - "client.messages.create"
+        - "client.completions.create"
+        - "Anthropic()"
+        - "AsyncAnthropic()"
+      models:
+        - "claude-opus-4-20250514"
+        - "claude-sonnet-4-20250514"
+        - "claude-haiku-4-5-20251001"
+        - "claude-3-5-sonnet"
+        - "claude-3-5-haiku"
+        - "claude-3-opus"
+        - "claude-3-sonnet"
+        - "claude-3-haiku"
+    javascript:
+      imports:
+        - "from '@anthropic-ai/sdk'"
+        - "require('@anthropic-ai/sdk')"
+      calls:
+        - "new Anthropic("
+        - "anthropic.messages.create"
+    env_vars:
+      - "ANTHROPIC_API_KEY"
+    endpoint_urls:
+      - "api.anthropic.com"
+    risk_weight: 1.0
+
+  google_ai:
+    display_name: "Google AI"
+    category: "llm_provider"
+    python:
+      imports:
+        - "google.generativeai"
+        - "from google.generativeai import"
+        - "vertexai"
+        - "from vertexai.generative_models import"
+        - "from vertexai.language_models import"
+      calls:
+        - "genai.GenerativeModel"
+        - "GenerativeModel("
+        - "model.generate_content"
+        - "TextGenerationModel.from_pretrained"
+      models:
+        - "gemini-2.0-flash"
+        - "gemini-2.0-pro"
+        - "gemini-1.5-flash"
+        - "gemini-1.5-pro"
+        - "gemini-1.0-pro"
+    javascript:
+      imports:
+        - "from '@google/generative-ai'"
+        - "require('@google/generative-ai')"
+    env_vars:
+      - "GOOGLE_API_KEY"
+      - "GOOGLE_APPLICATION_CREDENTIALS"
+      - "GOOGLE_CLOUD_PROJECT"
+    risk_weight: 1.0
+
+  aws_bedrock:
+    display_name: "AWS Bedrock"
+    category: "llm_provider"
+    python:
+      imports:
+        - "boto3"
+      calls:
+        - "boto3.client('bedrock-runtime')"
+        - "boto3.client('bedrock')"
+        - "client.invoke_model"
+        - "client.invoke_model_with_response_stream"
+        - "BedrockRuntimeClient"
+      models:
+        - "anthropic.claude"
+        - "amazon.titan"
+        - "meta.llama"
+        - "ai21.jamba"
+        - "cohere.command"
+    env_vars:
+      - "AWS_ACCESS_KEY_ID"
+      - "AWS_SECRET_ACCESS_KEY"
+      - "AWS_DEFAULT_REGION"
+      - "AWS_BEDROCK_REGION"
+    risk_weight: 1.0
+
+  azure_openai:
+    display_name: "Azure OpenAI"
+    category: "llm_provider"
+    python:
+      imports:
+        - "from openai import AzureOpenAI"
+      calls:
+        - "AzureOpenAI("
+        - "AsyncAzureOpenAI("
+    env_vars:
+      - "AZURE_OPENAI_API_KEY"
+      - "AZURE_OPENAI_ENDPOINT"
+      - "AZURE_OPENAI_API_VERSION"
+      - "AZURE_OPENAI_DEPLOYMENT_NAME"
+    endpoint_urls:
+      - ".openai.azure.com"
+    risk_weight: 1.0
+
+  cohere:
+    display_name: "Cohere"
+    category: "llm_provider"
+    python:
+      imports:
+        - "cohere"
+        - "from cohere import"
+      calls:
+        - "cohere.Client("
+        - "co.chat("
+        - "co.embed("
+        - "co.rerank("
+      models:
+        - "command-r-plus"
+        - "command-r"
+        - "command"
+        - "embed-english-v3.0"
+        - "embed-multilingual-v3.0"
+    env_vars:
+      - "COHERE_API_KEY"
+      - "CO_API_KEY"
+    risk_weight: 1.0
+
+  mistral:
+    display_name: "Mistral AI"
+    category: "llm_provider"
+    python:
+      imports:
+        - "mistralai"
+        - "from mistralai import"
+      calls:
+        - "Mistral("
+        - "client.chat.complete"
+        - "client.embeddings.create"
+      models:
+        - "mistral-large"
+        - "mistral-medium"
+        - "mistral-small"
+        - "open-mistral-nemo"
+        - "codestral"
+    env_vars:
+      - "MISTRAL_API_KEY"
+    risk_weight: 1.0
+
+  together_ai:
+    display_name: "Together AI"
+    category: "llm_provider"
+    python:
+      imports:
+        - "together"
+        - "from together import"
+      calls:
+        - "Together("
+        - "client.chat.completions.create"
+    env_vars:
+      - "TOGETHER_API_KEY"
+    risk_weight: 0.8
+
+  groq:
+    display_name: "Groq"
+    category: "llm_provider"
+    python:
+      imports:
+        - "groq"
+        - "from groq import"
+      calls:
+        - "Groq("
+        - "client.chat.completions.create"
+    env_vars:
+      - "GROQ_API_KEY"
+    risk_weight: 0.8
+
+  deepseek:
+    display_name: "DeepSeek"
+    category: "llm_provider"
+    python:
+      imports:
+        - "from openai import OpenAI"
+      calls: []
+      models:
+        - "deepseek-chat"
+        - "deepseek-reasoner"
+        - "deepseek-coder"
+    endpoint_urls:
+      - "api.deepseek.com"
+    env_vars:
+      - "DEEPSEEK_API_KEY"
+    risk_weight: 1.2  # Higher risk due to data residency concerns
+
+# ── Vector Databases ──
+
+vector_databases:
+  chromadb:
+    display_name: "ChromaDB"
+    category: "vector_db"
+    python:
+      imports:
+        - "chromadb"
+        - "from chromadb import"
+      calls:
+        - "chromadb.Client("
+        - "chromadb.PersistentClient("
+        - "chromadb.HttpClient("
+        - "client.get_collection"
+        - "client.create_collection"
+        - "collection.add"
+        - "collection.query"
+        - "collection.upsert"
+    risk_weight: 0.5
+
+  pinecone:
+    display_name: "Pinecone"
+    category: "vector_db"
+    python:
+      imports:
+        - "pinecone"
+        - "from pinecone import"
+      calls:
+        - "Pinecone("
+        - "pc.Index("
+        - "index.upsert"
+        - "index.query"
+        - "index.delete"
+    env_vars:
+      - "PINECONE_API_KEY"
+      - "PINECONE_ENVIRONMENT"
+      - "PINECONE_INDEX"
+    risk_weight: 0.7
+
+  qdrant:
+    display_name: "Qdrant"
+    category: "vector_db"
+    python:
+      imports:
+        - "qdrant_client"
+        - "from qdrant_client import"
+      calls:
+        - "QdrantClient("
+        - "client.upsert"
+        - "client.search"
+        - "client.create_collection"
+    env_vars:
+      - "QDRANT_URL"
+      - "QDRANT_API_KEY"
+    risk_weight: 0.5
+
+  weaviate:
+    display_name: "Weaviate"
+    category: "vector_db"
+    python:
+      imports:
+        - "weaviate"
+        - "from weaviate import"
+      calls:
+        - "weaviate.connect_to_local"
+        - "weaviate.connect_to_wcs"
+        - "weaviate.connect_to_custom"
+        - "client.collections.get"
+        - "client.collections.create"
+    env_vars:
+      - "WEAVIATE_URL"
+      - "WEAVIATE_API_KEY"
+    risk_weight: 0.5
+
+  faiss:
+    display_name: "FAISS"
+    category: "vector_db"
+    python:
+      imports:
+        - "faiss"
+        - "import faiss"
+      calls:
+        - "faiss.IndexFlatL2"
+        - "faiss.IndexIVFFlat"
+        - "faiss.read_index"
+        - "faiss.write_index"
+        - "index.add"
+        - "index.search"
+    risk_weight: 0.3
+
+  milvus:
+    display_name: "Milvus"
+    category: "vector_db"
+    python:
+      imports:
+        - "pymilvus"
+        - "from pymilvus import"
+      calls:
+        - "connections.connect"
+        - "Collection("
+        - "collection.insert"
+        - "collection.search"
+    env_vars:
+      - "MILVUS_HOST"
+      - "MILVUS_PORT"
+    risk_weight: 0.5
+
+  pgvector:
+    display_name: "pgvector"
+    category: "vector_db"
+    python:
+      imports:
+        - "pgvector"
+        - "from pgvector.sqlalchemy import Vector"
+        - "from pgvector.psycopg2 import register_vector"
+      calls:
+        - "Vector("
+        - "register_vector"
+    risk_weight: 0.4
+
+# ── Orchestration Frameworks ──
+
+frameworks:
+  langchain:
+    display_name: "LangChain"
+    category: "orchestration_framework"
+    python:
+      imports:
+        - "langchain"
+        - "langchain_openai"
+        - "langchain_anthropic"
+        - "langchain_google_genai"
+        - "langchain_community"
+        - "langchain_core"
+        - "langchain_text_splitters"
+        - "langgraph"
+        - "langserve"
+        - "langsmith"
+      calls:
+        - "ChatOpenAI("
+        - "ChatAnthropic("
+        - "ChatGoogleGenerativeAI("
+        - "RetrievalQA"
+        - "ConversationalRetrievalChain"
+        - "LLMChain("
+        - "PromptTemplate("
+        - "ChatPromptTemplate"
+        - "RecursiveCharacterTextSplitter"
+        - "StateGraph("
+    javascript:
+      imports:
+        - "from '@langchain/openai'"
+        - "from '@langchain/anthropic'"
+        - "from '@langchain/core'"
+        - "from '@langchain/community'"
+        - "from 'langchain'"
+    env_vars:
+      - "LANGCHAIN_API_KEY"
+      - "LANGCHAIN_TRACING_V2"
+      - "LANGCHAIN_PROJECT"
+    risk_weight: 0.6
+
+  llamaindex:
+    display_name: "LlamaIndex"
+    category: "orchestration_framework"
+    python:
+      imports:
+        - "llama_index"
+        - "from llama_index.core import"
+        - "from llama_index.llms"
+        - "from llama_index.embeddings"
+        - "from llama_index.vector_stores"
+        - "from llama_index.readers"
+      calls:
+        - "VectorStoreIndex"
+        - "SimpleDirectoryReader"
+        - "ServiceContext"
+        - "StorageContext"
+        - "Settings.llm"
+        - "Settings.embed_model"
+    risk_weight: 0.6
+
+  crewai:
+    display_name: "CrewAI"
+    category: "agent_tool"
+    python:
+      imports:
+        - "crewai"
+        - "from crewai import"
+        - "from crewai_tools import"
+      calls:
+        - "Agent("
+        - "Task("
+        - "Crew("
+        - "Process."
+    risk_patterns:
+      - pattern: "tools=\\["
+        owasp: "LLM06"
+        severity: "medium"
+        message: "Agent with tool access — verify tools follow least-privilege principle"
+      - pattern: "allow_delegation=True"
+        owasp: "LLM06"
+        severity: "high"
+        message: "Agent delegation enabled — verify delegation scope is appropriate"
+    risk_weight: 1.2
+
+  autogen:
+    display_name: "AutoGen / AG2"
+    category: "agent_tool"
+    python:
+      imports:
+        - "autogen"
+        - "from autogen import"
+        - "ag2"
+        - "from ag2 import"
+      calls:
+        - "AssistantAgent("
+        - "UserProxyAgent("
+        - "GroupChat("
+        - "GroupChatManager("
+    risk_patterns:
+      - pattern: "code_execution_config"
+        owasp: "LLM06"
+        severity: "critical"
+        message: "Agent with code execution capability — high risk for arbitrary code execution"
+    risk_weight: 1.5
+
+  dspy:
+    display_name: "DSPy"
+    category: "orchestration_framework"
+    python:
+      imports:
+        - "dspy"
+        - "import dspy"
+      calls:
+        - "dspy.OpenAI("
+        - "dspy.Anthropic("
+        - "dspy.Signature"
+        - "dspy.ChainOfThought"
+        - "dspy.Predict"
+        - "dspy.Module"
+    risk_weight: 0.6
+
+  haystack:
+    display_name: "Haystack"
+    category: "orchestration_framework"
+    python:
+      imports:
+        - "haystack"
+        - "from haystack import"
+        - "from haystack.components"
+      calls:
+        - "Pipeline("
+        - "OpenAIGenerator("
+        - "AnthropicGenerator("
+        - "DocumentStore("
+    risk_weight: 0.6
+
+  vercel_ai:
+    display_name: "Vercel AI SDK"
+    category: "orchestration_framework"
+    javascript:
+      imports:
+        - "from 'ai'"
+        - "from '@ai-sdk/openai'"
+        - "from '@ai-sdk/anthropic'"
+        - "from '@ai-sdk/google'"
+      calls:
+        - "generateText("
+        - "streamText("
+        - "generateObject("
+        - "streamObject("
+        - "embed("
+        - "embedMany("
+    risk_weight: 0.6
+
+# ── Inference / Serving ──
+
+inference:
+  vllm:
+    display_name: "vLLM"
+    category: "inference_server"
+    python:
+      imports:
+        - "vllm"
+        - "from vllm import"
+      calls:
+        - "LLM("
+        - "SamplingParams("
+        - "llm.generate"
+    docker_images:
+      - "vllm/vllm-openai"
+    risk_weight: 0.8
+
+  ollama:
+    display_name: "Ollama"
+    category: "inference_server"
+    python:
+      imports:
+        - "ollama"
+        - "import ollama"
+      calls:
+        - "ollama.chat("
+        - "ollama.generate("
+        - "ollama.embeddings("
+        - "ollama.pull("
+    endpoint_urls:
+      - "localhost:11434"
+      - "127.0.0.1:11434"
+      - "host.docker.internal:11434"
+    docker_images:
+      - "ollama/ollama"
+    env_vars:
+      - "OLLAMA_HOST"
+      - "OLLAMA_BASE_URL"
+    risk_weight: 0.4
+
+  huggingface:
+    display_name: "Hugging Face"
+    category: "llm_provider"
+    python:
+      imports:
+        - "transformers"
+        - "from transformers import"
+        - "huggingface_hub"
+        - "from huggingface_hub import"
+        - "sentence_transformers"
+        - "from sentence_transformers import"
+      calls:
+        - "AutoModel.from_pretrained"
+        - "AutoTokenizer.from_pretrained"
+        - "pipeline("
+        - "InferenceClient("
+        - "SentenceTransformer("
+    env_vars:
+      - "HF_TOKEN"
+      - "HUGGING_FACE_HUB_TOKEN"
+      - "HF_HOME"
+    risk_weight: 0.7
+
+  tgi:
+    display_name: "Text Generation Inference"
+    category: "inference_server"
+    docker_images:
+      - "ghcr.io/huggingface/text-generation-inference"
+    endpoint_urls:
+      - "localhost:8080"
+    risk_weight: 0.6
+
+# ── MCP (Model Context Protocol) ──
+
+mcp:
+  mcp_server:
+    display_name: "MCP Server"
+    category: "mcp_server"
+    config_files:
+      - "claude_desktop_config.json"
+      - ".cursor/mcp.json"
+      - ".codex/config.toml"
+      - "mcp.json"
+    python:
+      imports:
+        - "mcp"
+        - "from mcp import"
+        - "from mcp.server import"
+      calls:
+        - "Server("
+        - "McpServer("
+        - "@server.tool"
+        - "@server.resource"
+    javascript:
+      imports:
+        - "from '@modelcontextprotocol/sdk'"
+        - "require('@modelcontextprotocol/sdk')"
+      calls:
+        - "new McpServer("
+        - "server.tool("
+        - "server.resource("
+    risk_patterns:
+      - pattern: "stdio"
+        owasp: "LLM06"
+        severity: "medium"
+        message: "MCP server using stdio transport — verify server source is trusted"
+    risk_weight: 1.0
+
+# ── Security Risk Patterns (cross-cutting) ──
+
+risk_patterns:
+  hardcoded_api_key:
+    pattern: "(sk-[a-zA-Z0-9]{20,}|sk-proj-[a-zA-Z0-9-_]{20,})"
+    owasp: "LLM07"
+    severity: "critical"
+    message: "Hardcoded OpenAI API key detected"
+
+  eval_llm_output:
+    pattern: "eval\\(.*(?:response|result|output|completion|message)"
+    owasp: "LLM05"
+    severity: "critical"
+    message: "eval() called on LLM output — critical injection risk"
+
+  exec_llm_output:
+    pattern: "exec\\(.*(?:response|result|output|completion|message)"
+    owasp: "LLM05"
+    severity: "critical"
+    message: "exec() called on LLM output — critical code execution risk"
+
+  unsanitized_fstring_prompt:
+    pattern: "f['\"].*\\{(?:user_input|request|query|message|prompt)\\}.*['\"]"
+    owasp: "LLM01"
+    severity: "high"
+    message: "User input directly interpolated into prompt — prompt injection risk"
+
+  missing_max_tokens:
+    context: "completions.create"
+    absent_param: "max_tokens"
+    owasp: "LLM10"
+    severity: "low"
+    message: "LLM call without max_tokens — risk of unbounded token consumption"
+
+  deprecated_openai_api:
+    pattern: "openai\\.ChatCompletion\\.create"
+    severity: "medium"
+    message: "Using deprecated OpenAI API (pre-v1.0) — update to client.chat.completions.create()"
