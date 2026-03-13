@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 
 class AIDepScannerTester:
-    def __init__(self, base_url="https://aireposcan.preview.emergentagent.com"):
+    def __init__(self, base_url="http://localhost:8001"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.tests_run = 0

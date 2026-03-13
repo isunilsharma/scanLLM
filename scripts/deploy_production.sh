@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # ScanLLM.ai Production Deployment Script
-# Target: https://ai-reposcan.emergent.host
+# ScanLLM.ai Production Deployment
 #
 
 set -e
@@ -10,7 +10,7 @@ echo "========================================"
 echo "ScanLLM.ai Production Deployment"
 echo "========================================"
 echo ""
-echo "Target: https://ai-reposcan.emergent.host"
+echo "Target: http://localhost:8001"
 echo "Custom Domain: https://scanllm.ai"
 echo ""
 
@@ -94,7 +94,7 @@ echo "  - Performance: Parallel scanning + Smart filtering"
 echo ""
 echo "Next steps:"
 echo "  1. Deploy to Kubernetes cluster"
-echo "  2. Verify at: https://ai-reposcan.emergent.host"
+echo "  2. Verify at: http://localhost:8001"
 echo "  3. Test with sample repos"
 echo "  4. Monitor for 15 minutes"
 echo ""

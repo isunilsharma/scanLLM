@@ -55,7 +55,7 @@ def verify_backend_url_consistency():
                     if 'preview' in url:
                         print(f"  ⚠ WARNING: Frontend is using PREVIEW URL!")
                         print(f"  This will cause scans to fail in production.")
-                        print(f"  Expected: https://ai-reposcan.emergent.host or https://scanllm.ai")
+                        print(f"  Expected: http://localhost:8001 or https://scanllm.ai")
                         return False
                     elif 'localhost' in url:
                         print(f"  ⚠ WARNING: Frontend is using LOCALHOST!")
@@ -90,7 +90,7 @@ def main():
     # Check backend .env
     backend_ok = check_env_file(
         '/app/backend/.env',
-        ['EMERGENT_LLM_KEY', 'CORS_ORIGINS']
+        ['CORS_ORIGINS']
     )
     
     # Check frontend .env

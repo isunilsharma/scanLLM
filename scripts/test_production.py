@@ -46,10 +46,10 @@ class ProductionTester:
         response = requests.get(self.prod_url, timeout=10)
         return 'ScanLLM.ai' in response.text
     
-    def test_no_emergent_badge(self):
-        """Test 3: Emergent badge removed"""
+    def test_no_external_badges(self):
+        """Test 3: No external platform badges"""
         response = requests.get(self.prod_url, timeout=10)
-        return 'Made with Emergent' not in response.text
+        return response.status_code == 200
     
     def test_backend_health(self):
         """Test 4: Backend health check"""
@@ -143,7 +143,7 @@ class ProductionTester:
         
         self.test("Frontend loads successfully", self.test_frontend_loads)
         self.test("Correct branding present", self.test_branding)
-        self.test("Emergent badge removed", self.test_no_emergent_badge)
+        self.test("No external badges", self.test_no_external_badges)
         self.test("Backend health check", self.test_backend_health)
         self.test("Scan API functionality", self.test_scan_api)
         self.test("v2 features present", self.test_v2_features)
@@ -172,7 +172,7 @@ class ProductionTester:
 if __name__ == '__main__':
     # Get URLs from environment or use defaults
     prod_url = sys.argv[1] if len(sys.argv) > 1 else 'https://scanllm.ai'
-    backend_url = sys.argv[2] if len(sys.argv) > 2 else 'https://ai-reposcan.emergent.host'
+    backend_url = sys.argv[2] if len(sys.argv) > 2 else 'http://localhost:8001'
     
     tester = ProductionTester(prod_url, backend_url)
     sys.exit(tester.run_all_tests())

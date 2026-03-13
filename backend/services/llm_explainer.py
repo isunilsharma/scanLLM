@@ -18,27 +18,11 @@ async def explain_scan(scan_data: Dict[str, Any]) -> str:
     Uses only aggregated data, not raw code.
     """
     try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        
-        # Get API key from environment
-        api_key = os.getenv('EMERGENT_LLM_KEY')
-        if not api_key:
-            raise ValueError("EMERGENT_LLM_KEY not found in environment")
-        
         # Build context from scan data
         context = _build_scan_context(scan_data)
-        
-        # Initialize LLM chat
-        chat = LlmChat(
-            api_key=api_key,
-            session_id=f"scan_{scan_data.get('scan_id', 'unknown')}",
-            system_message="You are an AI engineering consultant analyzing code scan results. Provide clear, actionable insights for engineering leaders about their AI/LLM usage."
-        )
-        
-        # Use GPT-4o-mini for cost efficiency
-        chat.with_model("openai", "gpt-4o-mini")
-        
-        # Create prompt
+
+        system_message = "You are an AI engineering consultant analyzing code scan results. Provide clear, actionable insights for engineering leaders about their AI/LLM usage."
+
         prompt = f"""Analyze this AI dependency scan and provide a clear executive summary:
 
 REPOSITORY: {scan_data.get('repo_url')}
@@ -71,11 +55,34 @@ Please provide:
 4. Top 2-3 recommended actions
 
 Keep it concise and actionable for engineering leadership."""
-        
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
-        
-        return response
+
+        # Try Anthropic first, then fall back to OpenAI
+        anthropic_key = os.getenv('ANTHROPIC_API_KEY')
+        openai_key = os.getenv('OPENAI_API_KEY')
+
+        if anthropic_key:
+            import anthropic
+            client = anthropic.AsyncAnthropic(api_key=anthropic_key)
+            response = await client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=1024,
+                system=system_message,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.content[0].text
+        elif openai_key:
+            from openai import AsyncOpenAI
+            client = AsyncOpenAI(api_key=openai_key)
+            response = await client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response.choices[0].message.content
+        else:
+            raise ValueError("No LLM API key found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY in environment.")
         
     except Exception as e:
         logger.error(f"Failed to generate LLM explanation: {str(e)}")
