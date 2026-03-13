@@ -5,7 +5,13 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
 import { useAuth } from '../context/AuthContext';
+import Logo from './Logo';
+import {
+  Search, Plus, Clock, Settings, History, Shield,
+  Lock, Globe, X, Zap, GitBranch, ChevronRight
+} from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -22,28 +28,22 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
   const loadRepos = useCallback(async () => {
     setLoading(true);
     const token = localStorage.getItem('auth_token');
-    
-    // Safety check: don't make API call without token
+
     if (!token) {
       console.warn('AppSidebar: No auth token found, skipping API call');
       setLoading(false);
       return;
     }
-    
-    console.log('AppSidebar: Loading repos with filter:', filter);
-    
+
     try {
       const response = await axios.get(`${API}/github/repos`, {
         params: { visibility: filter },
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setRepos(response.data.repos || []);
-      console.log(`AppSidebar: Loaded ${response.data.repos?.length || 0} repos`);
     } catch (error) {
       console.error('AppSidebar: Failed to load repos:', error);
-      // Only clear repos on 401 (unauthorized), not on other errors
       if (error.response?.status === 401) {
-        console.log('AppSidebar: 401 response - may need to re-authenticate');
         setRepos([]);
       }
     } finally {
@@ -51,39 +51,35 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
     }
   }, [filter]);
 
-  // Load repos only when authenticated
   useEffect(() => {
-    // Wait for auth to be ready before fetching repos
-    if (authLoading) {
-      console.log('AppSidebar: Waiting for auth to complete...');
-      return;
-    }
-    
+    if (authLoading) return;
     if (!isAuthenticated) {
-      console.log('AppSidebar: Not authenticated, skipping repo fetch');
       setLoading(false);
       return;
     }
-    
-    // Fetch repos when authenticated
     loadRepos();
   }, [loadRepos, isAuthenticated, authLoading]);
 
-  // ESC key to close drawer
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && onClose) {
         onClose();
       }
     };
-    
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
   const handleInstallApp = () => {
-    // Redirect to GitHub App installation
     window.open('https://github.com/apps/scanllm-ai/installations/new', '_blank');
+  };
+
+  const handleNewScan = () => {
+    // Navigate to the first repo or a scan page
+    if (repos.length > 0) {
+      navigate(`/app/repo/${repos[0].owner}/${repos[0].name}`);
+    }
+    if (onRepoSelect) onRepoSelect();
   };
 
   const filteredRepos = repos.filter(repo =>
@@ -91,10 +87,8 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
   );
 
   const isRepoActive = (repoFullName) => {
-    // Extract owner and repo from current route
     const pathMatch = location.pathname.match(/\/app\/repo\/([^\/]+)\/([^\/]+)/);
     if (!pathMatch) return false;
-    
     const activeFullName = `${pathMatch[1]}/${pathMatch[2]}`;
     return activeFullName === repoFullName;
   };
@@ -108,61 +102,91 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
           className="md:hidden absolute top-4 right-4 p-2 text-gray-600 hover:text-gray-900 z-10"
           aria-label="Close menu"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X size={20} />
         </button>
       )}
-      
+
+      {/* Logo Header */}
+      <div className="p-4 border-b border-gray-100">
+        <Link to="/app" className="block">
+          <Logo size="default" />
+        </Link>
+      </div>
+
+      {/* New Scan Button */}
+      <div className="px-4 pt-4 pb-2">
+        <Button
+          onClick={handleNewScan}
+          className="w-full"
+          size="sm"
+          disabled={repos.length === 0 && !loading}
+        >
+          <Plus size={14} className="mr-1.5" />
+          New Scan
+        </Button>
+      </div>
+
       {/* Search */}
-      <div className="p-4 border-b border-gray-200">
-        <Input
-          placeholder="Search repos..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="mb-3"
-        />
-        
-        {/* Filters */}
-        <div className="flex gap-2">
+      <div className="px-4 pb-3">
+        <div className="relative">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Input
+            placeholder="Search repos..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 h-8 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="px-4 pb-3">
+        <div className="flex gap-1.5">
           {['all', 'private', 'public'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                 filter === f
                   ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
+              {f === 'private' && <Lock size={10} />}
+              {f === 'public' && <Globe size={10} />}
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
       </div>
 
+      <Separator />
+
+      {/* Section Header */}
+      <div className="px-4 pt-3 pb-1">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+          Your Repositories
+        </p>
+      </div>
+
       {/* Repo List */}
       <ScrollArea className="flex-1">
-        <div className="p-2">
+        <div className="px-2 pb-2">
           {loading ? (
-            <div className="space-y-2">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            <div className="space-y-1.5 p-2">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="h-14 bg-gray-100 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : repos.length === 0 ? (
             <div className="p-4">
-              {/* Installation Prompt */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center">
-                <svg className="w-12 h-12 mx-auto text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-center">
+                <Zap size={32} className="text-blue-600 mx-auto mb-3" />
                 <h3 className="font-bold text-gray-900 mb-2 text-sm">Install GitHub App</h3>
                 <p className="text-xs text-gray-700 mb-3">
                   Install ScanLLM.ai to access your repositories
                 </p>
-                
-                <div className="bg-white rounded p-3 mb-3 text-left">
+                <div className="bg-white rounded-lg p-3 mb-3 text-left">
                   <p className="text-xs font-medium text-gray-700 mb-2">Quick Steps:</p>
                   <ol className="text-xs text-gray-600 space-y-1">
                     <li>1. Click Install below</li>
@@ -171,17 +195,10 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
                     <li>4. Return here</li>
                   </ol>
                 </div>
-                
-                <button
-                  onClick={handleInstallApp}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded text-sm transition-colors"
-                >
+                <Button onClick={handleInstallApp} className="w-full" size="sm">
                   Install GitHub App
-                </button>
-                
-                <p className="text-xs text-gray-500 mt-2">
-                  Read-only access
-                </p>
+                </Button>
+                <p className="text-xs text-gray-500 mt-2">Read-only access</p>
               </div>
             </div>
           ) : filteredRepos.length === 0 ? (
@@ -189,42 +206,77 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
               <p>No repositories found</p>
             </div>
           ) : (
-            <div className="space-y-1">
-              {filteredRepos.map(repo => (
-                <button
-                  key={repo.full_name}
-                  onClick={() => {
-                    navigate(`/app/repo/${repo.owner}/${repo.name}`);
-                    if (onRepoSelect) onRepoSelect(); // Close sidebar on mobile
-                  }}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    isRepoActive(repo.full_name)
-                      ? 'bg-blue-50 border border-blue-200'
-                      : 'hover:bg-gray-50 border border-transparent'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-medium text-sm text-gray-900 truncate flex-1">
-                      {repo.name}
-                    </h3>
-                    {repo.private && (
-                      <Badge variant="secondary" className="text-xs ml-2 flex-shrink-0">Private</Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 truncate">{repo.owner}</p>
-                </button>
-              ))}
+            <div className="space-y-0.5">
+              {filteredRepos.map(repo => {
+                const active = isRepoActive(repo.full_name);
+                return (
+                  <button
+                    key={repo.full_name}
+                    onClick={() => {
+                      navigate(`/app/repo/${repo.owner}/${repo.name}`);
+                      if (onRepoSelect) onRepoSelect();
+                    }}
+                    className={`w-full text-left p-3 rounded-lg transition-all group ${
+                      active
+                        ? 'bg-blue-50 border border-blue-200'
+                        : 'hover:bg-gray-50 border border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h3 className="font-medium text-sm text-gray-900 truncate">
+                            {repo.name}
+                          </h3>
+                          {repo.private && (
+                            <Lock size={10} className="text-slate-400 flex-shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-400 truncate">{repo.owner}</p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {/* Risk score placeholder - populated when scan data available */}
+                        {repo.last_risk_score != null && (
+                          <Badge
+                            variant={repo.last_risk_score <= 40 ? 'default' : repo.last_risk_score <= 60 ? 'secondary' : 'destructive'}
+                            className="text-[10px] px-1.5"
+                          >
+                            <Shield size={8} className="mr-0.5" />
+                            {Math.round(repo.last_risk_score)}
+                          </Badge>
+                        )}
+                        <ChevronRight
+                          size={14}
+                          className={`text-slate-300 transition-transform ${active ? 'text-blue-400' : 'group-hover:translate-x-0.5'}`}
+                        />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
       </ScrollArea>
 
       {/* Sidebar Footer */}
-      <div className="p-4 border-t border-gray-200 space-y-2">
-        <Link to="/app/history" className="block text-sm text-gray-700 hover:text-primary transition-colors">
+      <Separator />
+      <div className="p-3 space-y-0.5">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+          Quick Links
+        </p>
+        <Link
+          to="/app/history"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+        >
+          <History size={14} />
           Scan History
         </Link>
-        <Link to="/app/settings" className="block text-sm text-gray-700 hover:text-primary transition-colors">
+        <Link
+          to="/app/settings"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+        >
+          <Settings size={14} />
           Settings
         </Link>
       </div>

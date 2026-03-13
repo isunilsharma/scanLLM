@@ -14,6 +14,7 @@ import OwnershipHotspots from './OwnershipHotspots';
 import AIHeatmap from './AIHeatmap';
 import ScanHistory from './ScanHistory';
 import ExplainRepoButton from './ExplainRepoButton';
+import SecurityOverview from './SecurityOverview';
 
 const COLORS = ['#1e293b', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
 
@@ -65,8 +66,23 @@ const ResultsOverview = ({ result, frameworks }) => {
       .slice(0, 5);
   }, [result]);
 
+  const hasRiskData = result.risk_score != null || result.risk_data != null;
+  const riskScore = result.risk_data || result.risk_score || 0;
+
   return (
     <div className="space-y-8">
+      {/* Security Overview - shown at top if risk data available */}
+      {hasRiskData && (
+        <>
+          <SecurityOverview
+            riskScore={riskScore}
+            owaspData={result.owasp_data}
+            graphAnalysis={result.graph_analysis}
+          />
+          <Separator />
+        </>
+      )}
+
       {/* Key Insights */}
       <KeyInsights result={result} />
 
@@ -139,7 +155,7 @@ const ResultsOverview = ({ result, frameworks }) => {
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
               />
               <Bar dataKey="count" fill="#1e293b" radius={[4, 4, 0, 0]} />

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ScanLLM AI Dependency Report — {{ org_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm 1.5cm;
+            @frame footer {
+                -pdf-frame-content: page-footer;
+                bottom: 0;
+                margin-left: 1.5cm;
+                margin-right: 1.5cm;
+                height: 1.2cm;
+            }
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-size: 22pt;
+            color: #0f0f23;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            font-size: 14pt;
+            color: #16213e;
+            border-bottom: 2px solid #0f3460;
+            padding-bottom: 4px;
+            margin-top: 24px;
+        }
+
+        h3 {
+            font-size: 11pt;
+            color: #0f3460;
+            margin-top: 16px;
+            margin-bottom: 6px;
+        }
+
+        /* Header */
+        .header {
+            background-color: #0f0f23;
+            color: #ffffff;
+            padding: 20px 24px;
+            margin: -2cm -1.5cm 20px -1.5cm;
+            width: 100%;
+        }
+
+        .header-title {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .header-subtitle {
+            font-size: 11pt;
+            color: #a0a0cc;
+            margin-top: 4px;
+        }
+
+        .header-meta {
+            font-size: 9pt;
+            color: #8888aa;
+            margin-top: 8px;
+        }
+
+        /* Risk Score Gauge */
+        .score-container {
+            text-align: center;
+            margin: 16px 0;
+        }
+
+        .score-circle {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            text-align: center;
+            line-height: 100px;
+            font-size: 28pt;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .score-green { background-color: #22c55e; }
+        .score-yellow { background-color: #eab308; }
+        .score-orange { background-color: #f97316; }
+        .score-red { background-color: #ef4444; }
+
+        .grade-label {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .grade-A { color: #22c55e; }
+        .grade-B { color: #84cc16; }
+        .grade-C { color: #eab308; }
+        .grade-D { color: #f97316; }
+        .grade-F { color: #ef4444; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 16px 0;
+            font-size: 9pt;
+        }
+
+        th {
+            background-color: #0f3460;
+            color: #ffffff;
+            padding: 6px 8px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #dde;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f4f4f8;
+        }
+
+        /* Severity badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 8pt;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .badge-critical { background-color: #991b1b; }
+        .badge-high { background-color: #ef4444; }
+        .badge-medium { background-color: #f97316; }
+        .badge-low { background-color: #eab308; color: #1a1a2e; }
+        .badge-info { background-color: #6366f1; }
+
+        /* OWASP status indicators */
+        .status-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+        }
+
+        .status-red { background-color: #ef4444; }
+        .status-yellow { background-color: #eab308; }
+        .status-green { background-color: #22c55e; }
+        .status-gray { background-color: #94a3b8; }
+
+        /* Bar chart via CSS */
+        .bar-row {
+            margin: 6px 0;
+        }
+
+        .bar-label {
+            display: inline-block;
+            width: 200px;
+            font-size: 9pt;
+            vertical-align: middle;
+        }
+
+        .bar-track {
+            display: inline-block;
+            width: 280px;
+            height: 16px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            vertical-align: middle;
+        }
+
+        .bar-fill {
+            display: block;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .bar-value {
+            display: inline-block;
+            width: 50px;
+            text-align: right;
+            font-size: 9pt;
+            font-weight: bold;
+            vertical-align: middle;
+        }
+
+        .bar-blue { background-color: #3b82f6; }
+        .bar-red { background-color: #ef4444; }
+        .bar-orange { background-color: #f97316; }
+        .bar-yellow { background-color: #eab308; }
+        .bar-green { background-color: #22c55e; }
+        .bar-purple { background-color: #8b5cf6; }
+
+        /* Summary boxes */
+        .summary-grid {
+            margin: 12px 0;
+        }
+
+        .summary-box {
+            display: inline-block;
+            width: 22%;
+            padding: 10px;
+            margin: 0 1%;
+            text-align: center;
+            border: 1px solid #dde;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+
+        .summary-box .value {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #0f3460;
+        }
+
+        .summary-box .label {
+            font-size: 8pt;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* Recommendations */
+        .recommendation {
+            padding: 8px 12px;
+            margin: 6px 0;
+            background-color: #f0f4ff;
+            border-left: 3px solid #3b82f6;
+            font-size: 9pt;
+        }
+
+        .recommendation-critical {
+            border-left-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .recommendation-high {
+            border-left-color: #f97316;
+            background-color: #fff7ed;
+        }
+
+        /* Executive summary */
+        .exec-summary {
+            background-color: #f8f9fc;
+            border: 1px solid #d0d5e0;
+            border-radius: 4px;
+            padding: 14px 18px;
+            margin: 12px 0;
+        }
+
+        /* Footer */
+        .footer {
+            font-size: 7pt;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid #dde;
+            padding-top: 4px;
+        }
+
+        /* Page break helper */
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<div class="header">
+    <div class="header-title">ScanLLM</div>
+    <div class="header-subtitle">AI Dependency Intelligence Report</div>
+    <div class="header-meta">
+        Organization: {{ org_name }} &nbsp;|&nbsp;
+        Repository: {{ scan_data.get('repo_name', 'N/A') }} &nbsp;|&nbsp;
+        Generated: {{ generated_at }}
+    </div>
+</div>
+
+<!-- ============ EXECUTIVE SUMMARY ============ -->
+<h2>1. Executive Summary</h2>
+
+<div class="score-container">
+    <div class="score-circle score-{{ score_color }}">{{ risk_score.get('overall_score', 0) | int }}</div>
+    <div class="grade-label grade-{{ risk_score.get('grade', 'C') }}">
+        Grade: {{ risk_score.get('grade', 'N/A') }}
+    </div>
+</div>
+
+<div class="summary-grid">
+    <div class="summary-box">
+        <div class="value">{{ scan_data.get('total_components', 0) }}</div>
+        <div class="label">AI Components</div>
+    </div>
+    <div class="summary-box">
+        <div class="value">{{ scan_data.get('total_occurrences', 0) }}</div>
+        <div class="label">Total Findings</div>
+    </div>
+    <div class="summary-box">
+        <div class="value">{{ risk_score.get('overall_score', 0) | int }}/100</div>
+        <div class="label">Risk Score</div>
+    </div>
+    <div class="summary-box">
+        <div class="value">{{ scan_data.get('files_scanned', 0) }}</div>
+        <div class="label">Files Scanned</div>
+    </div>
+</div>
+
+<div class="exec-summary">
+    <strong>Summary:</strong>
+    ScanLLM identified <strong>{{ scan_data.get('total_components', 0) }}</strong> AI/LLM components across
+    <strong>{{ scan_data.get('total_occurrences', 0) }}</strong> occurrences in this repository.
+    The overall risk score is <strong>{{ risk_score.get('overall_score', 0) | int }}/100</strong>
+    (Grade <strong>{{ risk_score.get('grade', 'N/A') }}</strong>).
+    {% if risk_score.get('overall_score', 0) >= 70 %}
+    <br/><br/><strong style="color:#ef4444;">Action Required:</strong> This repository has a high risk score.
+    Critical and high-severity findings should be addressed immediately.
+    {% elif risk_score.get('overall_score', 0) >= 40 %}
+    <br/><br/><strong style="color:#f97316;">Attention Needed:</strong> This repository has a moderate risk score.
+    Review the findings below and prioritize remediation of high-severity items.
+    {% else %}
+    <br/><br/><strong style="color:#22c55e;">Good Standing:</strong> This repository has a low risk score.
+    Continue monitoring for newly introduced AI dependencies.
+    {% endif %}
+</div>
+
+<!-- ============ AI INVENTORY ============ -->
+<h2>2. AI Component Inventory</h2>
+
+{% if components %}
+<table>
+    <thead>
+        <tr>
+            <th>Component</th>
+            <th>Type</th>
+            <th>Provider</th>
+            <th>Files</th>
+            <th>Risk Level</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comp in components %}
+        <tr>
+            <td><strong>{{ comp.name }}</strong></td>
+            <td>{{ comp.type }}</td>
+            <td>{{ comp.provider }}</td>
+            <td>{{ comp.files_count }}</td>
+            <td>
+                <span class="badge badge-{{ comp.severity | lower }}">{{ comp.severity | upper }}</span>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No AI components detected in this repository.</p>
+{% endif %}
+
+<!-- ============ RISK SCORE BREAKDOWN ============ -->
+<h2>3. Risk Score Breakdown</h2>
+
+{% if breakdown_items %}
+{% for item in breakdown_items %}
+<div class="bar-row">
+    <span class="bar-label">{{ item.label }}</span>
+    <span class="bar-track">
+        <span class="bar-fill bar-{{ item.color }}" style="width: {{ item.percentage }}%;"></span>
+    </span>
+    <span class="bar-value">{{ item.score }}</span>
+</div>
+{% endfor %}
+{% else %}
+<p>No risk breakdown data available.</p>
+{% endif %}
+
+<!-- ============ OWASP LLM TOP 10 ============ -->
+<div class="page-break"></div>
+<h2>4. OWASP LLM Top 10 (2025) Coverage</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Findings</th>
+            <th>Severity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in owasp_items %}
+        <tr>
+            <td><strong>{{ item.id }}</strong></td>
+            <td>{{ item.name }}</td>
+            <td>
+                <span class="status-dot status-{{ item.status_color }}"></span>
+                {{ item.status_label }}
+            </td>
+            <td>{{ item.findings_count }}</td>
+            <td>
+                {% if item.findings_count > 0 %}
+                <span class="badge badge-{{ item.max_severity | lower }}">{{ item.max_severity | upper }}</span>
+                {% else %}
+                <span style="color: #94a3b8;">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- ============ FINDINGS SUMMARY ============ -->
+<h2>5. Findings Summary</h2>
+
+{% if findings_by_severity %}
+{% for severity, findings_list in findings_by_severity.items() %}
+<h3>
+    <span class="badge badge-{{ severity | lower }}">{{ severity | upper }}</span>
+    — {{ findings_list | length }} finding{{ 's' if findings_list | length != 1 else '' }}
+</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Finding</th>
+            <th>File</th>
+            <th>Line</th>
+            <th>OWASP</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in findings_list %}
+        <tr>
+            <td>{{ f.message }}</td>
+            <td>{{ f.file }}</td>
+            <td>{{ f.line }}</td>
+            <td>{{ f.owasp or '—' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+{% else %}
+<p>No findings to display.</p>
+{% endif %}
+
+<!-- ============ DEPENDENCY MAP ============ -->
+<h2>6. Dependency Map</h2>
+
+{% if dependencies %}
+<table>
+    <thead>
+        <tr>
+            <th>Source Component</th>
+            <th>Relationship</th>
+            <th>Target Component</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dep in dependencies %}
+        <tr>
+            <td>{{ dep.source }}</td>
+            <td>{{ dep.relationship }}</td>
+            <td>{{ dep.target }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No inter-component dependencies detected.</p>
+{% endif %}
+
+<!-- ============ REMEDIATION ============ -->
+<div class="page-break"></div>
+<h2>7. Remediation Recommendations</h2>
+
+{% if recommendations %}
+{% for rec in recommendations %}
+<div class="recommendation recommendation-{{ rec.severity | lower }}">
+    <strong>{{ loop.index }}. [{{ rec.severity | upper }}]</strong> {{ rec.title }}<br/>
+    {{ rec.description }}
+    {% if rec.owasp %}
+    <br/><em>OWASP Ref: {{ rec.owasp }}</em>
+    {% endif %}
+</div>
+{% endfor %}
+{% else %}
+<p>No specific remediation recommendations at this time. Continue monitoring your AI dependencies.</p>
+{% endif %}
+
+<!-- ============ FOOTER ============ -->
+<div id="page-footer" class="footer">
+    Generated by ScanLLM AI Dependency Intelligence Platform &nbsp;|&nbsp;
+    {{ generated_at }} &nbsp;|&nbsp;
+    {{ org_name }} &nbsp;|&nbsp;
+    Page <pdf:pagenumber /> of <pdf:pagecount />
+</div>
+
+</body>
+</html>

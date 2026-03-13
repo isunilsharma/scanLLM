@@ -1,0 +1,19 @@
+llm:
+  provider: openai
+  model: gpt-4o
+  temperature: 0.7
+  max_tokens: 2000
+
+embedding:
+  model: text-embedding-3-small
+
+vector_db:
+  type: chromadb
+  host: localhost
+  port: 8000
+
+services:
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
