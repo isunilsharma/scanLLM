@@ -30,8 +30,10 @@ const ScanHistory = ({ repoUrl }) => {
         const latest = scans[0];
         const previous = scans[1];
         
-        const latestFrameworks = JSON.parse(latest.frameworks_json || '{}');
-        const prevFrameworks = JSON.parse(previous.frameworks_json || '{}');
+        let latestFrameworks = {};
+        let prevFrameworks = {};
+        try { latestFrameworks = JSON.parse(latest.frameworks_json || '{}'); } catch (e) { /* malformed JSON */ }
+        try { prevFrameworks = JSON.parse(previous.frameworks_json || '{}'); } catch (e) { /* malformed JSON */ }
         
         const newFrameworks = Object.keys(latestFrameworks).filter(f => !prevFrameworks[f]);
         const removedFrameworks = Object.keys(prevFrameworks).filter(f => !latestFrameworks[f]);

@@ -51,64 +51,73 @@ const ScanPage = () => {
       return;
     }
 
-    pollScanStatus();
-  }, [scanId]);
+    let cancelled = false;
+    let timeoutId = null;
 
-  const pollScanStatus = async () => {
-    let attempts = 0;
-    const maxAttempts = 60;
-    const minLoaderTime = 600; // Minimum 600ms to prevent flash
-    const loaderStartTime = Date.now();
-    
-    const poll = async () => {
-      try {
-        const response = await axios.get(`${API}/scans/${scanId}`);
-        const data = response.data;
-        
-        setStatus(data.status);
-        
-        // Extract repo info from response
-        if (data.repo_url) {
-          const parts = data.repo_url.replace('https://github.com/', '').split('/');
-          setRepoInfo({
-            name: parts.join('/'),
-            branch: 'main',
-            commit: null
-          });
+    const pollScanStatus = async () => {
+      let attempts = 0;
+      const maxAttempts = 60;
+      const minLoaderTime = 600;
+      const loaderStartTime = Date.now();
+
+      const poll = async () => {
+        if (cancelled) return;
+
+        try {
+          const response = await axios.get(`${API}/scans/${scanId}`);
+          const data = response.data;
+
+          if (cancelled) return;
+
+          setStatus(data.status);
+
+          if (data.repo_url) {
+            const parts = data.repo_url.replace('https://github.com/', '').split('/');
+            setRepoInfo({
+              name: parts.join('/'),
+              branch: 'main',
+              commit: null
+            });
+          }
+
+          if (data.status === 'SUCCESS') {
+            const elapsed = Date.now() - loaderStartTime;
+            const delay = Math.max(0, minLoaderTime - elapsed);
+            timeoutId = setTimeout(() => {
+              if (!cancelled) setScanData(data);
+            }, delay);
+            return;
+          } else if (data.status === 'FAILED') {
+            setError(data.error_message || 'Scan failed');
+            return;
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            timeoutId = setTimeout(poll, 2000);
+          } else {
+            setError('Scan timed out');
+          }
+        } catch (err) {
+          if (cancelled) return;
+          if (err.response?.status === 404) {
+            setError('Scan not found');
+          } else {
+            setError('Failed to fetch scan status');
+          }
         }
-        
-        if (data.status === 'SUCCESS') {
-          // Ensure loader was visible for at least minLoaderTime
-          const elapsed = Date.now() - loaderStartTime;
-          const delay = Math.max(0, minLoaderTime - elapsed);
-          
-          setTimeout(() => {
-            setScanData(data);
-          }, delay);
-          return;
-        } else if (data.status === 'FAILED') {
-          setError(data.error_message || 'Scan failed');
-          return;
-        }
-        
-        // Continue polling
-        attempts++;
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 2000);
-        } else {
-          setError('Scan timed out');
-        }
-      } catch (err) {
-        if (err.response?.status === 404) {
-          setError('Scan not found');
-        } else {
-          setError('Failed to fetch scan status');
-        }
-      }
+      };
+
+      poll();
     };
 
-    poll();
-  };
+    pollScanStatus();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [scanId]);
 
   return (
     <div className="min-h-screen bg-background py-12">

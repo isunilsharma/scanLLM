@@ -18,12 +18,14 @@ import AuthCallback from './pages/AuthCallback';
 import OAuthCallback from './pages/OAuthCallback';
 import Settings from './pages/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
 import './shimmer.css';
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <BrowserRouter>
         <Toaster position="top-right" />
@@ -104,6 +106,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

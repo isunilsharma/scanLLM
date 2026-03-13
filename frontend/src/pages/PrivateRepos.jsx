@@ -26,14 +26,25 @@ const PrivateRepos = () => {
   const loadRepos = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        toast.error('Not authenticated. Please log in again.');
+        logout();
+        return;
+      }
       const response = await axios.get(`${API}/github/repos`, {
         params: { visibility: filter },
-        withCredentials: true
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       setRepos(response.data.repos || []);
     } catch (error) {
       console.error('Failed to load repositories:', error);
-      toast.error('Failed to load repositories');
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+        logout();
+      } else {
+        toast.error('Failed to load repositories');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,10 +59,11 @@ const PrivateRepos = () => {
     setScanning(`${owner}/${repoName}`);
     
     try {
+      const token = localStorage.getItem('auth_token');
       const response = await axios.post(
         `${API}/scan/github`,
         { owner, repo: repoName, branch, full_scan: fullScan },
-        { withCredentials: true }
+        { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
       // Navigate to scan page with loader (don't show results inline)

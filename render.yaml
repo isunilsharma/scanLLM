@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: scanllm-backend
+    runtime: docker
+    dockerfilePath: backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: CORS_ORIGINS
+        value: https://scanllm.ai
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_REDIRECT_URI
+        value: https://scanllm.ai/auth/callback
+      - key: FRONTEND_URL
+        value: https://scanllm.ai
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  - type: web
+    name: scanllm-frontend
+    runtime: docker
+    dockerfilePath: frontend/Dockerfile
+    dockerContext: frontend
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        value: https://scanllm-backend.onrender.com

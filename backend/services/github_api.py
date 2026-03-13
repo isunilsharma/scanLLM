@@ -49,7 +49,8 @@ class GitHubAPI:
             )
             response.raise_for_status()
             return response.json().get('tree', [])
-        except:
+        except requests.RequestException as e:
+            logger.debug(f"Tree fetch failed for {branch}, trying master: {e}")
             response = requests.get(
                 f"{self.BASE_URL}/repos/{owner}/{repo}/git/trees/master?recursive=1",
                 headers=self.headers,
@@ -57,7 +58,7 @@ class GitHubAPI:
             )
             response.raise_for_status()
             return response.json().get('tree', [])
-    
+
     def get_file_content(self, owner: str, repo: str, path: str, ref: str = 'main') -> Optional[str]:
         try:
             response = requests.get(
@@ -70,6 +71,6 @@ class GitHubAPI:
             data = response.json()
             if 'content' in data:
                 return base64.b64decode(data['content']).decode('utf-8', errors='ignore')
-        except:
-            pass
+        except requests.RequestException as e:
+            logger.debug(f"Failed to fetch {path}: {e}")
         return None

@@ -127,8 +127,8 @@ class GitHubScanner:
             for future in as_completed(futures):
                 try:
                     all_findings.extend(future.result())
-                except:
-                    pass
+                except Exception as e:
+                    logger.debug(f"File scan error: {e}")
         return all_findings
     
     def _scan_single_file(self, file_item: Dict, owner: str, repo: str, branch: str, scan_id: str) -> List[Dict[str, Any]]:
@@ -140,7 +140,7 @@ class GitHubScanner:
             if not content:
                 return findings
             
-            lines = content.split('\\n')
+            lines = content.split('\n')
             
             for line_num, line in enumerate(lines, start=1):
                 for pattern_info in self.patterns:
@@ -168,8 +168,8 @@ class GitHubScanner:
                             'owner_email': None,
                             'owner_committed_at': None
                         })
-        except:
-            pass
+        except Exception as e:
+            logger.debug(f"Error scanning {file_path}: {e}")
         return findings
     
     def _extract_snippet(self, lines: List[str], match_line: int, pattern: str) -> str:
@@ -182,7 +182,7 @@ class GitHubScanner:
                 snippet_lines.append(highlighted)
             elif i < len(lines):
                 snippet_lines.append(lines[i].rstrip())
-        return '\\n'.join(snippet_lines)
+        return '\n'.join(snippet_lines)
     
     def _build_summary_json(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         files_data = {}

@@ -8,12 +8,19 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
+from pydantic import BaseModel
+
 from core.database import get_db
 from models.github_user import GitHubUser
 from models.github_token import GitHubToken
 from services.token_encryption import encrypt_token
 from services.session_manager import create_session_token, SESSION_SECRET, ALGORITHM
 from jose import jwt
+
+
+class ExchangeRequest(BaseModel):
+    code: str
+    state: str
 
 load_dotenv()
 
@@ -53,19 +60,15 @@ async def github_login():
 
 
 @router.post("/github/exchange")
-async def exchange_github_code(request: dict, db: Session = Depends(get_db)):
+async def exchange_github_code(request: ExchangeRequest, db: Session = Depends(get_db)):
     """Exchange GitHub OAuth code for token (called by frontend)"""
-    
-    code = request.get('code')
-    state = request.get('state')
-    
+
+    code = request.code
+    state = request.state
+
     logger.info("=== GitHub Code Exchange Started (Frontend Proxy) ===")
-    logger.info(f"Code: {code[:20] if code else 'MISSING'}...")
-    logger.info(f"State: {state[:50] if state else 'MISSING'}...")
-    
-    if not code or not state:
-        logger.error("Missing code or state parameter")
-        raise HTTPException(status_code=400, detail="Missing code or state")
+    logger.info(f"Code: {code[:20]}...")
+    logger.info(f"State: {state[:50]}...")
     
     # Verify JWT state
     try:

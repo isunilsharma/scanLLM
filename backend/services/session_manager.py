@@ -5,7 +5,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SESSION_SECRET = os.getenv('SESSION_SECRET', 'default-secret-change-in-production')
+SESSION_SECRET = os.getenv('SESSION_SECRET')
+if not SESSION_SECRET:
+    import warnings
+    warnings.warn("SESSION_SECRET not set - using insecure default. Set this in production!", stacklevel=2)
+    SESSION_SECRET = 'dev-only-insecure-default'
+
 ALGORITHM = "HS256"
 EXPIRE_HOURS = 24 * 7  # 7 days
 
@@ -17,5 +22,5 @@ def create_session_token(user_id: str, github_user_id: str) -> str:
 def verify_session_token(token: str):
     try:
         return jwt.decode(token, SESSION_SECRET, algorithms=[ALGORITHM])
-    except:
+    except jwt.JWTError:
         return None
