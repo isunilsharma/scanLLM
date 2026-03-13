@@ -271,7 +271,72 @@ ruff format backend/ && ruff check backend/ --fix
 ```
 
 ## Current State
-- MLP demo is live at scanllm.ai
-- Basic repo scanning works (public + small private repos)
-- Need to expand scanner coverage, add dependency graph, risk scoring, OWASP mapping
-- See ROADMAP.md for full feature prioritization
+- Production demo live at scanllm.ai
+- All 5 development phases COMPLETE (see ROADMAP.md for details)
+- 7 specialized scanners (Python AST, JS/TS, config, dependencies, notebooks, secrets) — 3,000+ lines
+- Dependency graph with interactive React Flow visualization
+- Risk scoring (0-100, A-F grades), OWASP LLM Top 10 mapping
+- AI-BOM (CycloneDX 1.6), PDF reports, LLM-powered analysis
+- CLI tool (910 lines), GitHub Actions integration, org/team management
+- 145+ tests passing across all modules
+- See ROADMAP.md for next feature prioritization (open-source vs paid tiers)
+
+## Competitive Moat — Why ScanLLM Wins
+
+ScanLLM's defensible position rests on five pillars. No single competitor combines all of these:
+
+### 1. Only Tool Combining Code-Level AI Discovery + Dependency Graph + OWASP LLM Mapping
+- **Cycode** ($80M) and **Noma** ($132M) are expensive, closed-source enterprise platforms where AI scanning is one feature among many. They sell top-down to CISOs, not bottom-up to developers.
+- **Promptfoo** (open source) does LLM red teaming but does not scan codebases. It answers "are my prompts safe?" not "what AI is in my code?"
+- **Snyk** found only 10/26 LLM-specific vulnerabilities in independent testing. AI scanning is a bolt-on.
+- **Sonatype** does AI-BOM from package manifests but cannot discover AI usage at the code level.
+- **ScanLLM** does AST-level Python analysis + JS/TS scanning + config/dependency/secret/notebook scanning, producing a dependency graph and OWASP risk mapping — in one open-source-friendly package.
+
+### 2. AI Signatures Database (Compounding Data Asset)
+The `ai_signatures.yaml` file (200+ detection patterns, 30+ providers) is a curated, community-maintainable asset. Every new AI framework, model, and tool that enters the ecosystem requires new patterns. Community contributions accelerate detection quality — a network effect competitors cannot replicate without open-sourcing their own signature sets.
+
+### 3. Developer-First Distribution
+`pip install scanllm && scanllm scan .` — zero-config, instant results. No enterprise sales cycle, no procurement, no demo call. Competitors (Cycode, Noma, Lakera) require paid accounts to even start scanning. ScanLLM's free CLI is the primary adoption vector.
+
+### 4. Interactive Dependency Graph Intelligence
+No competitor visualizes the relationship between LLM providers, vector databases, orchestration frameworks, and agent tools as a navigable, interactive graph. This is the "hero feature" that makes the invisible visible — the moment a CISO sees 47 AI components connected across 12 repos, the governance conversation starts.
+
+### 5. CI/CD Integration Switching Cost
+Once ScanLLM is in a team's GitHub Actions pipeline with configured policies, historical scan baselines, and trend reporting, switching requires re-establishing baselines, losing drift detection history, and reconfiguring all policy rules. This creates natural retention.
+
+### Where ScanLLM Should NOT Compete
+- **Runtime protection** (Lakera/Check Point, Noma) — requires agents/proxies in production, fundamentally different product
+- **AI model governance/registry** (Credo AI, IBM watsonx.governance) — policy management platform, not a scanning tool
+- **Shadow AI via network monitoring** (Witness AI) — requires network-level integration, not code scanning
+- **Full SAST/SCA** (Snyk, Cycode) — ScanLLM integrates with these tools, does not replace them
+
+**Positioning:** ScanLLM is the scanning engine layer that feeds into your existing security and governance stack. It produces the AI inventory that your GRC platform, your SAST tool, and your compliance team all need but cannot generate themselves.
+
+## Target Customers
+
+### Primary: AppSec / Platform Engineering Lead (Mid-Market)
+- **Title:** Head of Application Security, Platform Engineering Lead, DevSecOps Manager
+- **Company:** Series B-D tech company or mid-market enterprise (200-2,000 employees), 20-100 developers
+- **Pain point:** "Our developers are using OpenAI, LangChain, and other AI tools, but we have no inventory. Our CISO needs an AI-BOM for SOC 2 audit, and we cannot produce one. We need this before our next board meeting / EU AI Act deadline / customer audit."
+- **Why they buy (paid tier):** Org-wide scanning, AI-BOM generation, OWASP reports for auditors, trend reporting, CI/CD policy enforcement
+- **Budget:** $500-2,000/month (VP Engineering or CISO approval, no board approval needed)
+- **Buying trigger:** SOC 2 audit question, EU AI Act preparation, customer security questionnaire, security incident involving AI
+
+### Secondary: Individual Developer / Tech Lead
+- **Title:** Senior Developer, Tech Lead, Staff Engineer
+- **Company:** Startup (10-50 people) or individual developer building AI-powered applications
+- **Pain point:** "I want to understand my AI dependency tree, check for hardcoded keys, and make sure I'm not doing something obviously insecure. I don't want to pay $50K/year for Cycode to find out."
+- **Why they use (free/OSS tier):** CLI scan, dependency graph, OWASP check, AI-BOM for documentation
+- **Conversion trigger:** Team grows, adds more repos, starts getting compliance questions → upgrades because they already trust the tool
+
+### Tertiary (Future): GRC / Compliance Team
+- **Title:** Chief Compliance Officer, AI Governance Lead, Risk Manager
+- **Company:** Large enterprise (2,000+ employees) or regulated industry (financial services, healthcare, government)
+- **Pain point:** EU AI Act Article 9 requires documented AI system inventory. NIST AI RMF requires AI risk assessment. They need structured data feeding into their GRC platform.
+- **Why they buy (enterprise tier):** API-first export to ServiceNow/Archer/OneTrust, scheduled scanning for continuous monitoring evidence, compliance report templates
+- **Entry point:** Comes through the AppSec lead who already uses ScanLLM
+
+## Open Source vs Paid Strategy
+- **Open Source (Community Edition):** Genuinely useful single-repo scanning — CLI, signature database, JSON/CycloneDX output, detection accuracy improvements, new language support. Drives developer adoption and community contributions.
+- **Paid (Team/Enterprise Edition):** Organizational visibility, historical tracking, compliance outputs, policy enforcement, team features. Solves problems that only matter at scale or under regulatory pressure.
+- **The line feels natural:** Individual dev needs (free) vs team/enterprise needs (paid). The CLI never feels crippled.
