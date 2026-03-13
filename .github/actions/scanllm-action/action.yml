@@ -1,0 +1,313 @@
+name: 'ScanLLM AI Dependency Scanner'
+description: 'Scan your codebase for AI/LLM dependencies, generate risk scores, and OWASP mapping'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  api-url:
+    description: 'ScanLLM API URL'
+    required: false
+    default: 'https://api.scanllm.ai'
+  api-key:
+    description: 'ScanLLM API key'
+    required: true
+  fail-on-critical:
+    description: 'Fail the build if critical findings are detected'
+    required: false
+    default: 'false'
+  fail-on-high:
+    description: 'Fail the build if high severity findings are detected'
+    required: false
+    default: 'false'
+  output-format:
+    description: 'Output format: summary, json, or sarif'
+    required: false
+    default: 'summary'
+
+outputs:
+  risk-score:
+    description: 'Overall risk score (0-100)'
+    value: ${{ steps.scan.outputs.risk-score }}
+  findings-count:
+    description: 'Total findings count'
+    value: ${{ steps.scan.outputs.findings-count }}
+  grade:
+    description: 'Risk grade (A-F)'
+    value: ${{ steps.scan.outputs.grade }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Scan repository
+      id: scan
+      shell: bash
+      env:
+        SCANLLM_API_URL: ${{ inputs.api-url }}
+        SCANLLM_API_KEY: ${{ inputs.api-key }}
+        SCANLLM_OUTPUT_FORMAT: ${{ inputs.output-format }}
+        SCANLLM_FAIL_CRITICAL: ${{ inputs.fail-on-critical }}
+        SCANLLM_FAIL_HIGH: ${{ inputs.fail-on-high }}
+      run: |
+        set -euo pipefail
+
+        echo "::group::ScanLLM AI Dependency Scanner"
+        echo "Scanning repository: ${{ github.repository }}"
+        echo "API endpoint: ${SCANLLM_API_URL}"
+
+        # Submit scan request
+        HTTP_CODE=$(curl -s -o /tmp/scanllm_response.json -w "%{http_code}" \
+          -X POST "${SCANLLM_API_URL}/api/v1/scans" \
+          -H "Authorization: Bearer ${SCANLLM_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -H "User-Agent: ScanLLM-GitHubAction/1.0" \
+          -d "{\"repo_url\": \"https://github.com/${{ github.repository }}\", \"ref\": \"${{ github.sha }}\"}")
+
+        if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+          echo "::error::ScanLLM API request failed with HTTP ${HTTP_CODE}"
+          cat /tmp/scanllm_response.json >&2
+          exit 1
+        fi
+
+        RESPONSE=$(cat /tmp/scanllm_response.json)
+
+        # If the scan is async, poll for completion
+        SCAN_STATUS=$(echo "$RESPONSE" | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        print(data.get('status', 'completed'))
+        " 2>/dev/null || echo "completed")
+
+        if [ "$SCAN_STATUS" = "pending" ] || [ "$SCAN_STATUS" = "running" ]; then
+          SCAN_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('scan_id', ''))")
+          echo "Scan submitted (ID: ${SCAN_ID}). Polling for results..."
+
+          for i in $(seq 1 60); do
+            sleep 5
+            HTTP_CODE=$(curl -s -o /tmp/scanllm_response.json -w "%{http_code}" \
+              -X GET "${SCANLLM_API_URL}/api/v1/scans/${SCAN_ID}" \
+              -H "Authorization: Bearer ${SCANLLM_API_KEY}" \
+              -H "User-Agent: ScanLLM-GitHubAction/1.0")
+
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              echo "::warning::Poll request returned HTTP ${HTTP_CODE}, retrying..."
+              continue
+            fi
+
+            RESPONSE=$(cat /tmp/scanllm_response.json)
+            SCAN_STATUS=$(echo "$RESPONSE" | python3 -c "
+            import sys, json
+            data = json.load(sys.stdin)
+            print(data.get('status', 'unknown'))
+            " 2>/dev/null || echo "unknown")
+
+            if [ "$SCAN_STATUS" = "completed" ] || [ "$SCAN_STATUS" = "success" ]; then
+              echo "Scan completed."
+              break
+            elif [ "$SCAN_STATUS" = "failed" ] || [ "$SCAN_STATUS" = "error" ]; then
+              echo "::error::Scan failed on server side."
+              cat /tmp/scanllm_response.json >&2
+              exit 1
+            fi
+
+            echo "  Status: ${SCAN_STATUS} (attempt ${i}/60)"
+          done
+
+          if [ "$SCAN_STATUS" != "completed" ] && [ "$SCAN_STATUS" != "success" ]; then
+            echo "::error::Scan timed out after 5 minutes."
+            exit 1
+          fi
+        fi
+
+        # Extract metrics
+        RISK_SCORE=$(echo "$RESPONSE" | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        score = data.get('risk_score', {})
+        if isinstance(score, dict):
+            print(score.get('overall_score', 0))
+        else:
+            print(score)
+        " 2>/dev/null || echo "N/A")
+
+        GRADE=$(echo "$RESPONSE" | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        score = data.get('risk_score', {})
+        if isinstance(score, dict):
+            print(score.get('grade', 'N/A'))
+        else:
+            print('N/A')
+        " 2>/dev/null || echo "N/A")
+
+        FINDINGS=$(echo "$RESPONSE" | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        print(data.get('total_occurrences', data.get('findings_count', 0)))
+        " 2>/dev/null || echo "0")
+
+        CRITICAL_COUNT=$(echo "$RESPONSE" | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        bd = data.get('risk_score', {})
+        if isinstance(bd, dict):
+            bd = bd.get('breakdown', {})
+            c = bd.get('owasp_critical', {})
+            print(c.get('count', 0) if isinstance(c, dict) else 0)
+        else:
+            print(0)
+        " 2>/dev/null || echo "0")
+
+        HIGH_COUNT=$(echo "$RESPONSE" | python3 -c "
+        import sys, json
+        data = json.load(sys.stdin)
+        bd = data.get('risk_score', {})
+        if isinstance(bd, dict):
+            bd = bd.get('breakdown', {})
+            h = bd.get('owasp_high', {})
+            print(h.get('count', 0) if isinstance(h, dict) else 0)
+        else:
+            print(0)
+        " 2>/dev/null || echo "0")
+
+        # Set outputs
+        echo "risk-score=${RISK_SCORE}" >> "$GITHUB_OUTPUT"
+        echo "grade=${GRADE}" >> "$GITHUB_OUTPUT"
+        echo "findings-count=${FINDINGS}" >> "$GITHUB_OUTPUT"
+
+        # Generate step summary
+        echo "## ScanLLM AI Dependency Scan Results" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+        echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Risk Score | **${RISK_SCORE}**/100 |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Grade | **${GRADE}** |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Total Findings | ${FINDINGS} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Critical | ${CRITICAL_COUNT} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| High | ${HIGH_COUNT} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+
+        # Add detailed output based on format
+        if [ "${SCANLLM_OUTPUT_FORMAT}" = "json" ]; then
+          echo "<details><summary>Full JSON Response</summary>" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```json' >> "$GITHUB_STEP_SUMMARY"
+          echo "$RESPONSE" | python3 -c "import sys,json; json.dump(json.load(sys.stdin), sys.stdout, indent=2)" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || echo "$RESPONSE" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "</details>" >> "$GITHUB_STEP_SUMMARY"
+        elif [ "${SCANLLM_OUTPUT_FORMAT}" = "sarif" ]; then
+          # Generate SARIF output for GitHub Code Scanning integration
+          echo "$RESPONSE" | python3 -c "
+        import sys, json
+
+        data = json.load(sys.stdin)
+        findings = data.get('findings', [])
+
+        sarif = {
+            '\$schema': 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json',
+            'version': '2.1.0',
+            'runs': [{
+                'tool': {
+                    'driver': {
+                        'name': 'ScanLLM',
+                        'informationUri': 'https://scanllm.ai',
+                        'version': '1.0.0',
+                        'rules': []
+                    }
+                },
+                'results': []
+            }]
+        }
+
+        severity_map = {'critical': 'error', 'high': 'error', 'medium': 'warning', 'low': 'note', 'info': 'note'}
+        seen_rules = set()
+
+        for f in findings:
+            rule_id = f.get('owasp', f.get('type', 'scanllm'))
+            if rule_id not in seen_rules:
+                seen_rules.add(rule_id)
+                sarif['runs'][0]['tool']['driver']['rules'].append({
+                    'id': rule_id,
+                    'shortDescription': {'text': f.get('message', rule_id)},
+                })
+
+            result = {
+                'ruleId': rule_id,
+                'level': severity_map.get(f.get('severity', 'info'), 'note'),
+                'message': {'text': f.get('message', 'AI dependency detected')},
+                'locations': [{
+                    'physicalLocation': {
+                        'artifactLocation': {'uri': f.get('file', f.get('file_path', ''))},
+                        'region': {'startLine': max(1, f.get('line', f.get('line_number', 1)))}
+                    }
+                }]
+            }
+            sarif['runs'][0]['results'].append(result)
+
+        json.dump(sarif, sys.stdout, indent=2)
+        " > /tmp/scanllm_results.sarif 2>/dev/null
+
+          if [ -f /tmp/scanllm_results.sarif ]; then
+            echo "SARIF output saved to /tmp/scanllm_results.sarif"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> SARIF output generated for GitHub Code Scanning integration." >> "$GITHUB_STEP_SUMMARY"
+          fi
+        fi
+
+        # Add OWASP summary to step summary
+        echo "$RESPONSE" | python3 -c "
+        import sys, json
+
+        data = json.load(sys.stdin)
+        owasp = data.get('owasp', data.get('owasp_mapping', {}))
+        cats = owasp.get('categories', {})
+        if not cats:
+            sys.exit(0)
+
+        owasp_names = {
+            'LLM01': 'Prompt Injection',
+            'LLM02': 'Sensitive Info Disclosure',
+            'LLM03': 'Supply Chain',
+            'LLM04': 'Data/Model Poisoning',
+            'LLM05': 'Improper Output Handling',
+            'LLM06': 'Excessive Agency',
+            'LLM07': 'System Prompt Leakage',
+            'LLM08': 'Vector/Embedding Weaknesses',
+            'LLM09': 'Misinformation',
+            'LLM10': 'Unbounded Consumption',
+        }
+
+        print('### OWASP LLM Top 10 Coverage')
+        print('')
+        print('| ID | Category | Findings |')
+        print('|----|----------|----------|')
+        for oid in sorted(owasp_names.keys()):
+            name = owasp_names[oid]
+            count = cats.get(oid, {}).get('count', 0)
+            icon = ':red_circle:' if count > 0 else ':green_circle:'
+            print(f'| {oid} | {name} | {icon} {count} |')
+        " >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+
+        echo "::endgroup::"
+
+        # Check failure conditions
+        if [ "${SCANLLM_FAIL_CRITICAL}" = "true" ] && [ "$CRITICAL_COUNT" -gt 0 ] 2>/dev/null; then
+          echo ""
+          echo "::error::Critical findings detected (${CRITICAL_COUNT}). Failing build as configured by fail-on-critical."
+          exit 1
+        fi
+
+        if [ "${SCANLLM_FAIL_HIGH}" = "true" ] && [ "$HIGH_COUNT" -gt 0 ] 2>/dev/null; then
+          echo ""
+          echo "::error::High severity findings detected (${HIGH_COUNT}). Failing build as configured by fail-on-high."
+          exit 1
+        fi
+
+        echo "ScanLLM scan completed successfully. Risk Score: ${RISK_SCORE}/100 (Grade: ${GRADE})"
+
+    - name: Upload SARIF (if generated)
+      if: inputs.output-format == 'sarif' && hashFiles('/tmp/scanllm_results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: /tmp/scanllm_results.sarif
+      continue-on-error: true

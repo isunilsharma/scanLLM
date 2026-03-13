@@ -7,8 +7,29 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import ResultsOverview from './ResultsOverview';
 import FileList from './FileList';
+import SecurityOverview from './SecurityOverview';
+import OwaspMapping from './OwaspMapping';
+import DependencyGraph from './DependencyGraph';
+import ReportDownloads from './ReportDownloads';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner';
+import { Shield, RefreshCw } from 'lucide-react';
+
+function getRiskGrade(score) {
+  if (score == null) return null;
+  if (score <= 20) return 'A';
+  if (score <= 40) return 'B';
+  if (score <= 60) return 'C';
+  if (score <= 80) return 'D';
+  return 'F';
+}
+
+function getRiskBadgeVariant(score) {
+  if (score == null) return 'secondary';
+  if (score <= 40) return 'default';
+  if (score <= 60) return 'secondary';
+  return 'destructive';
+}
 
 const ScanResults = ({ result, showRescan = true }) => {
   const navigate = useNavigate();
@@ -17,7 +38,6 @@ const ScanResults = ({ result, showRescan = true }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const handleRescan = () => {
-    // Extract owner/repo from result URL
     if (result.repo_url) {
       const parts = result.repo_url.replace('https://github.com/', '').split('/');
       if (parts.length >= 2) {
@@ -39,20 +59,15 @@ const ScanResults = ({ result, showRescan = true }) => {
   // Filter files based on framework and search
   const filteredFiles = useMemo(() => {
     let files = result.files;
-
-    // Filter by framework
     if (selectedFramework !== 'all') {
       files = files.filter(file => file.frameworks.includes(selectedFramework));
     }
-
-    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      files = files.filter(file => 
+      files = files.filter(file =>
         file.file_path.toLowerCase().includes(query)
       );
     }
-
     return files;
   }, [result.files, selectedFramework, searchQuery]);
 
@@ -68,6 +83,9 @@ const ScanResults = ({ result, showRescan = true }) => {
     };
   }, [filteredFiles]);
 
+  const riskScore = result.risk_score ?? result.risk_data?.score ?? null;
+  const riskGrade = getRiskGrade(riskScore);
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200" data-testid="scan-results">
       {/* Scan Metadata Header */}
@@ -76,28 +94,35 @@ const ScanResults = ({ result, showRescan = true }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <h2 className="text-lg md:text-xl font-semibold text-gray-900">Scan Results</h2>
-              <Badge 
+              <Badge
                 variant={result.status === 'SUCCESS' ? 'default' : 'destructive'}
                 className="text-xs flex-shrink-0"
                 data-testid="scan-status"
               >
                 {result.status}
               </Badge>
+              {riskScore != null && (
+                <Badge
+                  variant={getRiskBadgeVariant(riskScore)}
+                  className="text-xs flex-shrink-0 flex items-center gap-1"
+                >
+                  <Shield size={10} />
+                  Risk: {Math.round(riskScore)}{riskGrade ? ` (${riskGrade})` : ''}
+                </Badge>
+              )}
             </div>
             <p className="text-sm text-gray-600 truncate">{result.repo_url}</p>
           </div>
           {showRescan && (
             <Button onClick={handleRescan} variant="outline" size="sm" className="w-full sm:w-auto">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+              <RefreshCw size={14} className="mr-2" />
               Rescan
             </Button>
           )}
         </div>
       </div>
 
-      {/* Quick Stats - Responsive Grid */}
+      {/* Quick Stats */}
       <div className="p-4 md:p-6 border-b border-slate-200">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div className="bg-slate-50 rounded-lg p-4">
@@ -124,9 +149,12 @@ const ScanResults = ({ result, showRescan = true }) => {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="px-6 pt-6 border-b border-slate-200">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-6">
             <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="security" data-testid="tab-security">Security</TabsTrigger>
+            <TabsTrigger value="graph" data-testid="tab-graph">Graph</TabsTrigger>
             <TabsTrigger value="files" data-testid="tab-files">Files</TabsTrigger>
+            <TabsTrigger value="reports" data-testid="tab-reports">Reports</TabsTrigger>
             <TabsTrigger value="raw" data-testid="tab-raw">Raw Data</TabsTrigger>
           </TabsList>
         </div>
@@ -134,6 +162,21 @@ const ScanResults = ({ result, showRescan = true }) => {
         {/* Overview Tab */}
         <TabsContent value="overview" className="p-6 space-y-6">
           <ResultsOverview result={result} frameworks={frameworks} />
+        </TabsContent>
+
+        {/* Security Tab */}
+        <TabsContent value="security" className="p-6 space-y-6">
+          <SecurityOverview
+            riskScore={result.risk_data || riskScore || 0}
+            owaspData={result.owasp_data}
+            graphAnalysis={result.graph_analysis}
+          />
+          <OwaspMapping owaspData={result.owasp_data} />
+        </TabsContent>
+
+        {/* Graph Tab */}
+        <TabsContent value="graph" className="p-6 space-y-6">
+          <DependencyGraph graphData={result.dependency_graph} />
         </TabsContent>
 
         {/* Files Tab */}
@@ -177,24 +220,31 @@ const ScanResults = ({ result, showRescan = true }) => {
           <FileList files={filteredFiles} />
         </TabsContent>
 
+        {/* Reports Tab */}
+        <TabsContent value="reports" className="p-6 space-y-6">
+          <ReportDownloads scanId={result.scan_id} />
+        </TabsContent>
+
         {/* Raw Data Tab */}
         <TabsContent value="raw" className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-gray-900">Raw JSON Data</h3>
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   navigator.clipboard.writeText(JSON.stringify(result, null, 2));
                   toast.success('JSON copied to clipboard!');
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-1.5"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 Copy JSON
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
                 onClick={() => {
                   const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
                   const url = URL.createObjectURL(blob);
@@ -205,13 +255,12 @@ const ScanResults = ({ result, showRescan = true }) => {
                   URL.revokeObjectURL(url);
                   toast.success('JSON downloaded!');
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-md hover:bg-primary/90 transition-colors flex items-center gap-1.5"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Download JSON
-              </button>
+              </Button>
             </div>
           </div>
           <div className="bg-slate-50 rounded-lg p-4 overflow-auto max-h-[600px]">

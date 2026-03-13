@@ -30,6 +30,11 @@ class ScanJob(Base):
     policies_result_json = Column(Text, nullable=True)  # JSON string
     summary_json = Column(Text, nullable=True)  # JSON string
     
+    # v3 fields - risk scoring, OWASP, graph
+    risk_score_json = Column(Text, nullable=True)  # JSON: {overall_score, grade, breakdown}
+    owasp_json = Column(Text, nullable=True)  # JSON: {categories, coverage}
+    graph_json = Column(Text, nullable=True)  # JSON: React Flow format {nodes, edges}
+
     # GitHub OAuth fields
     github_user_id = Column(String, nullable=True)
     repo_owner = Column(String, nullable=True)

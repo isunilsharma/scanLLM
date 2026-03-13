@@ -32,5 +32,10 @@ class Finding(Base):
     owner_name = Column(String, nullable=True)
     owner_email = Column(String, nullable=True)
     owner_committed_at = Column(DateTime, nullable=True)
-    
+
+    # v3 fields - component classification, OWASP mapping
+    component_type = Column(String, nullable=True)  # llm_provider, vector_db, orchestration_framework, agent_tool, etc.
+    provider = Column(String, nullable=True)  # openai, anthropic, google, etc.
+    owasp_id = Column(String, nullable=True)  # LLM01, LLM05, LLM06, etc.
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())

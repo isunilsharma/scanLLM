@@ -6,6 +6,26 @@ scan:
     - ".tsx"
     - ".jsx"
     - ".ipynb"
+    - ".yaml"
+    - ".yml"
+    - ".json"
+    - ".toml"
+    - ".env"
+  # Additional files to scan (matched by name, not extension)
+  extra_filenames:
+    - "requirements.txt"
+    - "pyproject.toml"
+    - "Pipfile"
+    - "package.json"
+    - "package-lock.json"
+    - "yarn.lock"
+    - "pnpm-lock.yaml"
+    - "Dockerfile"
+    - "docker-compose.yml"
+    - "docker-compose.yaml"
+    - ".env.local"
+    - ".env.production"
+    - ".env.development"
   max_file_size_bytes: 500000
   exclude_paths:
     - "node_modules"
@@ -17,7 +37,9 @@ scan:
     - "venv"
     - ".pytest_cache"
     - ".mypy_cache"
-  
+    - ".tox"
+    - ".eggs"
+
   # Smart filtering options
   skip_paths:
     - "test"
@@ -29,7 +51,7 @@ scan:
     - "examples"
     - ".github"
     - "scripts"
-  
+
   # Priority directories (scanned first)
   priority_paths:
     - "src"
@@ -38,7 +60,7 @@ scan:
     - "api"
     - "server"
     - "core"
-  
+
   # Performance settings
   default_file_limit: 1000
   parallel_workers: 10
