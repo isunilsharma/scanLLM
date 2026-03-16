@@ -1,6 +1,6 @@
 databases:
   - name: scanllm-db
-    plan: free
+    plan: starter
     databaseName: scanllm
     user: scanllm
 
