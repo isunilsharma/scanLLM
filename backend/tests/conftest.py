@@ -244,9 +244,7 @@ def ai_signatures() -> dict:
     """Load the ai_signatures.yaml file used by scanners."""
     import yaml
 
-    sig_path = Path(__file__).parent.parent.parent / "ai_signatures.yaml"
-    if not sig_path.exists():
-        sig_path = Path(__file__).parent.parent / "app" / "scanner" / "signatures" / "ai_signatures.yaml"
+    sig_path = Path(__file__).parent.parent.parent / "config" / "ai_signatures.yaml"
     if not sig_path.exists():
         pytest.skip("ai_signatures.yaml not found")
     with open(sig_path) as f:

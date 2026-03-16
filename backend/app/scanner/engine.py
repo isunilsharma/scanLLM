@@ -327,8 +327,8 @@ class ScanEngine:
     def _load_signatures() -> dict[str, Any]:
         """Load AI signatures from the bundled YAML file."""
         sig_paths = [
-            Path(__file__).parent / "signatures" / "ai_signatures.yaml",
-            _backend_dir.parent / "ai_signatures.yaml",
+            Path("/config") / "ai_signatures.yaml",
+            _backend_dir.parent / "config" / "ai_signatures.yaml",
         ]
         for sig_path in sig_paths:
             if sig_path.exists():

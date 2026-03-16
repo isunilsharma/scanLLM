@@ -25,9 +25,7 @@ def _load_rules() -> dict:
 
 
 def _load_signatures() -> dict:
-    sig_path = BACKEND_DIR.parent / "ai_signatures.yaml"
-    if not sig_path.exists():
-        sig_path = BACKEND_DIR / "app" / "scanner" / "signatures" / "ai_signatures.yaml"
+    sig_path = BACKEND_DIR.parent / "config" / "ai_signatures.yaml"
     if not sig_path.exists():
         pytest.skip("ai_signatures.yaml not found")
     with open(sig_path) as f:
