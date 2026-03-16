@@ -20,7 +20,7 @@ try:
         """Application settings via pydantic-settings."""
 
         # Database
-        DATABASE_URL: str = f"sqlite:///{BACKEND_DIR}/app.db"
+        DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{BACKEND_DIR}/app.db")
 
         # Security
         SESSION_SECRET: str = "dev-secret-change-in-production"

@@ -1,4 +1,20 @@
 services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=scanllm
+      - POSTGRES_USER=scanllm
+      - POSTGRES_PASSWORD=scanllm_dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scanllm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
@@ -7,8 +23,8 @@ services:
       - "8001:8001"
     volumes:
       - ./config:/config
-      - scanllm-db:/app/data
     environment:
+      - DATABASE_URL=postgresql://scanllm:scanllm_dev@db:5432/scanllm
       - CORS_ORIGINS=http://localhost:3000
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
@@ -17,6 +33,9 @@ services:
       - SESSION_SECRET=${SESSION_SECRET:-scanllm-dev-secret-key}
       - TOKEN_ENCRYPTION_KEY=${TOKEN_ENCRYPTION_KEY:-scanllm-dev-encryption-key}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
@@ -33,4 +52,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  scanllm-db:
+  pgdata:

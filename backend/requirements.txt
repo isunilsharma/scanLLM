@@ -73,6 +73,7 @@ passlib==1.7.4
 pathspec==0.12.1
 pillow==12.0.0
 platformdirs==4.5.0
+psycopg2-binary==2.9.10
 pluggy==1.6.0
 propcache==0.4.1
 proto-plus==1.26.1
