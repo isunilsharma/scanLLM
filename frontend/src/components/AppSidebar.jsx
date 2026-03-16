@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 import {
   Search, Plus, Clock, Settings, History, Shield,
-  Lock, Globe, X, Zap, GitBranch, ChevronRight
+  Lock, Globe, X, GitBranch, ChevronRight
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -69,10 +69,6 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [onClose]);
-
-  const handleInstallApp = () => {
-    window.open('https://github.com/apps/scanllm-ai/installations/new', '_blank');
-  };
 
   const handleNewScan = () => {
     // Navigate to the first repo or a scan page
@@ -179,27 +175,8 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
               ))}
             </div>
           ) : repos.length === 0 ? (
-            <div className="p-4">
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-center">
-                <Zap size={32} className="text-blue-600 mx-auto mb-3" />
-                <h3 className="font-bold text-gray-900 mb-2 text-sm">Install GitHub App</h3>
-                <p className="text-xs text-gray-700 mb-3">
-                  Install ScanLLM.ai to access your repositories
-                </p>
-                <div className="bg-white rounded-lg p-3 mb-3 text-left">
-                  <p className="text-xs font-medium text-gray-700 mb-2">Quick Steps:</p>
-                  <ol className="text-xs text-gray-600 space-y-1">
-                    <li>1. Click Install below</li>
-                    <li>2. Select repositories</li>
-                    <li>3. Click &ldquo;Install&rdquo;</li>
-                    <li>4. Return here</li>
-                  </ol>
-                </div>
-                <Button onClick={handleInstallApp} className="w-full" size="sm">
-                  Install GitHub App
-                </Button>
-                <p className="text-xs text-gray-500 mt-2">Read-only access</p>
-              </div>
+            <div className="p-4 text-center">
+              <p className="text-sm text-gray-500">No repositories found</p>
             </div>
           ) : filteredRepos.length === 0 ? (
             <div className="text-center py-8 text-gray-500 text-sm">

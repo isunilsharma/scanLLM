@@ -253,13 +253,59 @@ class ScannerV2:
         
         return {'files': files_data, 'directories': directories}
 
+    # Maps framework names to component_type and provider for graph building
+    _FRAMEWORK_META: Dict[str, Dict[str, str]] = {
+        'openai': {'component_type': 'llm_provider', 'provider': 'OpenAI'},
+        'anthropic': {'component_type': 'llm_provider', 'provider': 'Anthropic'},
+        'google_genai': {'component_type': 'llm_provider', 'provider': 'Google'},
+        'google_vertexai': {'component_type': 'llm_provider', 'provider': 'Google'},
+        'cohere': {'component_type': 'llm_provider', 'provider': 'Cohere'},
+        'mistral': {'component_type': 'llm_provider', 'provider': 'Mistral'},
+        'groq': {'component_type': 'llm_provider', 'provider': 'Groq'},
+        'together': {'component_type': 'llm_provider', 'provider': 'Together AI'},
+        'replicate': {'component_type': 'llm_provider', 'provider': 'Replicate'},
+        'huggingface': {'component_type': 'llm_provider', 'provider': 'Hugging Face'},
+        'aws_bedrock': {'component_type': 'llm_provider', 'provider': 'AWS Bedrock'},
+        'azure_openai': {'component_type': 'llm_provider', 'provider': 'Azure OpenAI'},
+        'langchain': {'component_type': 'orchestration_framework', 'provider': 'LangChain'},
+        'langgraph': {'component_type': 'orchestration_framework', 'provider': 'LangGraph'},
+        'llamaindex': {'component_type': 'orchestration_framework', 'provider': 'LlamaIndex'},
+        'crewai': {'component_type': 'agent_tool', 'provider': 'CrewAI'},
+        'autogen': {'component_type': 'agent_tool', 'provider': 'AutoGen'},
+        'dspy': {'component_type': 'orchestration_framework', 'provider': 'DSPy'},
+        'haystack': {'component_type': 'orchestration_framework', 'provider': 'Haystack'},
+        'chromadb': {'component_type': 'vector_db', 'provider': 'ChromaDB'},
+        'pinecone': {'component_type': 'vector_db', 'provider': 'Pinecone'},
+        'qdrant': {'component_type': 'vector_db', 'provider': 'Qdrant'},
+        'weaviate': {'component_type': 'vector_db', 'provider': 'Weaviate'},
+        'milvus': {'component_type': 'vector_db', 'provider': 'Milvus'},
+        'faiss': {'component_type': 'vector_db', 'provider': 'FAISS'},
+        'pgvector': {'component_type': 'vector_db', 'provider': 'pgvector'},
+        'mcp': {'component_type': 'mcp_server', 'provider': 'MCP'},
+        'vercel_ai': {'component_type': 'orchestration_framework', 'provider': 'Vercel AI'},
+        'ollama': {'component_type': 'inference_server', 'provider': 'Ollama'},
+        'vllm': {'component_type': 'inference_server', 'provider': 'vLLM'},
+    }
+
+    def _enrich_findings_for_graph(self, findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Add component_type and provider fields to findings for graph building."""
+        for finding in findings:
+            framework = finding.get('framework', '').lower()
+            meta = self._FRAMEWORK_META.get(framework, {})
+            finding['component_type'] = meta.get('component_type', 'ai_package')
+            finding['provider'] = meta.get('provider', finding.get('framework', 'Unknown'))
+            # Map category to severity for risk scoring
+            if 'severity' not in finding:
+                finding['severity'] = finding.get('pattern_severity', 'low')
+        return findings
+
     def _build_response_v2(self, scan_job: ScanJob, findings: List[Dict[str, Any]]) -> Dict[str, Any]:
         files_map = {}
         for finding in findings:
             file_path = finding['file_path']
             if file_path not in files_map:
                 files_map[file_path] = {'file_path': file_path, 'frameworks': set(), 'occurrences': []}
-            
+
             files_map[file_path]['frameworks'].add(finding['framework'])
             files_map[file_path]['occurrences'].append({
                 'line_number': finding['line_number'],
@@ -279,13 +325,13 @@ class ScannerV2:
                 'owner_email': finding.get('owner_email'),
                 'owner_committed_at': finding.get('owner_committed_at')
             })
-        
+
         files_list = []
         for file_data in files_map.values():
             file_data['frameworks'] = sorted(list(file_data['frameworks']))
             files_list.append(file_data)
         files_list.sort(key=lambda x: x['file_path'])
-        
+
         summary_json = json.loads(scan_job.summary_json) if scan_job.summary_json else {}
         risk_flags = json.loads(scan_job.risk_flags_json) if scan_job.risk_flags_json else []
         policies_result = json.loads(scan_job.policies_result_json) if scan_job.policies_result_json else {}
@@ -294,7 +340,45 @@ class ScannerV2:
         recommended_actions = compute_recommended_actions(risk_flags, frameworks_summary)
         contracts = self._aggregate_contracts(findings)
         blast_radius_summary = aggregate_blast_radius(summary_json.get('files', {}))
-        
+
+        # Enrich findings with component_type/provider for graph + risk + OWASP
+        enriched = self._enrich_findings_for_graph(findings)
+
+        # Risk scoring
+        risk_score = None
+        try:
+            from app.scoring.risk_engine import RiskEngine
+            engine = RiskEngine()
+            risk_score = engine.score(enriched)
+            # Add 'score' alias so frontend can read either .score or .overall_score
+            risk_score['score'] = risk_score.get('overall_score', 0)
+            # Store on scan job
+            scan_job.risk_score_json = json.dumps(risk_score)
+            self.db.commit()
+        except Exception as exc:
+            logger.warning("Risk scoring failed: %s", exc)
+
+        # OWASP mapping
+        owasp_data = None
+        try:
+            from app.scoring.owasp_mapper import OwaspMapper
+            mapper = OwaspMapper()
+            owasp_data = mapper.map_findings(enriched)
+        except Exception as exc:
+            logger.warning("OWASP mapping failed: %s", exc)
+
+        # Dependency graph
+        graph_data = None
+        try:
+            from app.graph.builder import GraphBuilder
+            from app.graph.serializer import GraphSerializer
+            builder = GraphBuilder()
+            graph = builder.build(enriched)
+            serializer = GraphSerializer()
+            graph_data = serializer.to_react_flow(graph)
+        except Exception as exc:
+            logger.warning("Graph generation failed: %s", exc)
+
         return {
             'scan_id': scan_job.id,
             'status': scan_job.status.value,
@@ -310,7 +394,10 @@ class ScannerV2:
             'blast_radius_summary': blast_radius_summary,
             'contracts': contracts,
             'ownership_summary': [],
-            'heatmap': summary_json.get('directories', {})
+            'heatmap': summary_json.get('directories', {}),
+            'risk_score': risk_score,
+            'owasp_data': owasp_data,
+            'dependency_graph': graph_data,
         }
     
     def _aggregate_contracts(self, findings: List[Dict[str, Any]]) -> Dict[str, Any]:

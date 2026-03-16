@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -8,8 +8,11 @@ const AuthCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState('processing');
+  const exchangedRef = useRef(false);
 
   useEffect(() => {
+    if (exchangedRef.current) return;
+    exchangedRef.current = true;
     handleCallback();
   }, []);
 

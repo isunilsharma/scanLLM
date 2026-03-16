@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json ./
+
+RUN npm install --legacy-peer-deps && \
+    npm install ajv@^8 --legacy-peer-deps
+
+COPY . .
+
+EXPOSE 3000
+
+ENV REACT_APP_BACKEND_URL=http://localhost:8001
+
+CMD ["npx", "craco", "start"]

@@ -5,7 +5,8 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent.parent
-DATABASE_URL = f"sqlite:///{BASE_DIR}/app.db"
+DATA_DIR = Path("/app/data") if Path("/app/data").exists() else BASE_DIR
+DATABASE_URL = f"sqlite:///{DATA_DIR}/app.db"
 
 engine = create_engine(
     DATABASE_URL,

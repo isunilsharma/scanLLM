@@ -91,11 +91,13 @@ async def download_pdf_report(scan_id: str, db: Session = Depends(get_db)):
     """Generate and download a PDF report for a scan."""
     scan_data = _get_scan_data(scan_id, db)
 
-    # Try the new report generator first
     try:
-        from app.reports.pdf_generator import generate_pdf
+        from app.reports.pdf_generator import PDFGenerator
 
-        pdf_bytes = generate_pdf(scan_data)
+        generator = PDFGenerator()
+        risk_score = scan_data.get("risk_score", {})
+        owasp_data = scan_data.get("owasp", {})
+        pdf_bytes = generator.generate_pdf(scan_data, risk_score, owasp_data)
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
@@ -104,12 +106,14 @@ async def download_pdf_report(scan_id: str, db: Session = Depends(get_db)):
             },
         )
     except ImportError:
-        logger.info("PDF generator not yet implemented; returning JSON fallback")
+        logger.warning("PDF generator dependencies not available (xhtml2pdf/jinja2)")
+    except Exception as e:
+        logger.error("PDF generation failed: %s", e)
 
     # Fallback: return JSON representation
     return JSONResponse(
         content={
-            "message": "PDF generation module not yet available. Returning JSON report.",
+            "message": "PDF generation failed. Returning JSON report.",
             "scan_id": scan_id,
             "repo_url": scan_data.get("repo_url"),
             "total_occurrences": scan_data.get("total_occurrences", 0),
@@ -134,9 +138,11 @@ async def download_aibom_json(scan_id: str, db: Session = Depends(get_db)):
     scan_data = _get_scan_data(scan_id, db)
 
     try:
-        from app.reports.aibom_generator import generate_aibom_json
+        from app.reports.aibom_generator import AIBOMGenerator
 
-        bom = generate_aibom_json(scan_data)
+        generator = AIBOMGenerator()
+        findings = scan_data.get("findings", [])
+        bom = generator.generate(scan_data, findings)
         return Response(
             content=json.dumps(bom, indent=2),
             media_type="application/json",
@@ -145,7 +151,9 @@ async def download_aibom_json(scan_id: str, db: Session = Depends(get_db)):
             },
         )
     except ImportError:
-        logger.info("AI-BOM generator not yet implemented; returning stub")
+        logger.warning("AI-BOM generator not available")
+    except Exception as e:
+        logger.error("AI-BOM JSON generation failed: %s", e)
 
     # Fallback: minimal CycloneDX-like stub
     bom_stub = _build_aibom_stub(scan_id, scan_data)
@@ -168,18 +176,22 @@ async def download_aibom_xml(scan_id: str, db: Session = Depends(get_db)):
     scan_data = _get_scan_data(scan_id, db)
 
     try:
-        from app.reports.aibom_generator import generate_aibom_xml
+        from app.reports.aibom_generator import AIBOMGenerator
 
-        xml_bytes = generate_aibom_xml(scan_data)
+        generator = AIBOMGenerator()
+        findings = scan_data.get("findings", [])
+        xml_str = generator.generate_xml(scan_data, findings)
         return Response(
-            content=xml_bytes,
+            content=xml_str,
             media_type="application/xml",
             headers={
                 "Content-Disposition": f'attachment; filename="scanllm-aibom-{scan_id[:8]}.xml"'
             },
         )
     except ImportError:
-        logger.info("AI-BOM XML generator not yet implemented; returning stub")
+        logger.warning("AI-BOM generator not available")
+    except Exception as e:
+        logger.error("AI-BOM XML generation failed: %s", e)
 
     # Fallback: minimal XML stub
     bom_stub = _build_aibom_stub(scan_id, scan_data)

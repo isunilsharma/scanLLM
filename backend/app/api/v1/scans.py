@@ -342,6 +342,13 @@ async def list_scans(
 
     items = []
     for scan in scans:
+        risk_score_val = None
+        if scan.risk_score_json:
+            try:
+                risk_data = json.loads(scan.risk_score_json)
+                risk_score_val = risk_data.get("overall_score")
+            except (json.JSONDecodeError, TypeError):
+                pass
         items.append(
             {
                 "id": scan.id,
@@ -352,6 +359,7 @@ async def list_scans(
                 "created_at": scan.created_at.isoformat() if scan.created_at else None,
                 "total_matches": scan.total_matches or scan.total_occurrences,
                 "files_count": scan.files_count,
+                "risk_score": risk_score_val,
             }
         )
 
