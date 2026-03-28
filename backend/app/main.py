@@ -50,6 +50,9 @@ from api.scan_github import router as scan_github_router
 # ---------------------------------------------------------------------------
 from app.api.v1.scans import router as v1_scans_router
 from app.api.v1.reports import router as v1_reports_router
+from app.api.v1.dashboard import router as v1_dashboard_router
+from app.api.v1.cost import router as v1_cost_router
+from app.api.v1.audit import router as v1_audit_router
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -402,6 +405,9 @@ app.include_router(scan_github_router)
 # New v1 routers
 app.include_router(v1_scans_router)
 app.include_router(v1_reports_router)
+app.include_router(v1_dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
+app.include_router(v1_cost_router, prefix="/api/v1/cost", tags=["cost"])
+app.include_router(v1_audit_router, prefix="/api/v1/audit", tags=["audit"])
 
 
 # ---------------------------------------------------------------------------

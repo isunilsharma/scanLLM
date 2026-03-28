@@ -36,6 +36,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from app.models.audit_log import AuditLog, AuditAction, AuditResourceType  # noqa: F401
+except ImportError:
+    pass
+
 __all__ = [
     "ScanJob",
     "ScanStatus",
@@ -44,4 +49,7 @@ __all__ = [
     "GitHubToken",
     "DemoScanCache",
     "OAuthState",
+    "AuditLog",
+    "AuditAction",
+    "AuditResourceType",
 ]

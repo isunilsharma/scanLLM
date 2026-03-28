@@ -17,6 +17,9 @@ import ScanHistory from './pages/ScanHistory';
 import AuthCallback from './pages/AuthCallback';
 import OAuthCallback from './pages/OAuthCallback';
 import Settings from './pages/Settings';
+import PolicyEditor from './pages/PolicyEditor';
+import DriftView from './pages/DriftView';
+import CostInsights from './pages/CostInsights';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from './components/ui/sonner';
@@ -96,6 +99,9 @@ function App() {
             <Route path="repo/:owner/:repo" element={<RepoDashboard />} />
             <Route path="repo/:owner/:repo/scan/:scanId" element={<ScanPage />} />
             <Route path="history" element={<ScanHistory />} />
+            <Route path="policy-editor" element={<PolicyEditor />} />
+            <Route path="drift" element={<DriftView />} />
+            <Route path="cost-insights" element={<CostInsights />} />
             <Route path="settings" element={<Settings />} />
           </Route>
           

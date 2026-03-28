@@ -1,0 +1,289 @@
+name: 'ScanLLM AI Security Scanner'
+description: 'Scan your codebase for AI/LLM dependencies, enforce security policies, and upload SARIF results'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  severity_threshold:
+    description: 'Minimum severity to report (critical, high, medium, low, info)'
+    required: false
+    default: 'medium'
+  policy_file:
+    description: 'Path to ScanLLM policy file (e.g., .scanllm/policy.yaml)'
+    required: false
+    default: ''
+  fail_on_policy_violation:
+    description: 'Fail the workflow if policy violations are detected'
+    required: false
+    default: 'true'
+  upload_sarif:
+    description: 'Upload SARIF results to GitHub Code Scanning'
+    required: false
+    default: 'true'
+
+outputs:
+  risk-score:
+    description: 'Overall risk score (0-100)'
+    value: ${{ steps.scan.outputs.risk_score }}
+  findings-count:
+    description: 'Total number of findings'
+    value: ${{ steps.scan.outputs.findings_count }}
+  grade:
+    description: 'Risk grade (A-F)'
+    value: ${{ steps.scan.outputs.grade }}
+  policy-result:
+    description: 'Policy check result (pass or fail)'
+    value: ${{ steps.policy.outputs.result }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install ScanLLM
+      shell: bash
+      run: |
+        pip install --quiet scanllm
+
+    - name: Run ScanLLM scan
+      id: scan
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        echo "::group::ScanLLM Scan"
+        echo "Scanning repository for AI/LLM dependencies..."
+
+        # Run scan and save results
+        scanllm scan . \
+          --severity ${{ inputs.severity_threshold }} \
+          --save \
+          --output sarif \
+          > scanllm-results.sarif 2>/tmp/scanllm-stderr.txt || true
+
+        # Also generate JSON output for metrics extraction
+        scanllm scan . \
+          --severity ${{ inputs.severity_threshold }} \
+          --output json \
+          > /tmp/scanllm-results.json 2>/dev/null || true
+
+        # Extract metrics from JSON results
+        if [ -f /tmp/scanllm-results.json ]; then
+          RISK_SCORE=$(python3 -c "
+        import json, sys
+        try:
+            data = json.load(open('/tmp/scanllm-results.json'))
+            score = data.get('risk_score', {})
+            if isinstance(score, dict):
+                print(score.get('overall_score', 0))
+            else:
+                print(score)
+        except:
+            print(0)
+        " 2>/dev/null || echo "0")
+
+          GRADE=$(python3 -c "
+        import json, sys
+        try:
+            data = json.load(open('/tmp/scanllm-results.json'))
+            score = data.get('risk_score', {})
+            if isinstance(score, dict):
+                print(score.get('grade', 'N/A'))
+            else:
+                s = int(score) if score else 0
+                grades = [(20,'A'),(40,'B'),(60,'C'),(80,'D')]
+                g = 'F'
+                for threshold, letter in grades:
+                    if s <= threshold:
+                        g = letter
+                        break
+                print(g)
+        except:
+            print('N/A')
+        " 2>/dev/null || echo "N/A")
+
+          FINDINGS_COUNT=$(python3 -c "
+        import json
+        try:
+            data = json.load(open('/tmp/scanllm-results.json'))
+            print(data.get('total_occurrences', data.get('findings_count', 0)))
+        except:
+            print(0)
+        " 2>/dev/null || echo "0")
+        else
+          RISK_SCORE=0
+          GRADE="N/A"
+          FINDINGS_COUNT=0
+        fi
+
+        echo "risk_score=${RISK_SCORE}" >> "$GITHUB_OUTPUT"
+        echo "grade=${GRADE}" >> "$GITHUB_OUTPUT"
+        echo "findings_count=${FINDINGS_COUNT}" >> "$GITHUB_OUTPUT"
+
+        echo "Scan complete: Risk Score ${RISK_SCORE}/100 (Grade: ${GRADE}), ${FINDINGS_COUNT} findings"
+        echo "::endgroup::"
+
+    - name: Upload SARIF to GitHub Code Scanning
+      if: inputs.upload_sarif == 'true' && hashFiles('scanllm-results.sarif') != ''
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: scanllm-results.sarif
+      continue-on-error: true
+
+    - name: Run policy check
+      id: policy
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        echo "::group::ScanLLM Policy Check"
+
+        POLICY_ARGS=""
+        if [ -n "${{ inputs.policy_file }}" ]; then
+          POLICY_ARGS="--policy ${{ inputs.policy_file }}"
+        fi
+
+        POLICY_EXIT=0
+        scanllm policy check ${POLICY_ARGS} > /tmp/scanllm-policy.txt 2>&1 || POLICY_EXIT=$?
+
+        cat /tmp/scanllm-policy.txt
+
+        if [ $POLICY_EXIT -eq 0 ]; then
+          echo "result=pass" >> "$GITHUB_OUTPUT"
+          echo "Policy check: PASSED"
+        else
+          echo "result=fail" >> "$GITHUB_OUTPUT"
+          echo "::warning::Policy check: FAILED"
+        fi
+
+        echo "::endgroup::"
+
+        # Fail the build if configured
+        if [ "${{ inputs.fail_on_policy_violation }}" = "true" ] && [ $POLICY_EXIT -ne 0 ]; then
+          echo "::error::Policy violations detected. Failing build (fail_on_policy_violation=true)."
+          exit 1
+        fi
+
+    - name: Post PR comment
+      if: github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+
+        RISK_SCORE="${{ steps.scan.outputs.risk_score }}"
+        GRADE="${{ steps.scan.outputs.grade }}"
+        FINDINGS="${{ steps.scan.outputs.findings_count }}"
+        POLICY_RESULT="${{ steps.policy.outputs.result }}"
+
+        # Determine badge color
+        case "$GRADE" in
+          A) BADGE_COLOR="brightgreen" ;;
+          B) BADGE_COLOR="green" ;;
+          C) BADGE_COLOR="yellow" ;;
+          D) BADGE_COLOR="orange" ;;
+          F) BADGE_COLOR="red" ;;
+          *) BADGE_COLOR="lightgrey" ;;
+        esac
+
+        # Determine policy icon
+        if [ "$POLICY_RESULT" = "pass" ]; then
+          POLICY_ICON=":white_check_mark: PASSED"
+        else
+          POLICY_ICON=":x: FAILED"
+        fi
+
+        # Build comment body
+        COMMENT_BODY=$(cat <<COMMENT_EOF
+        ## :shield: ScanLLM AI Security Report
+
+        ![Risk Score](https://img.shields.io/badge/Risk_Score-${RISK_SCORE}%2F100-${BADGE_COLOR})
+        ![Grade](https://img.shields.io/badge/Grade-${GRADE}-${BADGE_COLOR})
+
+        | Metric | Result |
+        |--------|--------|
+        | **Risk Score** | ${RISK_SCORE}/100 (Grade: **${GRADE}**) |
+        | **Findings** | ${FINDINGS} |
+        | **Policy Check** | ${POLICY_ICON} |
+        | **Severity Threshold** | ${{ inputs.severity_threshold }} |
+
+        <details>
+        <summary>View detailed findings</summary>
+
+        $(if [ -f /tmp/scanllm-results.json ]; then
+          python3 -c "
+        import json
+        try:
+            data = json.load(open('/tmp/scanllm-results.json'))
+            findings = data.get('findings', [])
+            if not findings:
+                print('No findings above the configured severity threshold.')
+            else:
+                print('| Severity | Type | File | Description |')
+                print('|----------|------|------|-------------|')
+                for f in findings[:25]:
+                    sev = f.get('severity', 'info')
+                    ftype = f.get('type', f.get('component_type', '-'))
+                    fpath = f.get('file', f.get('file_path', '-'))
+                    msg = f.get('message', '-')[:80]
+                    print(f'| {sev} | {ftype} | \`{fpath}\` | {msg} |')
+                if len(findings) > 25:
+                    print(f'')
+                    print(f'*... and {len(findings) - 25} more findings. See full SARIF results for details.*')
+        except Exception as e:
+            print(f'Could not parse results: {e}')
+        " 2>/dev/null || echo "No detailed results available."
+        else
+          echo "No detailed results available."
+        fi)
+
+        </details>
+
+        ---
+        *Scanned by [ScanLLM](https://scanllm.ai) | [View SARIF Results](../security/code-scanning)*
+        COMMENT_EOF
+        )
+
+        # Post or update PR comment
+        PR_NUMBER=${{ github.event.pull_request.number }}
+        EXISTING_COMMENT_ID=$(gh api \
+          "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+          --jq '.[] | select(.body | contains("ScanLLM AI Security Report")) | .id' \
+          2>/dev/null | head -1)
+
+        if [ -n "$EXISTING_COMMENT_ID" ]; then
+          gh api \
+            --method PATCH \
+            "repos/${{ github.repository }}/issues/comments/${EXISTING_COMMENT_ID}" \
+            -f body="${COMMENT_BODY}" > /dev/null
+          echo "Updated existing PR comment (ID: ${EXISTING_COMMENT_ID})"
+        else
+          gh api \
+            --method POST \
+            "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+            -f body="${COMMENT_BODY}" > /dev/null
+          echo "Posted new PR comment"
+        fi
+
+    - name: Generate step summary
+      if: always()
+      shell: bash
+      run: |
+        RISK_SCORE="${{ steps.scan.outputs.risk_score }}"
+        GRADE="${{ steps.scan.outputs.grade }}"
+        FINDINGS="${{ steps.scan.outputs.findings_count }}"
+        POLICY_RESULT="${{ steps.policy.outputs.result }}"
+
+        echo "## ScanLLM AI Security Scan Results" >> "$GITHUB_STEP_SUMMARY"
+        echo "" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+        echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Risk Score | **${RISK_SCORE}**/100 |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Grade | **${GRADE}** |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Total Findings | ${FINDINGS} |" >> "$GITHUB_STEP_SUMMARY"
+        echo "| Policy Check | **${POLICY_RESULT}** |" >> "$GITHUB_STEP_SUMMARY"

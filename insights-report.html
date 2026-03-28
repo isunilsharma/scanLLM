@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Claude Code Insights</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #334155; line-height: 1.65; padding: 48px 24px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 32px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+    h2 { font-size: 20px; font-weight: 600; color: #0f172a; margin-top: 48px; margin-bottom: 16px; }
+    .subtitle { color: #64748b; font-size: 15px; margin-bottom: 32px; }
+    .nav-toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 32px 0; padding: 16px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .nav-toc a { font-size: 12px; color: #64748b; text-decoration: none; padding: 6px 12px; border-radius: 6px; background: #f1f5f9; transition: all 0.15s; }
+    .nav-toc a:hover { background: #e2e8f0; color: #334155; }
+    .stats-row { display: flex; gap: 24px; margin-bottom: 40px; padding: 20px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+    .stat { text-align: center; }
+    .stat-value { font-size: 24px; font-weight: 700; color: #0f172a; }
+    .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; }
+    .at-a-glance { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; }
+    .glance-title { font-size: 16px; font-weight: 700; color: #92400e; margin-bottom: 16px; }
+    .glance-sections { display: flex; flex-direction: column; gap: 12px; }
+    .glance-section { font-size: 14px; color: #78350f; line-height: 1.6; }
+    .glance-section strong { color: #92400e; }
+    .see-more { color: #b45309; text-decoration: none; font-size: 13px; white-space: nowrap; }
+    .see-more:hover { text-decoration: underline; }
+    .project-areas { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+    .project-area { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+    .area-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .area-name { font-weight: 600; font-size: 15px; color: #0f172a; }
+    .area-count { font-size: 12px; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px; }
+    .area-desc { font-size: 14px; color: #475569; line-height: 1.5; }
+    .narrative { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+    .narrative p { margin-bottom: 12px; font-size: 14px; color: #475569; line-height: 1.7; }
+    .key-insight { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 14px; color: #166534; }
+    .section-intro { font-size: 14px; color: #64748b; margin-bottom: 16px; }
+    .big-wins { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .big-win { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; }
+    .big-win-title { font-weight: 600; font-size: 15px; color: #166534; margin-bottom: 8px; }
+    .big-win-desc { font-size: 14px; color: #15803d; line-height: 1.5; }
+    .friction-categories { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+    .friction-category { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 16px; }
+    .friction-title { font-weight: 600; font-size: 15px; color: #991b1b; margin-bottom: 6px; }
+    .friction-desc { font-size: 13px; color: #7f1d1d; margin-bottom: 10px; }
+    .friction-examples { margin: 0 0 0 20px; font-size: 13px; color: #334155; }
+    .friction-examples li { margin-bottom: 4px; }
+    .claude-md-section { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    .claude-md-section h3 { font-size: 14px; font-weight: 600; color: #1e40af; margin: 0 0 12px 0; }
+    .claude-md-actions { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #dbeafe; }
+    .copy-all-btn { background: #2563eb; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 12px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+    .copy-all-btn:hover { background: #1d4ed8; }
+    .copy-all-btn.copied { background: #16a34a; }
+    .claude-md-item { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; padding: 10px 0; border-bottom: 1px solid #dbeafe; }
+    .claude-md-item:last-child { border-bottom: none; }
+    .cmd-checkbox { margin-top: 2px; }
+    .cmd-code { background: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; color: #1e40af; border: 1px solid #bfdbfe; font-family: monospace; display: block; white-space: pre-wrap; word-break: break-word; flex: 1; }
+    .cmd-why { font-size: 12px; color: #64748b; width: 100%; padding-left: 24px; margin-top: 4px; }
+    .features-section, .patterns-section { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+    .feature-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 16px; }
+    .pattern-card { background: #f0f9ff; border: 1px solid #7dd3fc; border-radius: 8px; padding: 16px; }
+    .feature-title, .pattern-title { font-weight: 600; font-size: 15px; color: #0f172a; margin-bottom: 6px; }
+    .feature-oneliner { font-size: 14px; color: #475569; margin-bottom: 8px; }
+    .pattern-summary { font-size: 14px; color: #475569; margin-bottom: 8px; }
+    .feature-why, .pattern-detail { font-size: 13px; color: #334155; line-height: 1.5; }
+    .feature-examples { margin-top: 12px; }
+    .feature-example { padding: 8px 0; border-top: 1px solid #d1fae5; }
+    .feature-example:first-child { border-top: none; }
+    .example-desc { font-size: 13px; color: #334155; margin-bottom: 6px; }
+    .example-code-row { display: flex; align-items: flex-start; gap: 8px; }
+    .example-code { flex: 1; background: #f1f5f9; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 12px; color: #334155; overflow-x: auto; white-space: pre-wrap; }
+    .copyable-prompt-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+    .copyable-prompt-row { display: flex; align-items: flex-start; gap: 8px; }
+    .copyable-prompt { flex: 1; background: #f8fafc; padding: 10px 12px; border-radius: 4px; font-family: monospace; font-size: 12px; color: #334155; border: 1px solid #e2e8f0; white-space: pre-wrap; line-height: 1.5; }
+    .feature-code { background: #f8fafc; padding: 12px; border-radius: 6px; margin-top: 12px; border: 1px solid #e2e8f0; display: flex; align-items: flex-start; gap: 8px; }
+    .feature-code code { flex: 1; font-family: monospace; font-size: 12px; color: #334155; white-space: pre-wrap; }
+    .pattern-prompt { background: #f8fafc; padding: 12px; border-radius: 6px; margin-top: 12px; border: 1px solid #e2e8f0; }
+    .pattern-prompt code { font-family: monospace; font-size: 12px; color: #334155; display: block; white-space: pre-wrap; margin-bottom: 8px; }
+    .prompt-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
+    .copy-btn { background: #e2e8f0; border: none; border-radius: 4px; padding: 4px 8px; font-size: 11px; cursor: pointer; color: #475569; flex-shrink: 0; }
+    .copy-btn:hover { background: #cbd5e1; }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+    .chart-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+    .chart-title { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 12px; }
+    .bar-row { display: flex; align-items: center; margin-bottom: 6px; }
+    .bar-label { width: 100px; font-size: 11px; color: #475569; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { flex: 1; height: 6px; background: #f1f5f9; border-radius: 3px; margin: 0 8px; }
+    .bar-fill { height: 100%; border-radius: 3px; }
+    .bar-value { width: 28px; font-size: 11px; font-weight: 500; color: #64748b; text-align: right; }
+    .empty { color: #94a3b8; font-size: 13px; }
+    .horizon-section { display: flex; flex-direction: column; gap: 16px; }
+    .horizon-card { background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%); border: 1px solid #c4b5fd; border-radius: 8px; padding: 16px; }
+    .horizon-title { font-weight: 600; font-size: 15px; color: #5b21b6; margin-bottom: 8px; }
+    .horizon-possible { font-size: 14px; color: #334155; margin-bottom: 10px; line-height: 1.5; }
+    .horizon-tip { font-size: 13px; color: #6b21a8; background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 4px; }
+    .feedback-header { margin-top: 48px; color: #64748b; font-size: 16px; }
+    .feedback-intro { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+    .feedback-section { margin-top: 16px; }
+    .feedback-section h3 { font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 12px; }
+    .feedback-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .feedback-card.team-card { background: #eff6ff; border-color: #bfdbfe; }
+    .feedback-card.model-card { background: #faf5ff; border-color: #e9d5ff; }
+    .feedback-title { font-weight: 600; font-size: 14px; color: #0f172a; margin-bottom: 6px; }
+    .feedback-detail { font-size: 13px; color: #475569; line-height: 1.5; }
+    .feedback-evidence { font-size: 12px; color: #64748b; margin-top: 8px; }
+    .fun-ending { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #fbbf24; border-radius: 12px; padding: 24px; margin-top: 40px; text-align: center; }
+    .fun-headline { font-size: 18px; font-weight: 600; color: #78350f; margin-bottom: 8px; }
+    .fun-detail { font-size: 14px; color: #92400e; }
+    .collapsible-section { margin-top: 16px; }
+    .collapsible-header { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+    .collapsible-header h3 { margin: 0; font-size: 14px; font-weight: 600; color: #475569; }
+    .collapsible-arrow { font-size: 12px; color: #94a3b8; transition: transform 0.2s; }
+    .collapsible-content { display: none; padding-top: 16px; }
+    .collapsible-content.open { display: block; }
+    .collapsible-header.open .collapsible-arrow { transform: rotate(90deg); }
+    @media (max-width: 640px) { .charts-row { grid-template-columns: 1fr; } .stats-row { justify-content: center; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Claude Code Insights</h1>
+    <p class="subtitle">15 messages across 1 sessions (3 total) | 2026-03-28 to 2026-03-28</p>
+
+    
+    <div class="at-a-glance">
+      <div class="glance-title">At a Glance</div>
+      <div class="glance-sections">
+        <div class="glance-section"><strong>What's working:</strong> You&apos;re already using one of the most advanced Claude Code patterns out there — orchestrating 6 parallel sub-agents to execute multiple sprints of SaaS development in a single session. Combining that with GitHub MCP for PR creation shows you&apos;ve built a real end-to-end delivery pipeline, not just a code generation workflow. <a href="#section-wins" class="see-more">Impressive Things You Did →</a></div>
+        <div class="glance-section"><strong>What's hindering you:</strong> On Claude&apos;s side, git stop hooks repeatedly broke the flow of your parallel agents by flagging uncommitted files, which forced manual intervention during what should have been autonomous work. On your side, the lack of a CLAUDE.md with project-specific rules (branch strategy, commit behavior, hook handling) means Claude has no guardrails to work around these known friction points. <a href="#section-friction" class="see-more">Where Things Go Wrong →</a></div>
+        <div class="glance-section"><strong>Quick wins to try:</strong> Set up a CLAUDE.md file with rules for commit cadence and branch management — this alone would prevent most of the git hook interruptions you hit. You could also create a custom `/sprint` command that includes a pre-flight git status check and auto-stages changes between agent waves, making your multi-agent runs smoother out of the box. <a href="#section-features" class="see-more">Features to Try →</a></div>
+        <div class="glance-section"><strong>Ambitious workflows:</strong> As models get more capable, your parallel agent pattern could evolve into fully autonomous pipelines where each agent works in an isolated worktree on its own branch, auto-committing and auto-merging without blocking others. Even more exciting: an architecture-aware planning agent that analyzes your codebase, generates sprint backlogs with dependency ordering, and dispatches parallel agents to execute — turning a product roadmap into shipped, tested code in one command. <a href="#section-horizon" class="see-more">On the Horizon →</a></div>
+      </div>
+    </div>
+    
+
+    <nav class="nav-toc">
+      <a href="#section-work">What You Work On</a>
+      <a href="#section-usage">How You Use CC</a>
+      <a href="#section-wins">Impressive Things</a>
+      <a href="#section-friction">Where Things Go Wrong</a>
+      <a href="#section-features">Features to Try</a>
+      <a href="#section-patterns">New Usage Patterns</a>
+      <a href="#section-horizon">On the Horizon</a>
+      <a href="#section-feedback">Team Feedback</a>
+    </nav>
+
+    <div class="stats-row">
+      <div class="stat"><div class="stat-value">15</div><div class="stat-label">Messages</div></div>
+      <div class="stat"><div class="stat-value">+0/-0</div><div class="stat-label">Lines</div></div>
+      <div class="stat"><div class="stat-value">0</div><div class="stat-label">Files</div></div>
+      <div class="stat"><div class="stat-value">1</div><div class="stat-label">Days</div></div>
+      <div class="stat"><div class="stat-value">15</div><div class="stat-label">Msgs/Day</div></div>
+    </div>
+
+    
+    <h2 id="section-work">What You Work On</h2>
+    <div class="project-areas">
+      
+        <div class="project-area">
+          <div class="area-header">
+            <span class="area-name">SaaS Platform Development</span>
+            <span class="area-count">~1 sessions</span>
+          </div>
+          <div class="area-desc">Multi-sprint feature development for a SaaS platform, executing Sprints 2-4 in a single session. Claude Code was used to orchestrate parallel work across 6 sub-agents, making multi-file changes that were committed and pushed.</div>
+        </div>
+      
+        <div class="project-area">
+          <div class="area-header">
+            <span class="area-name">Multi-Agent Orchestration</span>
+            <span class="area-count">~1 sessions</span>
+          </div>
+          <div class="area-desc">Leveraged Claude Code&apos;s agent tool extensively to parallelize development work across 6 agents simultaneously. This approach enabled rapid execution of multiple sprint backlogs in a single session.</div>
+        </div>
+      
+        <div class="project-area">
+          <div class="area-header">
+            <span class="area-name">Git &amp; GitHub Workflow</span>
+            <span class="area-count">~1 sessions</span>
+          </div>
+          <div class="area-desc">Used GitHub MCP tools to list and create pull requests as part of the development workflow. Git stop hooks caused repeated friction during multi-agent work due to uncommitted files requiring manual commit/push cycles.</div>
+        </div>
+      
+        <div class="project-area">
+          <div class="area-header">
+            <span class="area-name">Architecture &amp; Planning</span>
+            <span class="area-count">~1 sessions</span>
+          </div>
+          <div class="area-desc">Included architecture explanation as part of the sprint execution process. Claude Code helped reason about the platform structure before and during the parallel implementation of features.</div>
+        </div>
+      
+    </div>
+    
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">What You Wanted</div>
+        <div class="bar-row">
+        <div class="bar-label">Feature Development</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#2563eb"></div></div>
+        <div class="bar-value">2</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">Architecture Explanation</div>
+        <div class="bar-track"><div class="bar-fill" style="width:50%;background:#2563eb"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top Tools Used</div>
+        <div class="bar-row">
+        <div class="bar-label">Bash</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#0891b2"></div></div>
+        <div class="bar-value">8</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">Agent</div>
+        <div class="bar-track"><div class="bar-fill" style="width:62.5%;background:#0891b2"></div></div>
+        <div class="bar-value">5</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">ToolSearch</div>
+        <div class="bar-track"><div class="bar-fill" style="width:25%;background:#0891b2"></div></div>
+        <div class="bar-value">2</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">Mcp  Github  Create Pull Request</div>
+        <div class="bar-track"><div class="bar-fill" style="width:12.5%;background:#0891b2"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">Mcp  Github  List Pull Requests</div>
+        <div class="bar-track"><div class="bar-fill" style="width:12.5%;background:#0891b2"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Languages</div>
+        <p class="empty">No data</p>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Session Types</div>
+        <div class="bar-row">
+        <div class="bar-label">Multi Task</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#8b5cf6"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+      </div>
+    </div>
+
+    
+    <h2 id="section-usage">How You Use Claude Code</h2>
+    <div class="narrative">
+      <p>You take a <strong>high-delegation, orchestration-heavy approach</strong> to Claude Code, treating it as a workforce rather than a pair programmer. In your single analyzed session, you asked Claude to execute multiple sprints of a SaaS platform simultaneously using <strong>multi-agent parallel work with 6 agents</strong>, which is a notably ambitious and hands-off style. Rather than breaking work into small iterative steps, you <strong>batched large chunks of feature development</strong> and let Claude&apos;s agent system handle the coordination across what appeared to be significant multi-file changes.</p>
+<p>Your tool usage reflects this orchestration pattern: the heavy use of <strong>Agent (5 calls)</strong> alongside Bash (8 calls) shows you leaned on sub-agents to parallelize work, while GitHub MCP tools for listing and creating pull requests indicate you wanted a <strong>full end-to-end workflow</strong> from code to PR in a single session. The friction you encountered — <strong>3 stop hook interruptions</strong> from git hooks firing during multi-agent work — suggests you pushed the boundaries of concurrent operations, and the tooling struggled to keep up with your pace rather than the other way around. Despite this friction, you achieved your goals and landed a commit, showing you&apos;re comfortable working through rough edges to get results.</p>
+<p>Your session lasted <strong>under an hour with 15 messages</strong>, which for executing 3 sprints worth of work across 6 agents is remarkably efficient. You clearly came in with <strong>detailed upfront specifications</strong> already planned (sprint definitions ready to go) rather than iterating on requirements in-session. This is a power-user pattern focused on maximizing throughput per interaction.</p>
+      <div class="key-insight"><strong>Key pattern:</strong> You operate as a project orchestrator who delegates large, pre-planned workstreams to parallel agents rather than engaging in incremental back-and-forth development.</div>
+    </div>
+    
+
+    <!-- Response Time Distribution -->
+    <div class="chart-card" style="margin: 24px 0;">
+      <div class="chart-title">User Response Time Distribution</div>
+      <div class="bar-row">
+        <div class="bar-label">2-10s</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#6366f1"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">10-30s</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#6366f1"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">30s-1m</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#6366f1"></div></div>
+        <div class="bar-value">5</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">1-2m</div>
+        <div class="bar-track"><div class="bar-fill" style="width:40%;background:#6366f1"></div></div>
+        <div class="bar-value">2</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">2-5m</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#6366f1"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">5-15m</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#6366f1"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+<div class="bar-row">
+        <div class="bar-label">>15m</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#6366f1"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+      <div style="font-size: 12px; color: #64748b; margin-top: 8px;">
+        Median: 41.5s &bull; Average: 51.8s
+      </div>
+    </div>
+
+    <!-- Multi-clauding Section (matching Python reference) -->
+    <div class="chart-card" style="margin: 24px 0;">
+      <div class="chart-title">Multi-Clauding (Parallel Sessions)</div>
+      
+        <p style="font-size: 14px; color: #64748b; padding: 8px 0;">
+          No parallel session usage detected. You typically work with one Claude Code session at a time.
+        </p>
+      
+    </div>
+
+    <!-- Time of Day & Tool Errors -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title" style="display: flex; align-items: center; gap: 12px;">
+          User Messages by Time of Day
+          <select id="timezone-select" style="font-size: 12px; padding: 4px 8px; border-radius: 4px; border: 1px solid #e2e8f0;">
+            <option value="0">PT (UTC-8)</option>
+            <option value="3">ET (UTC-5)</option>
+            <option value="8">London (UTC)</option>
+            <option value="9">CET (UTC+1)</option>
+            <option value="17">Tokyo (UTC+9)</option>
+            <option value="custom">Custom offset...</option>
+          </select>
+          <input type="number" id="custom-offset" placeholder="UTC offset" style="display: none; width: 80px; font-size: 12px; padding: 4px; border-radius: 4px; border: 1px solid #e2e8f0;">
+        </div>
+        <div id="hour-histogram">
+      <div class="bar-row">
+        <div class="bar-label">Morning (6-12)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#8b5cf6"></div></div>
+        <div class="bar-value">15</div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label">Afternoon (12-18)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#8b5cf6"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label">Evening (18-24)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#8b5cf6"></div></div>
+        <div class="bar-value">0</div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label">Night (0-6)</div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:#8b5cf6"></div></div>
+        <div class="bar-value">0</div>
+      </div></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tool Errors Encountered</div>
+        <div class="bar-row">
+        <div class="bar-label">Other</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#dc2626"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+      </div>
+    </div>
+
+    
+    <h2 id="section-wins">Impressive Things You Did</h2>
+    <p class="section-intro">You ran a single highly orchestrated session that leveraged parallel multi-agent execution to complete multiple sprints of a SaaS platform in one go.</p>
+    <div class="big-wins">
+      
+        <div class="big-win">
+          <div class="big-win-title">Parallel Multi-Agent Sprint Execution</div>
+          <div class="big-win-desc">You coordinated 6 agents working in parallel across Sprints 2-4 of your SaaS platform, all completing successfully. This is an advanced orchestration pattern that maximizes Claude Code&apos;s throughput by running concurrent workstreams instead of sequential tasks.</div>
+        </div>
+      
+        <div class="big-win">
+          <div class="big-win-title">End-to-End GitHub Integration</div>
+          <div class="big-win-desc">You combined Bash commands, agent delegation, and GitHub MCP tools to go from code changes to a committed, pushed, and PR-ready state in a single session. This seamless pipeline from development to pull request creation shows a mature CI-aware workflow.</div>
+        </div>
+      
+        <div class="big-win">
+          <div class="big-win-title">High-Density Productive Session</div>
+          <div class="big-win-desc">You packed 15 messages, 5 sub-agent delegations, a commit, and a pull request into a single sub-hour session. Your ability to batch multiple sprints worth of feature development into one efficient interaction demonstrates strong prompt planning and task scoping.</div>
+        </div>
+      
+    </div>
+    
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">What Helped Most (Claude's Capabilities)</div>
+        <div class="bar-row">
+        <div class="bar-label">Multi-file Changes</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#16a34a"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Outcomes</div>
+        <div class="bar-row">
+        <div class="bar-label">Mostly Achieved</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#8b5cf6"></div></div>
+        <div class="bar-value">1</div>
+      </div>
+      </div>
+    </div>
+
+    
+    <h2 id="section-friction">Where Things Go Wrong</h2>
+    <p class="section-intro">Your single session reveals friction primarily around git hook interruptions disrupting an otherwise successful multi-agent parallel workflow.</p>
+    <div class="friction-categories">
+      
+        <div class="friction-category">
+          <div class="friction-title">Git Hook Interruptions During Multi-Agent Work</div>
+          <div class="friction-desc">Stop hooks repeatedly fired about uncommitted/untracked files while your 6 agents were working in parallel, forcing manual commit/push cycles that broke the flow. You could configure your git hooks to be less aggressive or add a `.claude` config that stages changes more gracefully during multi-agent runs.</div>
+          <ul class="friction-examples"><li>Git stop hooks fired 3 times during Sprints 2-4 execution, interrupting parallel agent progress and requiring manual intervention</li><li>Each interruption forced a commit/push cycle mid-sprint, fragmenting what should have been a continuous parallel workflow</li></ul>
+        </div>
+      
+        <div class="friction-category">
+          <div class="friction-title">Ambitious Single-Prompt Scoping</div>
+          <div class="friction-desc">You asked Claude to execute three full sprints of a SaaS platform in a single prompt across 6 parallel agents. While it mostly worked, breaking this into smaller batches could improve reliability and reduce the chance of cascading issues.</div>
+          <ul class="friction-examples"><li>Requesting Sprints 2-4 all at once meant any single agent failure or hook interruption could ripple across the entire batch</li><li>The session outcome was &apos;mostly_achieved&apos; rather than fully achieved, suggesting the broad scope may have left edge cases unfinished</li></ul>
+        </div>
+      
+        <div class="friction-category">
+          <div class="friction-title">Missing User Instructions and Configuration</div>
+          <div class="friction-desc">You had no captured user instructions for Claude, which means there were no guardrails around commit behavior, branch strategy, or hook handling. Setting up a CLAUDE.md with project-specific rules would preempt the recurring git friction.</div>
+          <ul class="friction-examples"><li>No instructions were configured to tell agents how to handle uncommitted files, leading to repeated stop hook triggers</li><li>Without branch or commit conventions defined, each agent likely created its own patterns, complicating the merge workflow</li></ul>
+        </div>
+      
+    </div>
+    
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Primary Friction Types</div>
+        <div class="bar-row">
+        <div class="bar-label">Stop Hook Interruptions</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#dc2626"></div></div>
+        <div class="bar-value">3</div>
+      </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Inferred Satisfaction (model-estimated)</div>
+        <div class="bar-row">
+        <div class="bar-label">Likely Satisfied</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%;background:#eab308"></div></div>
+        <div class="bar-value">3</div>
+      </div>
+      </div>
+    </div>
+
+    
+    
+    <h2 id="section-features">Existing CC Features to Try</h2>
+    <div class="claude-md-section">
+      <h3>Suggested CLAUDE.md Additions</h3>
+      <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">Just copy this into Claude Code to add it to your CLAUDE.md.</p>
+      <div class="claude-md-actions">
+        <button class="copy-all-btn" onclick="copyAllCheckedClaudeMd()">Copy All Checked</button>
+      </div>
+      
+        <div class="claude-md-item">
+          <input type="checkbox" id="cmd-0" class="cmd-checkbox" checked data-text="Add under a new ## Multi-Agent Workflow section at the top level of CLAUDE.md\n\nWhen running multi-agent parallel work, commit and push changes before spawning new agents to avoid git hook interruptions. Use `git add -A &amp;&amp; git commit -m &apos;&lt;msg&gt;&apos; &amp;&amp; git push` between agent batches.">
+          <label for="cmd-0">
+            <code class="cmd-code">When running multi-agent parallel work, commit and push changes before spawning new agents to avoid git hook interruptions. Use `git add -A &amp;&amp; git commit -m &apos;&lt;msg&gt;&apos; &amp;&amp; git push` between agent batches.</code>
+            <button class="copy-btn" onclick="copyCmdItem(0)">Copy</button>
+          </label>
+          <div class="cmd-why">Stop hooks fired 3 times during a single multi-agent session due to uncommitted files, disrupting workflow.</div>
+        </div>
+      
+        <div class="claude-md-item">
+          <input type="checkbox" id="cmd-1" class="cmd-checkbox" checked data-text="Add under ## Git Conventions section (create if it doesn&apos;t exist)\n\nFor sprint-based feature development, break work into discrete commits per sprint/agent rather than one large commit at the end.">
+          <label for="cmd-1">
+            <code class="cmd-code">For sprint-based feature development, break work into discrete commits per sprint/agent rather than one large commit at the end.</code>
+            <button class="copy-btn" onclick="copyCmdItem(1)">Copy</button>
+          </label>
+          <div class="cmd-why">The multi-agent sprint execution resulted in only 1 commit despite 6 agents completing work, suggesting changes accumulated and triggered git hooks.</div>
+        </div>
+      
+    </div>
+    
+    
+    <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Just copy this into Claude Code and it'll set it up for you.</p>
+    <div class="features-section">
+      
+        <div class="feature-card">
+          <div class="feature-title">Hooks</div>
+          <div class="feature-oneliner">Shell commands that auto-run at specific lifecycle events.</div>
+          <div class="feature-why"><strong>Why for you:</strong> Your #1 friction point was git stop hooks interrupting multi-agent work 3 times. You can configure hooks to auto-commit or auto-stash before agent tasks, eliminating those interruptions entirely.</div>
+          
+          <div class="feature-examples">
+            <div class="feature-example">
+              <div class="example-code-row">
+                <code class="example-code">Add to .claude/settings.json:
+{
+  &quot;hooks&quot;: {
+    &quot;preToolUse&quot;: [{
+      &quot;matcher&quot;: &quot;Agent&quot;,
+      &quot;command&quot;: &quot;git add -A &amp;&amp; git stash || true&quot;
+    }],
+    &quot;postToolUse&quot;: [{
+      &quot;matcher&quot;: &quot;Agent&quot;,
+      &quot;command&quot;: &quot;git stash pop || true&quot;
+    }]
+  }
+}</code>
+                <button class="copy-btn" onclick="copyText(this)">Copy</button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      
+        <div class="feature-card">
+          <div class="feature-title">Custom Skills</div>
+          <div class="feature-oneliner">Reusable prompts that run with a single /command.</div>
+          <div class="feature-why"><strong>Why for you:</strong> You&apos;re executing multi-sprint plans with parallel agents — a perfect candidate for a /sprint skill that handles the commit-between-agents pattern automatically.</div>
+          
+          <div class="feature-examples">
+            <div class="feature-example">
+              <div class="example-code-row">
+                <code class="example-code">Create .claude/skills/sprint/SKILL.md:
+```
+# Sprint Execution
+1. Parse the sprint plan from the user&apos;s message
+2. For each sprint, spawn agents for parallel tasks
+3. After ALL agents in a sprint complete, run: git add -A &amp;&amp; git commit -m &quot;Sprint N complete&quot; &amp;&amp; git push
+4. Only proceed to next sprint after commit succeeds
+```
+Then use by typing: /sprint</code>
+                <button class="copy-btn" onclick="copyText(this)">Copy</button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      
+        <div class="feature-card">
+          <div class="feature-title">Task Agents</div>
+          <div class="feature-oneliner">Claude spawns focused sub-agents for parallel work.</div>
+          <div class="feature-why"><strong>Why for you:</strong> You already used 5 agents successfully in one session — you&apos;re a power user. Being more explicit about agent scoping (e.g., giving each agent a specific directory or module) can reduce file conflicts that trigger git hooks.</div>
+          
+          <div class="feature-examples">
+            <div class="feature-example">
+              <div class="example-code-row">
+                <code class="example-code">Try this prompt: &quot;Execute Sprint 2 using separate agents. Each agent should work in its own module directory. After all agents finish, consolidate and commit.&quot;</code>
+                <button class="copy-btn" onclick="copyText(this)">Copy</button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      
+    </div>
+    
+    
+    <h2 id="section-patterns">New Ways to Use Claude Code</h2>
+    <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Just copy this into Claude Code and it'll walk you through it.</p>
+    <div class="patterns-section">
+      
+        <div class="pattern-card">
+          <div class="pattern-title">Batch commits between parallel agent waves</div>
+          <div class="pattern-summary">Insert explicit commit checkpoints between sprint batches to prevent git hook friction.</div>
+          <div class="pattern-detail">Your session spawned 6 agents across Sprints 2-4 but only produced 1 commit. The git stop hooks fired 3 times because uncommitted files piled up. By telling Claude to commit after each sprint completes (not at the end), you avoid repeated interruptions and get cleaner git history.</div>
+          
+          <div class="copyable-prompt-section">
+            <div class="prompt-label">Paste into Claude Code:</div>
+            <div class="copyable-prompt-row">
+              <code class="copyable-prompt">Execute Sprints 2-4 in parallel using agents. IMPORTANT: After all agents in each sprint finish, commit and push all changes before starting the next sprint. Do not let uncommitted files accumulate.</code>
+              <button class="copy-btn" onclick="copyText(this)">Copy</button>
+            </div>
+          </div>
+          
+        </div>
+      
+        <div class="pattern-card">
+          <div class="pattern-title">Leverage GitHub MCP for end-to-end delivery</div>
+          <div class="pattern-summary">You already have GitHub MCP connected — use it to automate PR creation as part of sprint completion.</div>
+          <div class="pattern-detail">You used the GitHub MCP to create a PR and list PRs, but this was likely manual. Since you&apos;re running multi-sprint execution, you can instruct Claude to auto-create a PR with a summary after all sprints complete. This closes the loop from code to review without switching context.</div>
+          
+          <div class="copyable-prompt-section">
+            <div class="prompt-label">Paste into Claude Code:</div>
+            <div class="copyable-prompt-row">
+              <code class="copyable-prompt">After completing all sprints, create a pull request to main with a summary of all changes organized by sprint. Include a checklist of what each agent implemented.</code>
+              <button class="copy-btn" onclick="copyText(this)">Copy</button>
+            </div>
+          </div>
+          
+        </div>
+      
+        <div class="pattern-card">
+          <div class="pattern-title">Pre-flight check before multi-agent work</div>
+          <div class="pattern-summary">Start sessions with a clean git state to avoid hook interruptions.</div>
+          <div class="pattern-detail">The stop hook interruptions suggest the repo had uncommitted or untracked files when agents started. A simple pre-flight pattern — checking git status and committing or stashing before launching agents — would have prevented all 3 friction events in your session.</div>
+          
+          <div class="copyable-prompt-section">
+            <div class="prompt-label">Paste into Claude Code:</div>
+            <div class="copyable-prompt-row">
+              <code class="copyable-prompt">Before starting any work: check git status, commit or stash any uncommitted changes, and confirm we&apos;re on a clean branch. Then proceed with the sprint plan.</code>
+              <button class="copy-btn" onclick="copyText(this)">Copy</button>
+            </div>
+          </div>
+          
+        </div>
+      
+    </div>
+    
+    
+
+    
+    <h2 id="section-horizon">On the Horizon</h2>
+    <p class="section-intro">Your first session already leveraged parallel multi-agent orchestration for full sprint execution — you&apos;re operating at the frontier of AI-assisted development.</p>
+    <div class="horizon-section">
+      
+        <div class="horizon-card">
+          <div class="horizon-title">Auto-Committing Parallel Agent Pipelines</div>
+          <div class="horizon-possible">Your 6-agent parallel sprint execution was slowed by git stop hooks firing repeatedly. With pre-configured auto-commit strategies and isolated worktrees, agents can work on separate branches simultaneously without blocking each other, turning a multi-sprint plan into a fully autonomous pipeline.</div>
+          <div class="horizon-tip"><strong>Getting started:</strong> Configure git worktrees or per-agent branches with a CLAUDE.md hook that auto-commits after each agent completes. Use the Agent tool to orchestrate merge sequencing.</div>
+          <div class="pattern-prompt"><div class="prompt-label">Paste into Claude Code:</div><code>Set up an autonomous multi-agent development pipeline for our SaaS platform. Create a CLAUDE.md that: 1) Assigns each sub-agent its own git branch using worktrees, 2) Each agent auto-commits and pushes on completion, 3) A coordinator agent merges branches sequentially, resolving conflicts. Then execute Sprints 5-7 using this pipeline with 4+ parallel agents. After all agents finish, open one consolidated PR with a summary of all changes.</code><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+        </div>
+      
+        <div class="horizon-card">
+          <div class="horizon-title">Test-Driven Autonomous Feature Iteration</div>
+          <div class="horizon-possible">Instead of just generating code, agents can write tests first, then iterate implementations against those tests in a tight loop until all pass. This creates a self-validating development cycle where each agent ships production-ready, tested code without human review of intermediate steps.</div>
+          <div class="horizon-tip"><strong>Getting started:</strong> Use Claude Code&apos;s Bash tool to run test suites in a loop, combined with sub-agents that each own a feature&apos;s tests and implementation.</div>
+          <div class="pattern-prompt"><div class="prompt-label">Paste into Claude Code:</div><code>For each feature in our next sprint, follow this autonomous TDD workflow: 1) Write comprehensive unit and integration tests that define the expected behavior, 2) Run the tests to confirm they fail, 3) Implement the feature code, 4) Run tests in a loop — if any fail, analyze the error, fix the implementation, and re-run until all pass, 5) Refactor for clean code while keeping tests green. Spawn a separate sub-agent for each feature. After all agents complete, run the full test suite and report coverage.</code><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+        </div>
+      
+        <div class="horizon-card">
+          <div class="horizon-title">Architecture-Aware Sprint Planning Agent</div>
+          <div class="horizon-possible">Your session combined architecture explanation with feature development. An autonomous planning agent can analyze your entire codebase, generate sprint backlogs with dependency graphs, estimate complexity, and then dispatch parallel agents to execute — turning a product roadmap into shipped code in a single command.</div>
+          <div class="horizon-tip"><strong>Getting started:</strong> Use the Agent tool for codebase analysis combined with the GitHub MCP tools to create issues and PRs automatically from the generated plan.</div>
+          <div class="pattern-prompt"><div class="prompt-label">Paste into Claude Code:</div><code>Analyze our entire SaaS platform codebase and act as an autonomous sprint planner and executor: 1) Map the full architecture — services, data models, API surface, dependencies, 2) Based on our roadmap goals [DESCRIBE GOALS HERE], break work into sprints of 3-5 tasks each with dependency ordering, 3) Create GitHub issues for each task, 4) Execute the first sprint by dispatching parallel sub-agents for independent tasks, sequencing dependent ones, 5) Each agent should commit to its own branch, write tests, and open a PR linked to its issue. Give me the architecture analysis and proposed sprint plan before executing.</code><button class="copy-btn" onclick="copyText(this)">Copy</button></div>
+        </div>
+      
+    </div>
+    
+
+    
+    <div class="fun-ending">
+      <div class="fun-headline">"User unleashed 6 AI agents in parallel to speedrun 3 sprints at once — and the git hooks kept panicking about all the uncommitted files"</div>
+      <div class="fun-detail">A user tried to blitz through Sprints 2-4 of their entire SaaS platform by running 6 agents simultaneously. The agents all completed successfully, but git&apos;s stop hooks kept freaking out like a hall monitor watching kids run in the corridors, repeatedly interrupting to complain about uncommitted files from all the parallel work.</div>
+    </div>
+    
+
+    
+  </div>
+  <script>
+    function toggleCollapsible(header) {
+      header.classList.toggle('open');
+      const content = header.nextElementSibling;
+      content.classList.toggle('open');
+    }
+    function copyText(btn) {
+      const code = btn.previousElementSibling;
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+    function copyCmdItem(idx) {
+      const checkbox = document.getElementById('cmd-' + idx);
+      if (checkbox) {
+        const text = checkbox.dataset.text;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = checkbox.nextElementSibling.querySelector('.copy-btn');
+          if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
+        });
+      }
+    }
+    function copyAllCheckedClaudeMd() {
+      const checkboxes = document.querySelectorAll('.cmd-checkbox:checked');
+      const texts = [];
+      checkboxes.forEach(cb => {
+        if (cb.dataset.text) { texts.push(cb.dataset.text); }
+      });
+      const combined = texts.join('\n');
+      const btn = document.querySelector('.copy-all-btn');
+      if (btn) {
+        navigator.clipboard.writeText(combined).then(() => {
+          btn.textContent = 'Copied ' + texts.length + ' items!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'Copy All Checked'; btn.classList.remove('copied'); }, 2000);
+        });
+      }
+    }
+    // Timezone selector for time of day chart (data is from our own analytics, not user input)
+    const rawHourCounts = {"7":15};
+    function updateHourHistogram(offsetFromPT) {
+      const periods = [
+        { label: "Morning (6-12)", range: [6,7,8,9,10,11] },
+        { label: "Afternoon (12-18)", range: [12,13,14,15,16,17] },
+        { label: "Evening (18-24)", range: [18,19,20,21,22,23] },
+        { label: "Night (0-6)", range: [0,1,2,3,4,5] }
+      ];
+      const adjustedCounts = {};
+      for (const [hour, count] of Object.entries(rawHourCounts)) {
+        const newHour = (parseInt(hour) + offsetFromPT + 24) % 24;
+        adjustedCounts[newHour] = (adjustedCounts[newHour] || 0) + count;
+      }
+      const periodCounts = periods.map(p => ({
+        label: p.label,
+        count: p.range.reduce((sum, h) => sum + (adjustedCounts[h] || 0), 0)
+      }));
+      const maxCount = Math.max(...periodCounts.map(p => p.count)) || 1;
+      const container = document.getElementById('hour-histogram');
+      container.textContent = '';
+      periodCounts.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = p.label;
+        const track = document.createElement('div');
+        track.className = 'bar-track';
+        const fill = document.createElement('div');
+        fill.className = 'bar-fill';
+        fill.style.width = (p.count / maxCount) * 100 + '%';
+        fill.style.background = '#8b5cf6';
+        track.appendChild(fill);
+        const value = document.createElement('div');
+        value.className = 'bar-value';
+        value.textContent = p.count;
+        row.appendChild(label);
+        row.appendChild(track);
+        row.appendChild(value);
+        container.appendChild(row);
+      });
+    }
+    document.getElementById('timezone-select').addEventListener('change', function() {
+      const customInput = document.getElementById('custom-offset');
+      if (this.value === 'custom') {
+        customInput.style.display = 'inline-block';
+        customInput.focus();
+      } else {
+        customInput.style.display = 'none';
+        updateHourHistogram(parseInt(this.value));
+      }
+    });
+    document.getElementById('custom-offset').addEventListener('change', function() {
+      const offset = parseInt(this.value) + 8;
+      updateHourHistogram(offset);
+    });
+  </script>
+</body>
+</html>
