@@ -10,7 +10,8 @@ import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 import {
   Search, Plus, Clock, Settings, History, Shield,
-  Lock, Globe, X, GitBranch, ChevronRight
+  Lock, Globe, X, GitBranch, ChevronRight, FileEdit,
+  GitCompare, DollarSign
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -248,6 +249,27 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
         >
           <History size={14} />
           Scan History
+        </Link>
+        <Link
+          to="/app/policy-editor"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+        >
+          <FileEdit size={14} />
+          Policy Editor
+        </Link>
+        <Link
+          to="/app/drift"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+        >
+          <GitCompare size={14} />
+          Drift Detection
+        </Link>
+        <Link
+          to="/app/cost-insights"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+        >
+          <DollarSign size={14} />
+          Cost Insights
         </Link>
         <Link
           to="/app/settings"
