@@ -1,0 +1,24 @@
+# Pre-commit hook for ScanLLM policy checking
+# Usage in .pre-commit-config.yaml:
+#   repos:
+#     - repo: https://github.com/isunilsharma/scanllm
+#       rev: v2.0.0
+#       hooks:
+#         - id: scanllm-policy-check
+- id: scanllm-policy-check
+  name: ScanLLM Policy Check
+  description: Check AI/LLM dependencies against security policies
+  entry: scanllm policy check
+  language: python
+  types_or: [python, javascript, ts, jsx, tsx, json, yaml, toml]
+  pass_filenames: false
+  additional_dependencies: ['scanllm']
+
+- id: scanllm-secret-check
+  name: ScanLLM Secret Check
+  description: Detect hardcoded AI API keys
+  entry: scanllm scan . --severity critical --output json
+  language: python
+  types_or: [python, javascript, ts, jsx, tsx, json, yaml, toml, text]
+  pass_filenames: false
+  additional_dependencies: ['scanllm']

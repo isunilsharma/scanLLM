@@ -1,0 +1,17 @@
+- id: scanllm-policy-check
+  name: ScanLLM Policy Check
+  description: Enforce AI/LLM security policies
+  entry: scanllm policy check
+  language: python
+  types_or: [python, javascript, ts, jsx, tsx]
+  pass_filenames: false
+  minimum_pre_commit_version: '2.9.0'
+
+- id: scanllm-scan
+  name: ScanLLM Scan
+  description: Scan for AI/LLM dependencies and security issues
+  entry: scanllm scan . --severity high
+  language: python
+  types_or: [python, javascript, ts, jsx, tsx]
+  pass_filenames: false
+  minimum_pre_commit_version: '2.9.0'
