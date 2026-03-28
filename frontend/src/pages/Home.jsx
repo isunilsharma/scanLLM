@@ -231,8 +231,8 @@ const Home = () => {
             <div>
               <div className="font-medium text-zinc-300 text-sm mb-3">Legal</div>
               <div className="space-y-2 text-sm text-zinc-500">
-                <div><a href="#" className="hover:text-zinc-300 transition-colors">Privacy</a></div>
-                <div><a href="#" className="hover:text-zinc-300 transition-colors">Terms</a></div>
+                <div><a href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</a></div>
+                <div><a href="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</a></div>
               </div>
             </div>
           </div>

@@ -10,19 +10,19 @@ const Header = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const isActive = (path) => location.pathname === path;
-  
+
   const navLinkClass = (path) => `
-    text-sm font-medium transition-colors hover:text-primary
-    ${isActive(path) ? 'text-primary font-semibold' : 'text-gray-600'}
+    text-sm font-medium transition-colors hover:text-cyan-400
+    ${isActive(path) ? 'text-cyan-400 font-semibold' : 'text-zinc-400'}
   `;
 
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/how-it-works', label: 'How It Works' },
     { path: '/blog', label: 'Blog' },
-    { path: '/about', label: 'About Us' }
+    { path: '/about', label: 'About' }
   ];
 
   const handleLinkClick = () => {
@@ -30,40 +30,47 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0" onClick={handleLinkClick}>
             <Logo />
           </Link>
-          
-          {/* Desktop Navigation - Hidden on mobile */}
+
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map(({ path, label }) => (
               <Link key={path} to={path} className={navLinkClass(path)}>
                 {label}
               </Link>
             ))}
-            
-            {/* User profile or Login */}
+
             {isAuthenticated && user ? (
               <button
-                onClick={() => navigate('/private/repos')}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={() => navigate('/app/repos')}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 {user.avatar_url && (
                   <img src={user.avatar_url} alt={user.login} className="w-8 h-8 rounded-full" />
                 )}
-                <span className="text-sm font-medium text-gray-900">@{user.login}</span>
+                <span className="text-sm font-medium text-zinc-200">@{user.login}</span>
               </button>
-            ) : null}
+            ) : (
+              <Button
+                onClick={() => navigate('/demo')}
+                size="sm"
+                className="bg-cyan-600 hover:bg-cyan-500 text-white text-sm px-4"
+              >
+                Try Demo
+              </Button>
+            )}
           </nav>
 
-          {/* Mobile Hamburger Button - Hidden on desktop */}
+          {/* Mobile Hamburger */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="md:hidden p-2 text-zinc-400 hover:text-zinc-100 transition-colors"
             aria-label="Toggle navigation"
             aria-expanded={isMenuOpen}
             aria-controls="mobile-nav-menu"
@@ -76,7 +83,7 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation Menu - Slide down panel */}
+        {/* Mobile Navigation */}
         <div
           id="mobile-nav-menu"
           role="navigation"
@@ -84,7 +91,7 @@ const Header = () => {
             isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
           }`}
         >
-          <nav className="py-4 space-y-2">
+          <nav className="py-4 space-y-1">
             {navLinks.map(({ path, label }) => (
               <Link
                 key={path}
@@ -92,8 +99,8 @@ const Header = () => {
                 onClick={handleLinkClick}
                 className={`block py-3 px-4 rounded-lg transition-colors ${
                   isActive(path)
-                    ? 'bg-blue-50 text-primary font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'bg-cyan-500/10 text-cyan-400 font-semibold'
+                    : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
                 }`}
               >
                 {label}
@@ -107,4 +114,3 @@ const Header = () => {
 };
 
 export default Header;
-
