@@ -164,7 +164,7 @@ const ScanPage = () => {
             {/* Demo Badge - Only show if NOT authenticated */}
             {!isAuthenticated && (
               <div className="mb-6 text-center">
-                <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-800 border border-blue-200 rounded-full text-sm font-medium">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-sm font-medium">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
@@ -175,13 +175,13 @@ const ScanPage = () => {
 
             {/* CTA Banner - Only show if NOT authenticated */}
             {!isAuthenticated && (
-              <div className="mb-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white text-center">
+              <div className="mb-6 bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-xl p-6 text-white text-center">
                 <h3 className="text-xl font-semibold mb-2">Want to scan your private repos?</h3>
-                <p className="text-blue-100 mb-4">Sign in with GitHub to access all features</p>
+                <p className="text-indigo-100 mb-4">Sign in with GitHub to access all features</p>
                 <Button
                   onClick={login}
                   variant="secondary"
-                  className="bg-white text-blue-700 hover:bg-blue-50"
+                  className="bg-white text-indigo-700 hover:bg-indigo-50"
                 >
                   Sign in with GitHub
                 </Button>

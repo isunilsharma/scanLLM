@@ -114,7 +114,7 @@ const Privacy = () => {
           ],
         },
         {
-          text: 'To exercise these rights, contact us at privacy@scanllm.ai. We will respond within 30 days.',
+          text: 'To exercise these rights, contact us via GitHub Issues. We will respond within 30 days.',
         },
       ],
     },
@@ -148,7 +148,6 @@ const Privacy = () => {
         {
           text: 'If you have questions about this Privacy Policy or our data practices, contact us at:',
           list: [
-            'Email: privacy@scanllm.ai',
             'GitHub: github.com/isunilsharma/scanllm/issues',
             'LinkedIn: linkedin.com/company/scanllm-ai',
           ],

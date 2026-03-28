@@ -58,19 +58,19 @@ const KeyInsights = ({ result }) => {
   }, [result]);
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+    <div className="bg-indigo-50/70 border border-indigo-200 rounded-xl p-6">
       <div className="flex items-start gap-3 mb-4">
-        <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
-          <h3 className="font-semibold text-blue-900 text-base">Key Insights</h3>
+          <h3 className="font-semibold text-indigo-900 text-base">Key Insights</h3>
         </div>
       </div>
-      <ul className="space-y-2 text-sm text-blue-900">
+      <ul className="space-y-2 text-sm text-indigo-900">
         {insights.map((insight, idx) => (
           <li key={idx} className="flex items-start gap-2">
-            <span className="text-blue-600 mt-1">•</span>
+            <span className="text-indigo-500 mt-1">•</span>
             <span>{insight}</span>
           </li>
         ))}

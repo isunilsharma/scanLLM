@@ -23,7 +23,6 @@ services:
       - "8001:8001"
     volumes:
       - ./config:/config
-      - ./core:/app/core
     environment:
       - DATABASE_URL=postgresql://scanllm:scanllm_dev@db:5432/scanllm
       - CORS_ORIGINS=http://localhost:3000
@@ -45,9 +44,13 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
     environment:
       - REACT_APP_BACKEND_URL=http://localhost:8001
       - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       - backend
     restart: unless-stopped

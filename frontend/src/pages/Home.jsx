@@ -182,7 +182,7 @@ const Home = () => {
               </tr>
               <tr>
                 <td className="py-3 px-4 font-medium text-zinc-300">Starting price</td>
-                <td className="text-center text-cyan-400 font-medium">Free / $49/mo</td>
+                <td className="text-center text-cyan-400 font-medium">Free</td>
                 <td className="text-center text-zinc-500">$98/dev/mo</td>
                 <td className="text-center text-zinc-500">Enterprise only</td>
                 <td className="text-center text-zinc-500">Free / custom</td>
@@ -202,45 +202,6 @@ const Home = () => {
         <OpenSourceSection />
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/50 mt-20">
-        <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="font-bold text-zinc-100 text-lg mb-3">ScanLLM</div>
-              <p className="text-sm text-zinc-500">
-                AI Dependency Intelligence. Know what AI is in your code.
-              </p>
-            </div>
-            <div>
-              <div className="font-medium text-zinc-300 text-sm mb-3">Product</div>
-              <div className="space-y-2 text-sm text-zinc-500">
-                <div><a href="/demo" className="hover:text-zinc-300 transition-colors">Demo</a></div>
-                <div><a href="/how-it-works" className="hover:text-zinc-300 transition-colors">How it Works</a></div>
-                <div><a href="/blog" className="hover:text-zinc-300 transition-colors">Blog</a></div>
-              </div>
-            </div>
-            <div>
-              <div className="font-medium text-zinc-300 text-sm mb-3">Developers</div>
-              <div className="space-y-2 text-sm text-zinc-500">
-                <div><a href="https://github.com/isunilsharma/scanllm" className="hover:text-zinc-300 transition-colors" target="_blank" rel="noreferrer">GitHub</a></div>
-                <div><a href="https://github.com/isunilsharma/scanllm/issues" className="hover:text-zinc-300 transition-colors" target="_blank" rel="noreferrer">Issues</a></div>
-                <div><a href="https://github.com/isunilsharma/scanllm/blob/main/CONTRIBUTING.md" className="hover:text-zinc-300 transition-colors" target="_blank" rel="noreferrer">Contributing</a></div>
-              </div>
-            </div>
-            <div>
-              <div className="font-medium text-zinc-300 text-sm mb-3">Legal</div>
-              <div className="space-y-2 text-sm text-zinc-500">
-                <div><a href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</a></div>
-                <div><a href="/terms" className="hover:text-zinc-300 transition-colors">Terms of Service</a></div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-zinc-800/50 text-center text-xs text-zinc-600">
-            &copy; {new Date().getFullYear()} ScanLLM. Built with care.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
