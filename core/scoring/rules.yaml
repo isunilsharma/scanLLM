@@ -1,0 +1,57 @@
+weights:
+  secrets: 25
+  owasp_critical: 20
+  owasp_high: 10
+  outdated_packages: 5
+  provider_concentration: 10
+  missing_safety_configs: 3
+  excessive_agent_perms: 15
+
+grades:
+  A: [0, 20]
+  B: [21, 40]
+  C: [41, 60]
+  D: [61, 80]
+  F: [81, 100]
+
+owasp:
+  LLM01:
+    name: "Prompt Injection"
+    severity: "high"
+    description: "User input concatenated into prompts without sanitization"
+    remediation: "Use parameterized prompts, input validation, and output filtering"
+  LLM02:
+    name: "Sensitive Information Disclosure"
+    severity: "high"
+    description: "Credentials or PII exposed in system prompts or LLM outputs"
+    remediation: "Remove sensitive data from prompts, implement output filtering"
+  LLM03:
+    name: "Supply Chain Vulnerabilities"
+    severity: "critical"
+    description: "Unverified model sources, outdated AI packages with known CVEs"
+    remediation: "Pin package versions, use verified model sources, run dependency audits"
+  LLM05:
+    name: "Improper Output Handling"
+    severity: "critical"
+    description: "Unsanitized LLM output passed to eval(), exec(), SQL, shell, or HTML"
+    remediation: "Never pass LLM output to code execution functions, sanitize all outputs"
+  LLM06:
+    name: "Excessive Agency"
+    severity: "high"
+    description: "Agent configs with broad tool access, missing human-in-the-loop"
+    remediation: "Apply least-privilege to agent tools, add human approval for sensitive actions"
+  LLM07:
+    name: "System Prompt Leakage"
+    severity: "medium"
+    description: "API keys or secrets embedded in prompt templates or system prompts"
+    remediation: "Use environment variables for secrets, never embed keys in prompts"
+  LLM08:
+    name: "Vector and Embedding Weaknesses"
+    severity: "medium"
+    description: "Unauthenticated vector DB connections, no access controls on embeddings"
+    remediation: "Authenticate vector DB connections, implement access controls"
+  LLM10:
+    name: "Unbounded Consumption"
+    severity: "low"
+    description: "Missing max_tokens, no rate limiting, no timeout on LLM calls"
+    remediation: "Set max_tokens on all LLM calls, implement rate limiting and timeouts"

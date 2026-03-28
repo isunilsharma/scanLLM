@@ -23,6 +23,7 @@ services:
       - "8001:8001"
     volumes:
       - ./config:/config
+      - ./core:/app/core
     environment:
       - DATABASE_URL=postgresql://scanllm:scanllm_dev@db:5432/scanllm
       - CORS_ORIGINS=http://localhost:3000

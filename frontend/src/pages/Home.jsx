@@ -3,155 +3,244 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import LoginButton from '../components/LoginButton';
 import { Button } from '../components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
+import { ArrowRight, Terminal } from 'lucide-react';
+import TerminalAnimation from '../components/landing/TerminalAnimation';
+import FeatureGrid from '../components/landing/FeatureGrid';
+import HowItWorksSection from '../components/landing/HowItWorks';
+import ForTeams from '../components/landing/ForTeams';
+import OpenSourceSection from '../components/landing/OpenSourceSection';
+import TrustBar from '../components/landing/TrustBar';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
       {/* Hero Section */}
-      <section className="max-w-5xl mx-auto px-6 pt-20 pb-16 text-center">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
-          Know where AI actually lives in your codebase.
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-          Detect AI/LLM frameworks, prompt/tooling usage, and risk signals in minutes.
-        </p>
+      <section className="relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-900" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-transparent to-transparent" />
 
-        {/* CTA Row */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-          <LoginButton 
-            size="lg" 
-            className="w-full sm:w-auto px-8 py-6 text-lg font-semibold"
-          />
-          <Button
-            onClick={() => navigate('/demo')}
-            variant="outline"
-            size="lg"
-            className="w-full sm:w-auto px-8 py-6 text-lg"
-          >
-            Try demo on a public repo
-          </Button>
-        </div>
+        <div className="relative max-w-7xl mx-auto px-6 pt-20 pb-16">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Copy */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-medium mb-6 border border-cyan-500/20">
+                <Terminal className="w-3.5 h-3.5" />
+                Now available: scanllm v2.0
+              </div>
 
-        {/* Trust Row */}
-        <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Read-only access</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
+                Know every AI dependency.{' '}
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                  Enforce every policy.
+                </span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-zinc-400 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                Scan your codebase for AI/LLM frameworks, visualize the dependency graph,
+                enforce policies in CI/CD, and generate AI-BOMs for compliance.
+              </p>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row items-center lg:items-start gap-4 mb-8">
+                <Button
+                  onClick={() => navigate('/demo')}
+                  size="lg"
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-6 text-lg font-semibold shadow-lg shadow-cyan-600/20"
+                >
+                  Try the demo
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+                <LoginButton
+                  size="lg"
+                  className="px-8 py-6 text-lg border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                  variant="outline"
+                />
+              </div>
+
+              {/* Install command */}
+              <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-lg bg-zinc-900 border border-zinc-800 font-mono text-sm">
+                <span className="text-green-400">$</span>
+                <span className="text-zinc-300">pip install scanllm</span>
+                <button
+                  onClick={() => navigator.clipboard.writeText('pip install scanllm')}
+                  className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors ml-2"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Terminal Animation */}
+            <div className="hidden lg:block">
+              <TerminalAnimation />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>No code copied into prompts</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span>Takes ~2 minutes</span>
+
+          {/* Trust bar */}
+          <div className="mt-16 pt-8 border-t border-zinc-800/50">
+            <TrustBar />
           </div>
         </div>
+      </section>
+
+      {/* Mobile terminal (shown below hero on mobile) */}
+      <section className="lg:hidden px-6 pb-16">
+        <TerminalAnimation />
       </section>
 
       {/* How It Works */}
-      <section className="max-w-5xl mx-auto px-6 py-12 border-t border-gray-200">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">How it works</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-blue-600">1</span>
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Connect GitHub</h3>
-            <p className="text-sm text-gray-600">Sign in with read-only OAuth or paste a public repo URL</p>
-          </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-blue-600">2</span>
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Pick repo</h3>
-            <p className="text-sm text-gray-600">Select from your private repos or enter a public URL</p>
-          </div>
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-blue-600">3</span>
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Get insights</h3>
-            <p className="text-sm text-gray-600">View AI usage, risk flags, and dependency intelligence</p>
-          </div>
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-4">
+            Three commands. Full visibility.
+          </h2>
+          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+            No config files. No dashboard signup. Just install, scan, and govern.
+          </p>
         </div>
+        <HowItWorksSection />
       </section>
 
       {/* What You Get */}
-      <section className="max-w-6xl mx-auto px-6 py-12 bg-white">
-        <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">What you get</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 border border-gray-200 rounded-lg">
-            <svg className="w-8 h-8 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <h3 className="font-semibold text-gray-900 mb-2">AI Framework Detection</h3>
-            <p className="text-sm text-gray-600">OpenAI, Anthropic, LangChain, vLLM, Transformers, and more</p>
-          </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
-            <svg className="w-8 h-8 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <h3 className="font-semibold text-gray-900 mb-2">Dependency Intelligence</h3>
-            <p className="text-sm text-gray-600">SBOM-style inventory with file locations and usage patterns</p>
-          </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
-            <svg className="w-8 h-8 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h3 className="font-semibold text-gray-900 mb-2">Risk & Policy Flags</h3>
-            <p className="text-sm text-gray-600">Spot deprecated models, secrets, and compliance issues</p>
-          </div>
-          <div className="p-6 border border-gray-200 rounded-lg">
-            <svg className="w-8 h-8 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3 className="font-semibold text-gray-900 mb-2">Shareable Reports</h3>
-            <p className="text-sm text-gray-600">Export JSON, view scan history (logged-in users)</p>
-          </div>
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-4">
+            Everything you need to govern AI in code
+          </h2>
+          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+            Scan, graph, score, enforce, export. One tool replaces five.
+          </p>
+        </div>
+        <FeatureGrid />
+      </section>
+
+      {/* Comparison / Why ScanLLM */}
+      <section className="max-w-5xl mx-auto px-6 py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-zinc-100 mb-4">
+            Why not just use Snyk or Cycode?
+          </h2>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-800">
+                <th className="text-left py-3 px-4 text-zinc-400 font-medium">Capability</th>
+                <th className="text-center py-3 px-4 text-cyan-400 font-semibold">ScanLLM</th>
+                <th className="text-center py-3 px-4 text-zinc-500 font-medium">Snyk</th>
+                <th className="text-center py-3 px-4 text-zinc-500 font-medium">Cycode</th>
+                <th className="text-center py-3 px-4 text-zinc-500 font-medium">Promptfoo</th>
+              </tr>
+            </thead>
+            <tbody className="text-zinc-400">
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 px-4">Code-level AI discovery (AST)</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">Partial</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">No</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 px-4">Interactive dependency graph</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">No</td>
+                <td className="text-center text-zinc-600">No</td>
+                <td className="text-center text-zinc-600">No</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 px-4">OWASP LLM Top 10 mapping</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">No</td>
+                <td className="text-center text-zinc-600">Partial</td>
+                <td className="text-center text-green-400">Yes</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 px-4">AI-BOM (CycloneDX ML)</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">No</td>
+                <td className="text-center text-zinc-600">No</td>
+                <td className="text-center text-zinc-600">No</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 px-4">Policy as code (YAML)</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">No</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 px-4">Free CLI (full features)</td>
+                <td className="text-center text-green-400">Yes</td>
+                <td className="text-center text-zinc-600">Limited</td>
+                <td className="text-center text-zinc-600">No</td>
+                <td className="text-center text-green-400">Yes</td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-zinc-300">Starting price</td>
+                <td className="text-center text-cyan-400 font-medium">Free / $49/mo</td>
+                <td className="text-center text-zinc-500">$98/dev/mo</td>
+                <td className="text-center text-zinc-500">Enterprise only</td>
+                <td className="text-center text-zinc-500">Free / custom</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      {/* Security & Permissions Accordion */}
-      <section className="max-w-4xl mx-auto px-6 py-12">
-        <Accordion type="single" collapsible className="bg-white rounded-lg border border-gray-200">
-          <AccordionItem value="security">
-            <AccordionTrigger className="px-6 py-4 hover:no-underline">
-              <span className="font-semibold text-gray-900">Security & Permissions</span>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-4">
-              <div className="space-y-4 text-sm text-gray-700">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">What we access:</h4>
-                  <p>Read-only access to repository contents and metadata. We use GitHub OAuth with minimal scopes (repo, read:org).</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">What we store:</h4>
-                  <p>Scan results, findings metadata (file paths, line numbers, pattern matches). We do NOT store your source code.</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">What we never do:</h4>
-                  <p>Copy code into LLM prompts, modify repositories, or share your data with third parties.</p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Revoke access anytime:</h4>
-                  <p>Disconnect GitHub from your account settings. Tokens are encrypted at rest.</p>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+      {/* For Teams */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <ForTeams />
       </section>
+
+      {/* Open Source */}
+      <section className="max-w-5xl mx-auto px-6 py-20 border-t border-zinc-800/50">
+        <OpenSourceSection />
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-800/50 mt-20">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <div className="font-bold text-zinc-100 text-lg mb-3">ScanLLM</div>
+              <p className="text-sm text-zinc-500">
+                AI Dependency Intelligence. Know what AI is in your code.
+              </p>
+            </div>
+            <div>
+              <div className="font-medium text-zinc-300 text-sm mb-3">Product</div>
+              <div className="space-y-2 text-sm text-zinc-500">
+                <div><a href="/demo" className="hover:text-zinc-300 transition-colors">Demo</a></div>
+                <div><a href="/how-it-works" className="hover:text-zinc-300 transition-colors">How it Works</a></div>
+                <div><a href="/blog" className="hover:text-zinc-300 transition-colors">Blog</a></div>
+              </div>
+            </div>
+            <div>
+              <div className="font-medium text-zinc-300 text-sm mb-3">Developers</div>
+              <div className="space-y-2 text-sm text-zinc-500">
+                <div><a href="https://github.com/isunilsharma/scanllm" className="hover:text-zinc-300 transition-colors" target="_blank" rel="noreferrer">GitHub</a></div>
+                <div><a href="https://github.com/isunilsharma/scanllm/issues" className="hover:text-zinc-300 transition-colors" target="_blank" rel="noreferrer">Issues</a></div>
+                <div><a href="https://github.com/isunilsharma/scanllm/blob/main/CONTRIBUTING.md" className="hover:text-zinc-300 transition-colors" target="_blank" rel="noreferrer">Contributing</a></div>
+              </div>
+            </div>
+            <div>
+              <div className="font-medium text-zinc-300 text-sm mb-3">Legal</div>
+              <div className="space-y-2 text-sm text-zinc-500">
+                <div><a href="#" className="hover:text-zinc-300 transition-colors">Privacy</a></div>
+                <div><a href="#" className="hover:text-zinc-300 transition-colors">Terms</a></div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t border-zinc-800/50 text-center text-xs text-zinc-600">
+            &copy; {new Date().getFullYear()} ScanLLM. Built with care.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
