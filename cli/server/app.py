@@ -165,6 +165,16 @@ def create_app(repo_path: Path) -> Any:
         except Exception as exc:
             return JSONResponse({"error": str(exc)}, status_code=500)
 
+    @app.get("/api/cost")
+    async def cost_estimate():
+        data = config.get_latest_scan()
+        if not data:
+            return JSONResponse({"models": [], "total_models_detected": 0})
+        from core.cost.estimator import CostEstimator
+        estimator = CostEstimator()
+        result = estimator.estimate(data.get("findings", []))
+        return JSONResponse(result.to_dict())
+
     @app.post("/api/scan")
     async def trigger_scan():
         """Trigger a new scan from the UI."""
