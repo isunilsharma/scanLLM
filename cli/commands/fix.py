@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,13 @@ from rich.panel import Panel
 from cli.config import ScanLLMConfig
 
 console = Console()
+
+_MODEL_UPGRADES: dict[str, str] = {
+    "gpt-3.5-turbo": "gpt-4o-mini",
+    "text-davinci-003": "gpt-4o-mini",
+    "text-davinci-002": "gpt-4o-mini",
+    "code-davinci-002": "gpt-4o-mini",
+}
 
 _REMEDIATIONS: dict[str, dict[str, str]] = {
     "LLM01": {
@@ -63,12 +71,123 @@ _CATEGORY_FIXES: dict[str, str] = {
 }
 
 
+def _apply_fixes(findings: list[dict[str, Any]], repo_path: Path, skip_confirm: bool) -> int:
+    """Apply auto-fixes to files."""
+    applied = 0
+    fixes_by_file: dict[str, list[dict[str, Any]]] = {}
+
+    for f in findings:
+        file_path = f.get("file_path", "")
+        if not file_path:
+            continue
+        pattern = (f.get("pattern_name", "") or "").lower()
+        category = (f.get("pattern_category", "") or "").lower()
+
+        # Only fix certain categories
+        if not any(
+            k in pattern or k in category
+            for k in ("deprecated_model", "missing_max_tokens")
+        ):
+            continue
+
+        if file_path not in fixes_by_file:
+            fixes_by_file[file_path] = []
+        fixes_by_file[file_path].append(f)
+
+    if not fixes_by_file:
+        console.print("[dim]No auto-fixable issues found.[/dim]")
+        return 0
+
+    total_fixable = sum(len(v) for v in fixes_by_file.values())
+    console.print(
+        f"\n[bold]Found {total_fixable} auto-fixable issue(s) "
+        f"in {len(fixes_by_file)} file(s):[/bold]\n"
+    )
+
+    for file_path, file_findings in fixes_by_file.items():
+        full_path = (
+            repo_path / file_path
+            if not Path(file_path).is_absolute()
+            else Path(file_path)
+        )
+        if not full_path.exists():
+            continue
+
+        content = full_path.read_text(encoding="utf-8")
+        new_content = content
+        changes: list[str] = []
+
+        for f in file_findings:
+            pattern = (f.get("pattern_name", "") or "").lower()
+            category = (f.get("pattern_category", "") or "").lower()
+
+            # Fix deprecated models
+            if "deprecated" in pattern or "deprecated_model" in pattern:
+                for old_model, new_model in _MODEL_UPGRADES.items():
+                    if old_model in new_content:
+                        new_content = new_content.replace(
+                            f'"{old_model}"', f'"{new_model}"'
+                        )
+                        new_content = new_content.replace(
+                            f"'{old_model}'", f"'{new_model}'"
+                        )
+                        changes.append(
+                            f"  [yellow]~[/yellow] Replace {old_model} -> {new_model}"
+                        )
+
+            # Fix missing max_tokens
+            if "missing_max_tokens" in pattern or "missing_max_tokens" in category:
+                line_no = f.get("line_number")
+                matched = f.get("matched_value", "") or f.get("matched_text", "")
+                # Try to add max_tokens=4096 to LLM calls missing it
+                # Look for common patterns: .create(...) calls without max_tokens
+                for call_pattern in [
+                    r"(\.create\()([^)]*)\)",
+                    r"(\.generate\()([^)]*)\)",
+                ]:
+                    def _add_max_tokens(m: re.Match[str]) -> str:
+                        opener = m.group(1)
+                        args = m.group(2)
+                        if "max_tokens" in args:
+                            return m.group(0)
+                        if args.strip():
+                            return f"{opener}{args}, max_tokens=4096)"
+                        return f"{opener}max_tokens=4096)"
+
+                    updated = re.sub(call_pattern, _add_max_tokens, new_content)
+                    if updated != new_content:
+                        new_content = updated
+                        changes.append(
+                            f"  [yellow]~[/yellow] Add max_tokens=4096 to LLM call"
+                        )
+                        break
+
+        if new_content != content:
+            console.print(f"  [bold]{file_path}[/bold]")
+            for change in changes:
+                console.print(change)
+
+            if not skip_confirm:
+                confirm = typer.confirm(f"  Apply changes to {file_path}?")
+                if not confirm:
+                    continue
+
+            full_path.write_text(new_content, encoding="utf-8")
+            console.print(f"  [green]v[/green] Fixed {file_path}")
+            applied += len(changes)
+
+    return applied
+
+
 def fix(
     path: str = typer.Argument(".", help="Path to the scanned repo"),
     severity: str = typer.Option(None, "--severity", "-s", help="Filter by minimum severity"),
+    apply: bool = typer.Option(False, "--apply", help="Actually apply fixes to files"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation prompt"),
 ) -> None:
     """Show auto-remediation suggestions for the latest scan findings."""
     config = ScanLLMConfig(Path(path).resolve())
+    repo_path = Path(path).resolve()
     latest = config.get_latest_scan()
 
     if not latest:
@@ -89,6 +208,12 @@ def fix(
         findings = [f for f in findings if sev_order.get((f.get("severity") or "info").lower(), 4) <= min_order]
 
     findings.sort(key=lambda f: sev_order.get((f.get("severity") or "info").lower(), 4))
+
+    # Apply mode — actually modify files
+    if apply:
+        applied = _apply_fixes(findings, repo_path, yes)
+        console.print(f"\n[bold green]{applied} fix(es) applied.[/bold green]\n")
+        return
 
     shown = 0
     for finding in findings:

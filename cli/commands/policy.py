@@ -74,13 +74,14 @@ def policy_check(
         p_path_opt = config.get_policies_path()
         if p_path_opt is None:
             console.print(
-                "[bold red]Error:[/bold red] No policies.yaml found.\n"
-                "  Run [bold]scanllm policy init[/bold] to create one."
+                "[dim]No policies.yaml found — using 12 built-in default rules.[/dim]\n"
+                "  Run [bold]scanllm policy init[/bold] to customize.\n"
             )
-            raise typer.Exit(code=1)
-        p_path = p_path_opt
+            p_path = None  # Will use defaults
+        else:
+            p_path = p_path_opt
 
-    if not p_path.exists():
+    if p_path is not None and not p_path.exists():
         console.print(f"[bold red]Error:[/bold red] Policy file not found: {p_path}")
         raise typer.Exit(code=1)
 
@@ -94,7 +95,7 @@ def policy_check(
         )
         raise typer.Exit(code=1)
 
-    engine = PolicyEngine(policies_path=str(p_path))
+    engine = PolicyEngine(policies_path=str(p_path) if p_path else None)
     findings = latest.get("findings", [])
     scan_summary = dict(latest.get("summary", {}))
     risk_score = latest.get("risk_score")

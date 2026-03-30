@@ -22,13 +22,13 @@ const Logo = ({ size = 'default' }) => {
           width="36"
           height="36"
           rx="8"
-          stroke="#1C4CE0"
+          stroke="#22d3ee"
           strokeWidth="2"
         />
         
         {/* Magnifying glass */}
-        <circle cx="16" cy="16" r="6" stroke="#1C4CE0" strokeWidth="2" />
-        <line x1="20.5" y1="20.5" x2="24" y2="24" stroke="#1C4CE0" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="16" cy="16" r="6" stroke="#22d3ee" strokeWidth="2" />
+        <line x1="20.5" y1="20.5" x2="24" y2="24" stroke="#22d3ee" strokeWidth="2" strokeLinecap="round" />
         
         {/* Neural network nodes */}
         <circle cx="28" cy="12" r="2" fill="#F97316" />
@@ -43,8 +43,8 @@ const Logo = ({ size = 'default' }) => {
       
       {/* Text */}
       <div className="flex flex-col">
-        <span className={`font-bold text-gray-900 ${textSize}`}>ScanLLM.ai</span>
-        <span className={`text-gray-600 ${subtextSize}`}>AI Dependency Intelligence</span>
+        <span className={`font-bold text-zinc-100 ${textSize}`}>ScanLLM.ai</span>
+        <span className={`text-zinc-400 ${subtextSize}`}>AI Dependency Intelligence</span>
       </div>
     </div>
   );

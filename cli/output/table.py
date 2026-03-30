@@ -116,11 +116,55 @@ def print_summary_panel(
     ))
 
 
+# ── Fix hints ──────────────────────────────────────────────────────────────
+
+_FIX_HINTS: dict[str, str] = {
+    "hardcoded_secret": "Move to env var",
+    "secret": "Move to env var",
+    "prompt_injection": "Use template engine",
+    "eval_llm_output": "Use json.loads()",
+    "exec_llm_output": "Remove exec()",
+    "missing_max_tokens": "Add max_tokens=4096",
+    "deprecated_model": "Upgrade model version",
+    "excessive_agency": "Restrict tool list",
+    "unauthenticated_vectordb": "Add auth/API key",
+    "system_prompt_leak": "Move secrets to env",
+}
+
+
+def get_fix_hint(finding: dict[str, Any]) -> str:
+    """Get a one-line fix hint for a finding."""
+    category = (finding.get("pattern_category", "") or finding.get("category", "")).lower()
+    owasp = finding.get("owasp_id", "")
+    pattern = (finding.get("pattern_name", "") or "").lower()
+
+    # Check pattern name first
+    for key, hint in _FIX_HINTS.items():
+        if key in pattern or key in category:
+            return hint
+
+    # Check OWASP mapping
+    owasp_hints = {
+        "LLM01": "Sanitize user input",
+        "LLM02": "Remove sensitive data",
+        "LLM03": "Pin package versions",
+        "LLM05": "Validate LLM output",
+        "LLM06": "Limit agent permissions",
+        "LLM07": "Move secrets to env",
+        "LLM08": "Add DB authentication",
+        "LLM10": "Add max_tokens limit",
+    }
+    if owasp:
+        return owasp_hints.get(owasp, "")
+    return ""
+
+
 # ── Findings table ──────────────────────────────────────────────────────────
 
 def print_findings_table(
     findings: list[dict[str, Any]],
     severity_filter: str | None = None,
+    show_hints: bool = True,
 ) -> None:
     """Print the findings as a Rich table, optionally filtered by severity."""
     # Apply severity filter
@@ -155,6 +199,8 @@ def print_findings_table(
     table.add_column("Provider", style="magenta", max_width=14)
     table.add_column("Severity", max_width=10)
     table.add_column("OWASP", style="yellow", max_width=8)
+    if show_hints:
+        table.add_column("Fix", style="dim", max_width=25)
 
     for f in findings:
         file_path = f.get("file_path", "")
@@ -170,17 +216,143 @@ def print_findings_table(
         severity = (f.get("severity") or f.get("pattern_severity") or "info").lower()
         owasp = f.get("owasp_id", "") or ""
 
-        table.add_row(
-            file_path,
-            finding_name,
-            provider,
-            _severity_text(severity),
-            owasp,
-        )
+        if show_hints:
+            hint = get_fix_hint(f)
+            table.add_row(
+                file_path,
+                finding_name,
+                provider,
+                _severity_text(severity),
+                owasp,
+                hint,
+            )
+        else:
+            table.add_row(
+                file_path,
+                finding_name,
+                provider,
+                _severity_text(severity),
+                owasp,
+            )
 
     console.print()
     console.print(table)
     console.print()
+
+
+# ── Action summary ─────────────────────────────────────────────────────────
+
+
+def print_action_summary(
+    findings: list[dict[str, Any]],
+    risk_result: dict[str, Any] | None = None,
+) -> None:
+    """Print a prioritized action summary with fixes and next steps."""
+    if not findings:
+        console.print(Panel(
+            "  [bold green]No AI security issues found.[/bold green]\n\n"
+            "  Your codebase looks clean. Run [bold]scanllm report aibom[/bold] to generate\n"
+            "  an AI Bill of Materials for compliance documentation.",
+            title="[bold cyan]Action Summary[/bold cyan]",
+            border_style="green",
+            padding=(1, 2),
+        ))
+        return
+
+    # Group by severity
+    critical: list[dict[str, Any]] = []
+    high: list[dict[str, Any]] = []
+    medium: list[dict[str, Any]] = []
+    low: list[dict[str, Any]] = []
+
+    for f in findings:
+        sev = (f.get("severity") or f.get("pattern_severity") or "info").lower()
+        if sev == "critical":
+            critical.append(f)
+        elif sev == "high":
+            high.append(f)
+        elif sev == "medium":
+            medium.append(f)
+        else:
+            low.append(f)
+
+    lines: list[str] = []
+
+    # Critical issues
+    if critical:
+        lines.append(f"  [bold red]Critical Issues ({len(critical)}) — fix these first[/bold red]")
+        for f in critical[:5]:
+            file_path = f.get("file_path", "")
+            line = f.get("line_number", "")
+            loc = f"{file_path}:{line}" if line else file_path
+            if len(loc) > 45:
+                loc = "..." + loc[-42:]
+            name = f.get("pattern_name", f.get("message", "unknown"))
+            hint = get_fix_hint(f)
+            lines.append(f"    [red]•[/red] {name} in [cyan]{loc}[/cyan]")
+            if hint:
+                lines.append(f"      [dim]→ {hint}[/dim]")
+        if len(critical) > 5:
+            lines.append(f"      [dim]... and {len(critical) - 5} more[/dim]")
+        lines.append("")
+
+    # High issues
+    if high:
+        lines.append(f"  [bold yellow]High Severity ({len(high)})[/bold yellow]")
+        for f in high[:3]:
+            file_path = f.get("file_path", "")
+            line = f.get("line_number", "")
+            loc = f"{file_path}:{line}" if line else file_path
+            if len(loc) > 45:
+                loc = "..." + loc[-42:]
+            name = f.get("pattern_name", f.get("message", "unknown"))
+            hint = get_fix_hint(f)
+            lines.append(f"    [yellow]•[/yellow] {name} in [cyan]{loc}[/cyan]")
+            if hint:
+                lines.append(f"      [dim]→ {hint}[/dim]")
+        if len(high) > 3:
+            lines.append(f"      [dim]... and {len(high) - 3} more[/dim]")
+        lines.append("")
+
+    # Medium/Low summary
+    if medium or low:
+        parts = []
+        if medium:
+            parts.append(f"{len(medium)} medium")
+        if low:
+            parts.append(f"{len(low)} low")
+        lines.append(f"  [dim]{', '.join(parts)} severity issues (run scanllm fix for details)[/dim]")
+        lines.append("")
+
+    # What's good section
+    all_owasp = set(f.get("owasp_id", "") for f in findings if f.get("owasp_id"))
+    good_things = []
+    if "LLM01" not in all_owasp:
+        good_things.append("No prompt injection risks detected")
+    if "LLM05" not in all_owasp:
+        good_things.append("No unsafe output handling (eval/exec)")
+    if not any(f.get("pattern_category") == "secret" or "secret" in (f.get("pattern_name", "") or "").lower() for f in findings):
+        good_things.append("No hardcoded API keys found")
+
+    if good_things:
+        lines.append("  [bold green]What's good[/bold green]")
+        for g in good_things[:3]:
+            lines.append(f"    [green]✓[/green] {g}")
+        lines.append("")
+
+    # Next steps
+    lines.append("  [bold]Next Steps[/bold]")
+    lines.append("    [cyan]scanllm fix[/cyan]          [dim]← Detailed fix suggestions with code examples[/dim]")
+    lines.append("    [cyan]scanllm policy check[/cyan]  [dim]← Enforce team security policies[/dim]")
+    lines.append("    [cyan]scanllm report aibom[/cyan]  [dim]← Generate AI-BOM for compliance[/dim]")
+    lines.append("    [cyan]scanllm ui[/cyan]            [dim]← Interactive dashboard + dependency graph[/dim]")
+
+    console.print(Panel(
+        "\n".join(lines),
+        title="[bold cyan]Action Summary[/bold cyan]",
+        border_style="cyan",
+        padding=(1, 2),
+    ))
 
 
 # ── Policy result ───────────────────────────────────────────────────────────

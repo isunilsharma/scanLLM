@@ -7,6 +7,8 @@ The YAML string below is the canonical source — ``PolicyEngine.load_defaults()
 parses it the same way it would parse any user-supplied file.
 """
 
+from __future__ import annotations
+
 DEFAULT_POLICIES_YAML: str = """\
 version: "1.0"
 policies:

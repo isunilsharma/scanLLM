@@ -4,20 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scanllm"
-version = "2.0.0"
+version = "2.1.0"
 description = "AI Dependency Intelligence — scan, govern, and visualize AI in your code."
 readme = "README.md"
-license = {text = "Apache-2.0"}
-requires-python = ">=3.11"
+license = {text = "MIT"}
+requires-python = ">=3.9"
 authors = [
-    {name = "ScanLLM", email = "hello@scanllm.ai"},
+    {name = "ScanLLM", email = "sunildec1991@gmail.com"},
 ]
 keywords = ["ai", "llm", "security", "scanning", "sbom", "ai-bom", "owasp", "governance"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -30,6 +32,7 @@ dependencies = [
     "pyyaml>=6.0",
     "networkx>=3.0",
     "gitpython>=3.1",
+    "detect-secrets>=1.4.0",
 ]
 
 [project.optional-dependencies]

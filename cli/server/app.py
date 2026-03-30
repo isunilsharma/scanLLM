@@ -216,3 +216,18 @@ def create_app(repo_path: Path) -> Any:
             return JSONResponse({"error": str(exc)}, status_code=500)
 
     return app
+
+
+# Module-level app instance for uvicorn string import ("cli.server.app:app").
+# Only created when this module is actually imported at runtime (i.e. when uvicorn loads it),
+# not at CLI startup time.
+def _get_app():
+    import os as _os
+    return create_app(Path(_os.environ.get("SCANLLM_REPO_PATH", ".")))
+
+# Lazy — evaluated by uvicorn when it loads "cli.server.app:app"
+import os as _os
+if _os.environ.get("SCANLLM_REPO_PATH"):
+    app = create_app(Path(_os.environ["SCANLLM_REPO_PATH"]))
+else:
+    app = None
