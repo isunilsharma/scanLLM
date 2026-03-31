@@ -14,8 +14,8 @@ const Header = () => {
   const isActive = (path) => location.pathname === path;
 
   const navLinkClass = (path) => `
-    text-sm font-medium transition-colors hover:text-cyan-400
-    ${isActive(path) ? 'text-cyan-400 font-semibold' : 'text-zinc-400'}
+    text-sm font-medium transition-colors hover:text-indigo-400
+    ${isActive(path) ? 'text-indigo-400 font-semibold' : 'text-zinc-300'}
   `;
 
   const navLinks = [
@@ -30,7 +30,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50">
+    <header className="sticky top-0 z-50 bg-zinc-950 backdrop-blur-xl border-b border-zinc-800/50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -52,7 +52,7 @@ const Header = () => {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 transition-colors"
               >
                 {user.avatar_url && (
-                  <img src={user.avatar_url} alt={user.login} className="w-8 h-8 rounded-full" />
+                  <img src={user.avatar_url} alt={user.login} className="w-8 h-8 rounded-full ring-2 ring-indigo-500/50" />
                 )}
                 <span className="text-sm font-medium text-zinc-200">@{user.login}</span>
               </button>
@@ -60,7 +60,7 @@ const Header = () => {
               <Button
                 onClick={() => navigate('/demo')}
                 size="sm"
-                className="bg-cyan-600 hover:bg-cyan-500 text-white text-sm px-4"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-4"
               >
                 Try Demo
               </Button>
@@ -99,7 +99,7 @@ const Header = () => {
                 onClick={handleLinkClick}
                 className={`block py-3 px-4 rounded-lg transition-colors ${
                   isActive(path)
-                    ? 'bg-cyan-500/10 text-cyan-400 font-semibold'
+                    ? 'bg-indigo-500/10 text-indigo-400 font-semibold'
                     : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'
                 }`}
               >

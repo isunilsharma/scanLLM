@@ -89,14 +89,14 @@ const ScanResults = ({ result, showRescan = true }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200" data-testid="scan-results">
       {/* Scan Metadata Header */}
-      <div className="px-4 md:px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div className="px-4 md:px-6 py-4 border-b border-indigo-100 bg-gradient-to-r from-indigo-50/60 to-slate-50">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <h2 className="text-lg md:text-xl font-semibold text-gray-900">Scan Results</h2>
               <Badge
                 variant={result.status === 'SUCCESS' ? 'default' : 'destructive'}
-                className="text-xs flex-shrink-0"
+                className={`text-xs flex-shrink-0 ${result.status === 'SUCCESS' ? 'bg-emerald-600 hover:bg-emerald-600/80' : ''}`}
                 data-testid="scan-status"
               >
                 {result.status}
@@ -104,7 +104,7 @@ const ScanResults = ({ result, showRescan = true }) => {
               {riskScore != null && (
                 <Badge
                   variant={getRiskBadgeVariant(riskScore)}
-                  className="text-xs flex-shrink-0 flex items-center gap-1"
+                  className={`text-xs flex-shrink-0 flex items-center gap-1 ${riskScore <= 40 ? 'bg-emerald-600 hover:bg-emerald-600/80' : riskScore <= 60 ? 'bg-amber-500 hover:bg-amber-500/80 text-white' : 'bg-red-600 hover:bg-red-600/80'}`}
                 >
                   <Shield size={10} />
                   Risk: {Math.round(riskScore)}{riskGrade ? ` (${riskGrade})` : ''}
@@ -114,7 +114,7 @@ const ScanResults = ({ result, showRescan = true }) => {
             <p className="text-sm text-gray-600 truncate">{result.repo_url}</p>
           </div>
           {showRescan && (
-            <Button onClick={handleRescan} variant="outline" size="sm" className="w-full sm:w-auto">
+            <Button onClick={handleRescan} variant="outline" size="sm" className="w-full sm:w-auto border-indigo-200 text-indigo-700 hover:bg-indigo-50">
               <RefreshCw size={14} className="mr-2" />
               Rescan
             </Button>
@@ -125,21 +125,21 @@ const ScanResults = ({ result, showRescan = true }) => {
       {/* Quick Stats */}
       <div className="p-4 md:p-6 border-b border-slate-200">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div className="bg-slate-50 rounded-lg p-4">
-            <p className="text-xs text-slate-600 mb-1">Total Files</p>
-            <p className="text-2xl font-semibold text-slate-900" data-testid="total-files">{result.files_count}</p>
+          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-500">
+            <p className="text-xs text-slate-500 mb-1 font-medium">Total Files</p>
+            <p className="text-2xl font-bold text-indigo-900" data-testid="total-files">{result.files_count}</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
-            <p className="text-xs text-slate-600 mb-1">Total Matches</p>
-            <p className="text-2xl font-semibold text-slate-900" data-testid="total-matches">{result.total_occurrences}</p>
+          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-400">
+            <p className="text-xs text-slate-500 mb-1 font-medium">Total Matches</p>
+            <p className="text-2xl font-bold text-indigo-900" data-testid="total-matches">{result.total_occurrences}</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
-            <p className="text-xs text-slate-600 mb-1">Frameworks Found</p>
-            <p className="text-2xl font-semibold text-slate-900" data-testid="frameworks-count">{frameworks.length}</p>
+          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-300">
+            <p className="text-xs text-slate-500 mb-1 font-medium">Frameworks Found</p>
+            <p className="text-2xl font-bold text-indigo-900" data-testid="frameworks-count">{frameworks.length}</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4">
-            <p className="text-xs text-slate-600 mb-1">Avg per File</p>
-            <p className="text-2xl font-semibold text-slate-900">
+          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-200">
+            <p className="text-xs text-slate-500 mb-1 font-medium">Avg per File</p>
+            <p className="text-2xl font-bold text-indigo-900">
               {result.files_count > 0 ? (result.total_occurrences / result.files_count).toFixed(1) : '0'}
             </p>
           </div>
@@ -149,13 +149,13 @@ const ScanResults = ({ result, showRescan = true }) => {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="px-6 pt-6 border-b border-slate-200">
-          <TabsList className="grid w-full max-w-2xl grid-cols-6">
-            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-            <TabsTrigger value="security" data-testid="tab-security">Security</TabsTrigger>
-            <TabsTrigger value="graph" data-testid="tab-graph">Graph</TabsTrigger>
-            <TabsTrigger value="files" data-testid="tab-files">Files</TabsTrigger>
-            <TabsTrigger value="reports" data-testid="tab-reports">Reports</TabsTrigger>
-            <TabsTrigger value="raw" data-testid="tab-raw">Raw Data</TabsTrigger>
+          <TabsList className="grid w-full max-w-2xl grid-cols-6 bg-indigo-50/60">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-security">Security</TabsTrigger>
+            <TabsTrigger value="graph" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-graph">Graph</TabsTrigger>
+            <TabsTrigger value="files" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-files">Files</TabsTrigger>
+            <TabsTrigger value="reports" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-reports">Reports</TabsTrigger>
+            <TabsTrigger value="raw" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-raw">Raw Data</TabsTrigger>
           </TabsList>
         </div>
 

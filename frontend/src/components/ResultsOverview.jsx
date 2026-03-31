@@ -16,7 +16,7 @@ import ScanHistory from './ScanHistory';
 import ExplainRepoButton from './ExplainRepoButton';
 import SecurityOverview from './SecurityOverview';
 
-const COLORS = ['#1e293b', '#475569', '#64748b', '#94a3b8', '#cbd5e1', '#e2e8f0'];
+const COLORS = ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'];
 
 const ResultsOverview = ({ result, frameworks }) => {
   // Framework distribution data
@@ -158,7 +158,7 @@ const ResultsOverview = ({ result, frameworks }) => {
               <Tooltip
                 contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
               />
-              <Bar dataKey="count" fill="#1e293b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="#4f46e5" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

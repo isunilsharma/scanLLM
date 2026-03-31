@@ -144,14 +144,14 @@ AI systems introduce new operational risks, and monitoring must evolve according
     : blogs.filter(blog => blog.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-zinc-950 py-16">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h1 className="text-5xl font-bold text-zinc-100 mb-4 tracking-tight">
             ScanLLM Blog
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-zinc-400">
             Insights on AI dependency management and engineering best practices
           </p>
         </div>
@@ -159,11 +159,11 @@ AI systems introduce new operational risks, and monitoring must evolve according
         {/* Featured Article */}
         {featuredBlog && (
           <div className="mb-16">
-            <div className="bg-gray-900 text-white rounded-2xl overflow-hidden shadow-xl">
+            <div className="bg-zinc-900 text-white rounded-2xl overflow-hidden border border-zinc-800">
               <div className="grid md:grid-cols-2 gap-0">
                 {/* Left side - Featured label and title */}
                 <div className="p-12 flex flex-col justify-center">
-                  <Badge className="bg-white text-gray-900 mb-6 w-fit">
+                  <Badge className="bg-indigo-600 text-white mb-6 w-fit">
                     FEATURED
                   </Badge>
                   <h2 className="text-4xl font-bold mb-4">
@@ -175,17 +175,17 @@ AI systems introduce new operational risks, and monitoring must evolve according
                 </div>
                 
                 {/* Right side - Details */}
-                <div className="bg-white text-gray-900 p-12 flex flex-col justify-center">
-                  <Badge variant="outline" className="mb-4 w-fit">
+                <div className="bg-zinc-900 text-zinc-100 p-12 flex flex-col justify-center">
+                  <Badge variant="outline" className="mb-4 w-fit border-zinc-600 text-zinc-300">
                     {featuredBlog.category}
                   </Badge>
                   <h3 className="text-2xl font-semibold mb-4">
                     {featuredBlog.title}
                   </h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-zinc-400 mb-6">
                     {featuredBlog.excerpt}
                   </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                  <div className="flex items-center gap-4 text-sm text-zinc-500 mb-6">
                     <span className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -201,7 +201,7 @@ AI systems introduce new operational risks, and monitoring must evolve according
                   </div>
                   <button
                     onClick={() => navigate(`/blog/${featuredBlog.id}`)}
-                    className="bg-gray-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors inline-flex items-center gap-2 w-fit"
+                    className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-500 transition-colors inline-flex items-center gap-2 w-fit"
                   >
                     READ ARTICLE
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,8 +223,8 @@ AI systems introduce new operational risks, and monitoring must evolve according
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedCategory === cat
-                    ? 'bg-primary text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-zinc-700'
                 }`}
               >
                 {cat === 'all' ? 'All Articles' : cat}
@@ -235,7 +235,7 @@ AI systems introduce new operational risks, and monitoring must evolve according
 
         {/* Latest Articles Header */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-zinc-100">
             Latest Articles
           </h2>
         </div>
@@ -245,20 +245,20 @@ AI systems introduce new operational risks, and monitoring must evolve according
           {filteredBlogs.map(blog => (
             <div
               key={blog.id}
-              className="bg-white rounded-xl border-2 border-gray-900 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden hover:border-zinc-600 transition-colors cursor-pointer"
               onClick={() => navigate(`/blog/${blog.id}`)}
             >
               <div className="p-6">
-                <Badge variant="secondary" className="mb-3">
+                <Badge variant="secondary" className="mb-3 bg-zinc-800 text-zinc-300">
                   {blog.category}
                 </Badge>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="text-xl font-semibold text-zinc-100 mb-3">
                   {blog.title}
                 </h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                <p className="text-zinc-400 text-sm mb-4 line-clamp-3">
                   {blog.excerpt}
                 </p>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex items-center gap-4 text-xs text-zinc-500">
                   <span className="flex items-center gap-1">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

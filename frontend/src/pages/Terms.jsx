@@ -215,7 +215,6 @@ const Terms = () => {
         {
           text: 'For questions about these Terms, contact us at:',
           list: [
-            'Email: legal@scanllm.ai',
             'GitHub: github.com/isunilsharma/scanllm/issues',
             'LinkedIn: linkedin.com/company/scanllm-ai',
           ],
