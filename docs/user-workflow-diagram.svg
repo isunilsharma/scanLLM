@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1800" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#0c0c0f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="1800" fill="url(#bg2)"/>
+
+  <!-- Title -->
+  <text x="500" y="45" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="600" letter-spacing="2">USER WORKFLOW</text>
+  <text x="500" y="80" text-anchor="middle" fill="#fafafa" font-size="32" font-weight="700">From Install to Insight</text>
+  <text x="500" y="107" text-anchor="middle" fill="#71717a" font-size="14">Complete user journey for three personas</text>
+
+  <!-- ═══════════════════ DEVELOPER WORKFLOW ═══════════════════ -->
+  <rect x="40" y="135" width="920" height="50" rx="12" fill="#22d3ee" fill-opacity="0.1" stroke="#22d3ee" stroke-opacity="0.3" stroke-width="1.5"/>
+  <text x="78" y="166" fill="#22d3ee" font-size="18">⟩_</text>
+  <text x="105" y="166" fill="#22d3ee" font-size="16" font-weight="700">Individual Developer — CLI Workflow</text>
+  <text x="700" y="166" fill="#52525b" font-size="12">Total time: &lt; 2 minutes</text>
+
+  <!-- Step 1 -->
+  <circle cx="80" cy="230" r="18" fill="#22d3ee" fill-opacity="0.15" stroke="#22d3ee" stroke-opacity="0.3"/>
+  <text x="80" y="235" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="700">1</text>
+  <line x1="80" y1="248" x2="80" y2="310" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="225" fill="#fafafa" font-size="14" font-weight="600">Install &amp; Scan</text>
+  <text x="110" y="243" fill="#52525b" font-size="11">&lt; 60 seconds</text>
+  <rect x="110" y="255" width="400" height="48" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="275" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="275" fill="#22d3ee" font-size="12" font-family="monospace">pip install scanllm</text>
+  <text x="130" y="293" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="293" fill="#22d3ee" font-size="12" font-family="monospace">scanllm scan .</text>
+  <text x="530" y="280" fill="#52525b" font-size="11">→ Rich table with findings,</text>
+  <text x="530" y="296" fill="#52525b" font-size="11">   risk score (A-F), OWASP map</text>
+
+  <!-- Step 2 -->
+  <circle cx="80" cy="330" r="18" fill="#22d3ee" fill-opacity="0.15" stroke="#22d3ee" stroke-opacity="0.3"/>
+  <text x="80" y="335" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="700">2</text>
+  <line x1="80" y1="348" x2="80" y2="410" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="325" fill="#fafafa" font-size="14" font-weight="600">Review Risk Score</text>
+  <text x="110" y="343" fill="#52525b" font-size="11">Instant</text>
+  <rect x="110" y="355" width="400" height="30" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="375" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="375" fill="#22d3ee" font-size="12" font-family="monospace">scanllm score</text>
+  <text x="530" y="375" fill="#52525b" font-size="11">→ Breakdown: secrets +25, OWASP +20</text>
+
+  <!-- Step 3 -->
+  <circle cx="80" cy="430" r="18" fill="#22d3ee" fill-opacity="0.15" stroke="#22d3ee" stroke-opacity="0.3"/>
+  <text x="80" y="435" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="700">3</text>
+  <line x1="80" y1="448" x2="80" y2="510" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="425" fill="#fafafa" font-size="14" font-weight="600">Fix Issues</text>
+  <text x="110" y="443" fill="#52525b" font-size="11">&lt; 5 seconds</text>
+  <rect x="110" y="455" width="400" height="48" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="475" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="475" fill="#22d3ee" font-size="12" font-family="monospace">scanllm fix</text>
+  <text x="310" y="475" fill="#52525b" font-size="11">(show suggestions)</text>
+  <text x="130" y="493" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="493" fill="#22d3ee" font-size="12" font-family="monospace">scanllm fix --apply</text>
+  <text x="350" y="493" fill="#52525b" font-size="11">(auto-fix)</text>
+  <text x="530" y="475" fill="#52525b" font-size="11">→ Replace deprecated models,</text>
+  <text x="530" y="493" fill="#52525b" font-size="11">   add missing max_tokens</text>
+
+  <!-- Step 4 -->
+  <circle cx="80" cy="530" r="18" fill="#22d3ee" fill-opacity="0.15" stroke="#22d3ee" stroke-opacity="0.3"/>
+  <text x="80" y="535" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="700">4</text>
+  <text x="110" y="525" fill="#fafafa" font-size="14" font-weight="600">Export Reports</text>
+  <text x="110" y="543" fill="#52525b" font-size="11">&lt; 2 seconds</text>
+  <rect x="110" y="555" width="400" height="30" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="575" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="575" fill="#22d3ee" font-size="12" font-family="monospace">scanllm export --formats all</text>
+  <text x="530" y="575" fill="#52525b" font-size="11">→ JSON + SARIF + AI-BOM + summary</text>
+
+  <!-- ═══════════════════ TEAM WORKFLOW ═══════════════════ -->
+  <rect x="40" y="625" width="920" height="50" rx="12" fill="#a855f7" fill-opacity="0.1" stroke="#a855f7" stroke-opacity="0.3" stroke-width="1.5"/>
+  <text x="78" y="656" fill="#a855f7" font-size="18">👥</text>
+  <text x="105" y="656" fill="#a855f7" font-size="16" font-weight="700">Team / DevSecOps Lead — CI/CD Workflow</text>
+  <text x="700" y="656" fill="#52525b" font-size="12">Ongoing enforcement</text>
+
+  <!-- Step 1 -->
+  <circle cx="80" cy="720" r="18" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-opacity="0.3"/>
+  <text x="80" y="725" text-anchor="middle" fill="#a855f7" font-size="14" font-weight="700">1</text>
+  <line x1="80" y1="738" x2="80" y2="800" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="715" fill="#fafafa" font-size="14" font-weight="600">Initialize Config</text>
+  <text x="110" y="733" fill="#52525b" font-size="11">One-time setup</text>
+  <rect x="110" y="745" width="400" height="30" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="765" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="765" fill="#a78bfa" font-size="12" font-family="monospace">scanllm init</text>
+  <text x="530" y="765" fill="#52525b" font-size="11">→ Creates .scanllm/ with config + policies</text>
+
+  <!-- Step 2 -->
+  <circle cx="80" cy="820" r="18" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-opacity="0.3"/>
+  <text x="80" y="825" text-anchor="middle" fill="#a855f7" font-size="14" font-weight="700">2</text>
+  <line x1="80" y1="838" x2="80" y2="940" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="815" fill="#fafafa" font-size="14" font-weight="600">Define Policies</text>
+  <text x="110" y="833" fill="#52525b" font-size="11">YAML-based rules</text>
+  <rect x="110" y="845" width="400" height="80" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="865" fill="#52525b" font-size="11" font-family="monospace"># .scanllm/policies.yaml</text>
+  <text x="130" y="882" fill="#a78bfa" font-size="11" font-family="monospace">rules:</text>
+  <text x="130" y="899" fill="#a78bfa" font-size="11" font-family="monospace">  - name: no-hardcoded-secrets</text>
+  <text x="130" y="916" fill="#a78bfa" font-size="11" font-family="monospace">    severity: critical | action: block</text>
+  <text x="530" y="865" fill="#52525b" font-size="11">→ Controls what passes CI/CD</text>
+  <text x="530" y="882" fill="#52525b" font-size="11">→ Block PRs with secrets</text>
+  <text x="530" y="899" fill="#52525b" font-size="11">→ Warn on unapproved providers</text>
+
+  <!-- Step 3 -->
+  <circle cx="80" cy="960" r="18" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-opacity="0.3"/>
+  <text x="80" y="965" text-anchor="middle" fill="#a855f7" font-size="14" font-weight="700">3</text>
+  <line x1="80" y1="978" x2="80" y2="1060" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="955" fill="#fafafa" font-size="14" font-weight="600">Add to GitHub Actions</text>
+  <text x="110" y="973" fill="#52525b" font-size="11">Runs on every PR</text>
+  <rect x="110" y="985" width="400" height="60" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="1005" fill="#52525b" font-size="11" font-family="monospace"># .github/workflows/scanllm.yml</text>
+  <text x="130" y="1022" fill="#a78bfa" font-size="11" font-family="monospace">- uses: isunilsharma/scanllm-action@v1</text>
+  <text x="130" y="1039" fill="#a78bfa" font-size="11" font-family="monospace">  with: { fail-on: critical }</text>
+  <text x="530" y="1010" fill="#52525b" font-size="11">→ Exit code 1 blocks merge</text>
+  <text x="530" y="1027" fill="#52525b" font-size="11">→ PR comment with findings</text>
+
+  <!-- Step 4 -->
+  <circle cx="80" cy="1080" r="18" fill="#a855f7" fill-opacity="0.15" stroke="#a855f7" stroke-opacity="0.3"/>
+  <text x="80" y="1085" text-anchor="middle" fill="#a855f7" font-size="14" font-weight="700">4</text>
+  <text x="110" y="1075" fill="#fafafa" font-size="14" font-weight="600">Monitor Drift &amp; Generate Reports</text>
+  <text x="110" y="1093" fill="#52525b" font-size="11">Ongoing</text>
+  <rect x="110" y="1105" width="400" height="48" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="1125" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="1125" fill="#a78bfa" font-size="12" font-family="monospace">scanllm diff</text>
+  <text x="130" y="1143" fill="#52525b" font-size="12" font-family="monospace">$</text>
+  <text x="145" y="1143" fill="#a78bfa" font-size="12" font-family="monospace">scanllm report pdf | aibom | model-card</text>
+  <text x="530" y="1125" fill="#52525b" font-size="11">→ Risk score trends over time</text>
+  <text x="530" y="1143" fill="#52525b" font-size="11">→ Audit-ready compliance artifacts</text>
+
+  <!-- ═══════════════════ ENTERPRISE WORKFLOW ═══════════════════ -->
+  <rect x="40" y="1195" width="920" height="50" rx="12" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5"/>
+  <text x="78" y="1226" fill="#10b981" font-size="18">🏢</text>
+  <text x="105" y="1226" fill="#10b981" font-size="16" font-weight="700">Enterprise / CISO — Web Dashboard Workflow</text>
+  <text x="700" y="1226" fill="#52525b" font-size="12">Org-wide visibility</text>
+
+  <!-- Step 1 -->
+  <circle cx="80" cy="1290" r="18" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.3"/>
+  <text x="80" y="1295" text-anchor="middle" fill="#10b981" font-size="14" font-weight="700">1</text>
+  <line x1="80" y1="1308" x2="80" y2="1370" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="1285" fill="#fafafa" font-size="14" font-weight="600">Connect GitHub Org</text>
+  <text x="110" y="1303" fill="#52525b" font-size="11">&lt; 1 minute</text>
+  <rect x="110" y="1315" width="400" height="30" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="1335" fill="#52525b" font-size="12" font-family="monospace">Sign in with GitHub OAuth → Select repos</text>
+  <text x="530" y="1335" fill="#52525b" font-size="11">→ All repos visible, private supported</text>
+
+  <!-- Step 2 -->
+  <circle cx="80" cy="1390" r="18" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.3"/>
+  <text x="80" y="1395" text-anchor="middle" fill="#10b981" font-size="14" font-weight="700">2</text>
+  <line x1="80" y1="1408" x2="80" y2="1470" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="1385" fill="#fafafa" font-size="14" font-weight="600">Interactive Dependency Graph</text>
+  <text x="110" y="1403" fill="#52525b" font-size="11">Real-time</text>
+  <rect x="110" y="1415" width="400" height="30" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="1435" fill="#52525b" font-size="12" font-family="monospace">Dashboard → Repo → Dependency Graph tab</text>
+  <text x="530" y="1435" fill="#52525b" font-size="11">→ React Flow: zoom, pan, click nodes</text>
+
+  <!-- Step 3 -->
+  <circle cx="80" cy="1490" r="18" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.3"/>
+  <text x="80" y="1495" text-anchor="middle" fill="#10b981" font-size="14" font-weight="700">3</text>
+  <line x1="80" y1="1508" x2="80" y2="1570" stroke="#27272a" stroke-width="1.5"/>
+  <text x="110" y="1485" fill="#fafafa" font-size="14" font-weight="600">OWASP LLM Top 10 Coverage</text>
+  <text x="110" y="1503" fill="#52525b" font-size="11">Real-time</text>
+  <rect x="110" y="1515" width="400" height="30" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="1535" fill="#52525b" font-size="12" font-family="monospace">Dashboard → OWASP tab</text>
+  <text x="530" y="1535" fill="#52525b" font-size="11">→ 8/10 categories, export for auditors</text>
+
+  <!-- Step 4 -->
+  <circle cx="80" cy="1590" r="18" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.3"/>
+  <text x="80" y="1595" text-anchor="middle" fill="#10b981" font-size="14" font-weight="700">4</text>
+  <text x="110" y="1585" fill="#fafafa" font-size="14" font-weight="600">Export AI-BOM for Compliance</text>
+  <text x="110" y="1603" fill="#52525b" font-size="11">&lt; 10 seconds</text>
+  <rect x="110" y="1615" width="400" height="48" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="130" y="1635" fill="#52525b" font-size="12" font-family="monospace">Dashboard → Reports</text>
+  <text x="130" y="1653" fill="#34d399" font-size="12" font-family="monospace">CycloneDX AI-BOM | PDF | Model Card</text>
+  <text x="530" y="1635" fill="#52525b" font-size="11">→ EU AI Act / SOC 2 / NIST RMF</text>
+  <text x="530" y="1653" fill="#52525b" font-size="11">   compliance evidence</text>
+
+  <!-- Footer -->
+  <text x="500" y="1720" text-anchor="middle" fill="#3f3f46" font-size="11">ScanLLM v2.1.0 — AI Dependency Intelligence Platform</text>
+
+  <!-- Quick Reference Box -->
+  <rect x="140" y="1740" width="720" height="35" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="500" y="1762" text-anchor="middle" fill="#22d3ee" font-size="12" font-family="monospace">pip install scanllm &amp;&amp; scanllm scan .  →  scanllm score  →  scanllm fix --apply  →  scanllm export</text>
+</svg>

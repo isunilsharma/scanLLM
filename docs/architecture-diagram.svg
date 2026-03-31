@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#0c0c0f"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="1400" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="500" y="50" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="600" letter-spacing="2">SYSTEM ARCHITECTURE</text>
+  <text x="500" y="85" text-anchor="middle" fill="#fafafa" font-size="32" font-weight="700">ScanLLM Architecture</text>
+  <text x="500" y="112" text-anchor="middle" fill="#71717a" font-size="14">AI Dependency Intelligence Platform — Layered System Design</text>
+
+  <!-- ═══════════════════ LAYER 1: INTERFACE ═══════════════════ -->
+  <rect x="40" y="140" width="920" height="200" rx="16" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-opacity="0.3"/>
+  <rect x="40" y="140" width="920" height="200" rx="16" fill="#22d3ee" fill-opacity="0.03"/>
+
+  <!-- Layer header -->
+  <rect x="60" y="155" width="36" height="36" rx="8" fill="#22d3ee" fill-opacity="0.15"/>
+  <text x="78" y="178" text-anchor="middle" fill="#22d3ee" font-size="16">⌘</text>
+  <text x="110" y="170" fill="#22d3ee" font-size="16" font-weight="700">Interface Layer</text>
+  <text x="110" y="188" fill="#71717a" font-size="12">User-facing entry points</text>
+
+  <!-- Cards Row -->
+  <!-- CLI -->
+  <rect x="60" y="210" width="200" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="80" y="238" fill="#22d3ee" font-size="20">⟩_</text>
+  <text x="105" y="238" fill="#e4e4e7" font-size="14" font-weight="600">CLI (Typer)</text>
+  <text x="80" y="260" fill="#71717a" font-size="11">pip install scanllm</text>
+  <text x="80" y="278" fill="#71717a" font-size="11">16 commands, Rich output</text>
+  <text x="80" y="296" fill="#71717a" font-size="11">Python 3.9+</text>
+  <rect x="80" y="305" width="50" height="6" rx="3" fill="#22d3ee" fill-opacity="0.3"/>
+
+  <!-- Web Dashboard -->
+  <rect x="280" y="210" width="200" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="300" y="238" fill="#22d3ee" font-size="18">◉</text>
+  <text x="322" y="238" fill="#e4e4e7" font-size="14" font-weight="600">Web Dashboard</text>
+  <text x="300" y="260" fill="#71717a" font-size="11">React 19 + Tailwind</text>
+  <text x="300" y="278" fill="#71717a" font-size="11">Interactive graphs</text>
+  <text x="300" y="296" fill="#71717a" font-size="11">shadcn/ui components</text>
+  <rect x="300" y="305" width="50" height="6" rx="3" fill="#22d3ee" fill-opacity="0.3"/>
+
+  <!-- GitHub Actions -->
+  <rect x="500" y="210" width="200" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="520" y="238" fill="#22d3ee" font-size="18">⎇</text>
+  <text x="542" y="238" fill="#e4e4e7" font-size="14" font-weight="600">GitHub Actions</text>
+  <text x="520" y="260" fill="#71717a" font-size="11">CI/CD integration</text>
+  <text x="520" y="278" fill="#71717a" font-size="11">PR comments</text>
+  <text x="520" y="296" fill="#71717a" font-size="11">Policy enforcement</text>
+  <rect x="520" y="305" width="50" height="6" rx="3" fill="#22d3ee" fill-opacity="0.3"/>
+
+  <!-- REST API -->
+  <rect x="720" y="210" width="220" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="740" y="238" fill="#22d3ee" font-size="18">⚡</text>
+  <text x="762" y="238" fill="#e4e4e7" font-size="14" font-weight="600">REST API</text>
+  <text x="740" y="260" fill="#71717a" font-size="11">FastAPI v1</text>
+  <text x="740" y="278" fill="#71717a" font-size="11">GitHub OAuth</text>
+  <text x="740" y="296" fill="#71717a" font-size="11">JWT sessions</text>
+  <rect x="740" y="305" width="50" height="6" rx="3" fill="#22d3ee" fill-opacity="0.3"/>
+
+  <!-- Arrow 1 -->
+  <line x1="500" y1="345" x2="500" y2="385" stroke="#52525b" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <polygon points="494,380 500,392 506,380" fill="#52525b"/>
+  <text x="520" y="372" fill="#52525b" font-size="10">commands / API calls</text>
+
+  <!-- ═══════════════════ LAYER 2: SCANNING ENGINE ═══════════════════ -->
+  <rect x="40" y="395" width="920" height="280" rx="16" fill="none" stroke="#f97316" stroke-width="1.5" stroke-opacity="0.3"/>
+  <rect x="40" y="395" width="920" height="280" rx="16" fill="#f97316" fill-opacity="0.03"/>
+
+  <rect x="60" y="410" width="36" height="36" rx="8" fill="#f97316" fill-opacity="0.15"/>
+  <text x="78" y="434" text-anchor="middle" fill="#f97316" font-size="16">⌕</text>
+  <text x="110" y="425" fill="#f97316" font-size="16" font-weight="700">Scanning Engine</text>
+  <text x="110" y="443" fill="#71717a" font-size="12">8 specialized scanners, 200+ detection patterns</text>
+
+  <!-- Scanner Cards Row 1 -->
+  <rect x="60" y="465" width="200" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="80" y="492" fill="#fb923c" font-size="13" font-weight="600">Python AST Scanner</text>
+  <text x="80" y="510" fill="#71717a" font-size="11">ast.NodeVisitor analysis</text>
+  <text x="80" y="526" fill="#71717a" font-size="11">Import, Call, Assign nodes</text>
+
+  <rect x="280" y="465" width="200" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="300" y="492" fill="#fb923c" font-size="13" font-weight="600">JS/TS Scanner</text>
+  <text x="300" y="510" fill="#71717a" font-size="11">Regex pattern matching</text>
+  <text x="300" y="526" fill="#71717a" font-size="11">ES6 import, require()</text>
+
+  <rect x="500" y="465" width="200" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="520" y="492" fill="#fb923c" font-size="13" font-weight="600">Config Parser</text>
+  <text x="520" y="510" fill="#71717a" font-size="11">YAML/JSON/TOML/ENV</text>
+  <text x="520" y="526" fill="#71717a" font-size="11">Model refs, endpoints</text>
+
+  <rect x="720" y="465" width="220" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="740" y="492" fill="#fb923c" font-size="13" font-weight="600">Dependency Scanner</text>
+  <text x="740" y="510" fill="#71717a" font-size="11">requirements.txt, package.json</text>
+  <text x="740" y="526" fill="#71717a" font-size="11">pyproject.toml, yarn.lock</text>
+
+  <!-- Scanner Cards Row 2 -->
+  <rect x="60" y="560" width="200" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="80" y="587" fill="#fb923c" font-size="13" font-weight="600">Secret Scanner</text>
+  <text x="80" y="605" fill="#71717a" font-size="11">detect-secrets engine</text>
+  <text x="80" y="621" fill="#71717a" font-size="11">30+ AI key patterns</text>
+
+  <rect x="280" y="560" width="200" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="300" y="587" fill="#fb923c" font-size="13" font-weight="600">Notebook Scanner</text>
+  <text x="300" y="605" fill="#71717a" font-size="11">.ipynb cell extraction</text>
+  <text x="300" y="621" fill="#71717a" font-size="11">Code cell → AST analysis</text>
+
+  <rect x="500" y="560" width="200" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="520" y="587" fill="#fb923c" font-size="13" font-weight="600">License Scanner</text>
+  <text x="520" y="605" fill="#71717a" font-size="11">33 AI package licenses</text>
+  <text x="520" y="621" fill="#71717a" font-size="11">GPL/AGPL/SSPL flags</text>
+
+  <rect x="720" y="560" width="220" height="80" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="740" y="587" fill="#fb923c" font-size="13" font-weight="600">Prompt Inventory</text>
+  <text x="740" y="605" fill="#71717a" font-size="11">AST prompt extraction</text>
+  <text x="740" y="621" fill="#71717a" font-size="11">Injection risk detection</text>
+
+  <!-- Arrow 2 -->
+  <line x1="500" y1="680" x2="500" y2="720" stroke="#52525b" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <polygon points="494,715 500,727 506,715" fill="#52525b"/>
+  <text x="520" y="705" fill="#52525b" font-size="10">findings</text>
+
+  <!-- ═══════════════════ LAYER 3: ANALYSIS ═══════════════════ -->
+  <rect x="40" y="730" width="920" height="200" rx="16" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-opacity="0.3"/>
+  <rect x="40" y="730" width="920" height="200" rx="16" fill="#a855f7" fill-opacity="0.03"/>
+
+  <rect x="60" y="745" width="36" height="36" rx="8" fill="#a855f7" fill-opacity="0.15"/>
+  <text x="78" y="768" text-anchor="middle" fill="#a855f7" font-size="16">⚙</text>
+  <text x="110" y="760" fill="#a855f7" font-size="16" font-weight="700">Analysis &amp; Intelligence</text>
+  <text x="110" y="778" fill="#71717a" font-size="12">Risk scoring, graph construction, OWASP mapping, policy enforcement</text>
+
+  <!-- Analysis Cards -->
+  <rect x="60" y="800" width="200" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="80" y="825" fill="#c084fc" font-size="13" font-weight="600">Risk Engine</text>
+  <text x="80" y="843" fill="#71717a" font-size="11">0-100 composite score</text>
+  <text x="80" y="859" fill="#71717a" font-size="11">A-F grade (A=0-20, F=81+)</text>
+  <text x="80" y="875" fill="#71717a" font-size="11">Weighted OWASP factors</text>
+  <text x="80" y="891" fill="#71717a" font-size="11">Provider concentration</text>
+
+  <rect x="280" y="800" width="200" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="300" y="825" fill="#c084fc" font-size="13" font-weight="600">Graph Builder</text>
+  <text x="300" y="843" fill="#71717a" font-size="11">NetworkX DiGraph</text>
+  <text x="300" y="859" fill="#71717a" font-size="11">Dagre layout algorithm</text>
+  <text x="300" y="875" fill="#71717a" font-size="11">Blast radius analysis</text>
+  <text x="300" y="891" fill="#71717a" font-size="11">React Flow serialization</text>
+
+  <rect x="500" y="800" width="200" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="520" y="825" fill="#c084fc" font-size="13" font-weight="600">Policy Engine</text>
+  <text x="520" y="843" fill="#71717a" font-size="11">12 built-in rules</text>
+  <text x="520" y="859" fill="#71717a" font-size="11">Custom YAML policies</text>
+  <text x="520" y="875" fill="#71717a" font-size="11">CI/CD gate (exit code 1)</text>
+  <text x="520" y="891" fill="#71717a" font-size="11">Block / warn / info</text>
+
+  <rect x="720" y="800" width="220" height="110" rx="10" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="740" y="825" fill="#c084fc" font-size="13" font-weight="600">OWASP Mapper</text>
+  <text x="740" y="843" fill="#71717a" font-size="11">LLM Top 10 (2025)</text>
+  <text x="740" y="859" fill="#71717a" font-size="11">8/10 categories covered</text>
+  <text x="740" y="875" fill="#71717a" font-size="11">Severity classification</text>
+  <text x="740" y="891" fill="#71717a" font-size="11">Compliance evidence</text>
+
+  <!-- Arrow 3 -->
+  <line x1="500" y1="935" x2="500" y2="975" stroke="#52525b" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <polygon points="494,970 500,982 506,970" fill="#52525b"/>
+  <text x="520" y="960" fill="#52525b" font-size="10">reports / visualizations</text>
+
+  <!-- ═══════════════════ LAYER 4: OUTPUT ═══════════════════ -->
+  <rect x="40" y="985" width="920" height="200" rx="16" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.3"/>
+  <rect x="40" y="985" width="920" height="200" rx="16" fill="#10b981" fill-opacity="0.03"/>
+
+  <rect x="60" y="1000" width="36" height="36" rx="8" fill="#10b981" fill-opacity="0.15"/>
+  <text x="78" y="1023" text-anchor="middle" fill="#10b981" font-size="16">📄</text>
+  <text x="110" y="1015" fill="#10b981" font-size="16" font-weight="700">Output &amp; Reports</text>
+  <text x="110" y="1033" fill="#71717a" font-size="12">10 export formats for every audience</text>
+
+  <!-- Output Cards -->
+  <rect x="60" y="1055" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="80" y="1078" fill="#34d399" font-size="12" font-weight="600">Rich Table</text>
+  <text x="80" y="1095" fill="#71717a" font-size="10">Terminal output</text>
+
+  <rect x="245" y="1055" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="265" y="1078" fill="#34d399" font-size="12" font-weight="600">JSON</text>
+  <text x="265" y="1095" fill="#71717a" font-size="10">Machine-readable</text>
+
+  <rect x="430" y="1055" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="450" y="1078" fill="#34d399" font-size="12" font-weight="600">SARIF</text>
+  <text x="450" y="1095" fill="#71717a" font-size="10">IDE integration</text>
+
+  <rect x="615" y="1055" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="635" y="1078" fill="#34d399" font-size="12" font-weight="600">CycloneDX AI-BOM</text>
+  <text x="635" y="1095" fill="#71717a" font-size="10">Industry standard</text>
+
+  <rect x="800" y="1055" width="140" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="820" y="1078" fill="#34d399" font-size="12" font-weight="600">PDF Report</text>
+  <text x="820" y="1095" fill="#71717a" font-size="10">Executive summary</text>
+
+  <rect x="60" y="1125" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="80" y="1148" fill="#34d399" font-size="12" font-weight="600">Model Card</text>
+  <text x="80" y="1165" fill="#71717a" font-size="10">Google format</text>
+
+  <rect x="245" y="1125" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="265" y="1148" fill="#34d399" font-size="12" font-weight="600">Markdown</text>
+  <text x="265" y="1165" fill="#71717a" font-size="10">Docs / wiki</text>
+
+  <rect x="430" y="1125" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="450" y="1148" fill="#34d399" font-size="12" font-weight="600">React Flow</text>
+  <text x="450" y="1165" fill="#71717a" font-size="10">Interactive graph</text>
+
+  <rect x="615" y="1125" width="170" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="635" y="1148" fill="#34d399" font-size="12" font-weight="600">PR Comment</text>
+  <text x="635" y="1165" fill="#71717a" font-size="10">GitHub inline</text>
+
+  <rect x="800" y="1125" width="140" height="55" rx="8" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <text x="820" y="1148" fill="#34d399" font-size="12" font-weight="600">Audit Log</text>
+  <text x="820" y="1165" fill="#71717a" font-size="10">Compliance trail</text>
+
+  <!-- Footer -->
+  <text x="500" y="1230" text-anchor="middle" fill="#3f3f46" font-size="11">ScanLLM v2.1.0 — AI Dependency Intelligence Platform</text>
+  <text x="500" y="1250" text-anchor="middle" fill="#27272a" font-size="10">pip install scanllm</text>
+
+  <!-- Side labels -->
+  <text x="20" y="290" fill="#22d3ee" font-size="10" transform="rotate(-90,20,290)" fill-opacity="0.4">INTERFACE</text>
+  <text x="20" y="555" fill="#f97316" font-size="10" transform="rotate(-90,20,555)" fill-opacity="0.4">SCANNERS</text>
+  <text x="20" y="845" fill="#a855f7" font-size="10" transform="rotate(-90,20,845)" fill-opacity="0.4">ANALYSIS</text>
+  <text x="20" y="1100" fill="#10b981" font-size="10" transform="rotate(-90,20,1100)" fill-opacity="0.4">OUTPUT</text>
+</svg>
