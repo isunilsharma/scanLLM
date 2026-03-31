@@ -35,6 +35,8 @@ class PolicyEngine:
         self.rules: list[PolicyRule] = []
         if policies_path is not None:
             self.load(Path(policies_path))
+        else:
+            self.load_defaults()
 
     # ------------------------------------------------------------------
     # Loading

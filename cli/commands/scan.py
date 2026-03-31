@@ -289,7 +289,7 @@ def _output_table(
     elapsed: float,
 ) -> None:
     """Render results as Rich tables."""
-    from cli.output.table import print_summary_panel, print_findings_table, print_policy_result
+    from cli.output.table import print_summary_panel, print_findings_table, print_policy_result, print_action_summary
 
     summary = scan_result.get("summary", {})
 
@@ -304,6 +304,9 @@ def _output_table(
         # Policy result
         if policy_result:
             print_policy_result(policy_result)
+
+        # Action summary with prioritized fixes and next steps
+        print_action_summary(findings, risk_result)
 
     # Footer
     total_findings = summary.get("total_findings", 0)

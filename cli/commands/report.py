@@ -135,6 +135,26 @@ def report_pdf(
         )
 
 
+@report_app.command(name="model-card")
+def model_card(
+    path: str = typer.Argument(".", help="Repository path"),
+    output: str = typer.Option(None, "--output", "-o", help="Output file path"),
+) -> None:
+    """Generate a model card documenting all AI models in the codebase."""
+    latest, _config = _get_latest_scan(path)
+
+    from core.reports.model_card import ModelCardGenerator
+
+    generator = ModelCardGenerator()
+    md = generator.generate(latest)
+
+    if output:
+        Path(output).write_text(md, encoding="utf-8")
+        console.print(f"[green]Model card written to {output}")
+    else:
+        console.print(md)
+
+
 def _build_cyclonedx_bom(
     findings: list[dict[str, Any]],
     scan_data: dict[str, Any],
