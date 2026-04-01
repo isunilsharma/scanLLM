@@ -41,6 +41,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from app.models.telemetry import TelemetryEvent, UserFeedback  # noqa: F401
+except ImportError:
+    pass
+
 __all__ = [
     "ScanJob",
     "ScanStatus",
@@ -52,4 +57,6 @@ __all__ = [
     "AuditLog",
     "AuditAction",
     "AuditResourceType",
+    "TelemetryEvent",
+    "UserFeedback",
 ]

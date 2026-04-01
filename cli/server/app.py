@@ -90,7 +90,7 @@ _FALLBACK_HTML = """<!DOCTYPE html>
 def create_app(repo_path: Path) -> Any:
     """Create a FastAPI app that serves scan data and the dashboard UI."""
     try:
-        from fastapi import FastAPI
+        from fastapi import FastAPI, Request
         from fastapi.responses import HTMLResponse, JSONResponse
     except ImportError:
         raise ImportError(
@@ -174,6 +174,20 @@ def create_app(repo_path: Path) -> Any:
         estimator = CostEstimator()
         result = estimator.estimate(data.get("findings", []))
         return JSONResponse(result.to_dict())
+
+    @app.post("/api/feedback")
+    async def submit_feedback(request: Request):
+        """Save user feedback to local .scanllm/feedback.json."""
+        body = await request.json()
+        feedback_file = config.base_dir / "feedback.json"
+        existing = []
+        if feedback_file.exists():
+            existing = json.loads(feedback_file.read_text())
+        from datetime import datetime, timezone
+        body["created_at"] = datetime.now(timezone.utc).isoformat()
+        existing.append(body)
+        feedback_file.write_text(json.dumps(existing, indent=2))
+        return JSONResponse({"status": "ok", "message": "Thanks for your feedback!"})
 
     @app.post("/api/scan")
     async def trigger_scan():

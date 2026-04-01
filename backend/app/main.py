@@ -53,6 +53,7 @@ from app.api.v1.reports import router as v1_reports_router
 from app.api.v1.dashboard import router as v1_dashboard_router
 from app.api.v1.cost import router as v1_cost_router
 from app.api.v1.audit import router as v1_audit_router
+from app.api.v1.telemetry import router as v1_telemetry_router
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -408,6 +409,7 @@ app.include_router(v1_reports_router)
 app.include_router(v1_dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
 app.include_router(v1_cost_router, prefix="/api/v1/cost", tags=["cost"])
 app.include_router(v1_audit_router, prefix="/api/v1/audit", tags=["audit"])
+app.include_router(v1_telemetry_router, prefix="/api/v1/telemetry", tags=["telemetry"])
 
 
 # ---------------------------------------------------------------------------
