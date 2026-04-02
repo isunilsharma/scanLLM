@@ -1,8 +1,11 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # Use DATABASE_URL env var (PostgreSQL on Render, SQLite fallback for local dev)
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -30,6 +33,31 @@ def get_db():
     finally:
         db.close()
 
+def _run_migrations():
+    """Add columns that create_all() won't add to existing tables."""
+    migrations = [
+        "ALTER TABLE telemetry_events ADD COLUMN providers_detected TEXT",
+    ]
+    with engine.connect() as conn:
+        for sql in migrations:
+            try:
+                conn.execute(text(sql))
+                conn.commit()
+            except Exception:
+                conn.rollback()  # Column already exists
+
+
 def init_db():
     """Initialize database tables"""
+    # Import all models so create_all() knows about them
+    try:
+        import app.models.telemetry  # noqa
+    except Exception:
+        pass
+    try:
+        import models.organization  # noqa
+    except Exception:
+        pass
+
     Base.metadata.create_all(bind=engine)
+    _run_migrations()

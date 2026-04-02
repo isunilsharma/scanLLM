@@ -59,8 +59,8 @@ tr:hover td{background:#1c1c1f}
 .btn:hover{opacity:.85}
 .btn-outline{background:none;border:1px solid #27272a;color:#e4e4e7}
 .btn-outline:hover{background:#27272a}
-.feedback-btn{position:fixed;bottom:20px;right:20px;background:#22d3ee;color:#0a0a0a;border:none;width:48px;height:48px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.5)}
-.feedback-btn:hover{opacity:.85}
+.feedback-btn{position:fixed;bottom:20px;right:20px;background:#22d3ee;color:#0a0a0a;border:none;width:48px;height:48px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.5);pointer-events:auto;transition:transform .15s,opacity .15s}
+.feedback-btn:hover{opacity:.85;transform:scale(1.1)}
 .sev-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:6px}
 .filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .filter-btn{background:#27272a;border:1px solid #3f3f46;color:#a1a1aa;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;font-family:inherit}
