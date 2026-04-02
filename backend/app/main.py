@@ -53,7 +53,11 @@ from app.api.v1.reports import router as v1_reports_router
 from app.api.v1.dashboard import router as v1_dashboard_router
 from app.api.v1.cost import router as v1_cost_router
 from app.api.v1.audit import router as v1_audit_router
-from app.api.v1.telemetry import router as v1_telemetry_router
+try:
+    from app.api.v1.telemetry import router as v1_telemetry_router
+except Exception as _e:
+    v1_telemetry_router = None
+    logging.getLogger(__name__).warning("Telemetry router failed to load: %s", _e)
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -409,7 +413,8 @@ app.include_router(v1_reports_router)
 app.include_router(v1_dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
 app.include_router(v1_cost_router, prefix="/api/v1/cost", tags=["cost"])
 app.include_router(v1_audit_router, prefix="/api/v1/audit", tags=["audit"])
-app.include_router(v1_telemetry_router, prefix="/api/v1/telemetry", tags=["telemetry"])
+if v1_telemetry_router is not None:
+    app.include_router(v1_telemetry_router, prefix="/api/v1/telemetry", tags=["telemetry"])
 
 
 # ---------------------------------------------------------------------------
