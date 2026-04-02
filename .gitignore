@@ -63,5 +63,9 @@ yarn-debug.log*
 # Test artifacts
 test_reports/
 
+# ScanLLM local workspace
+.scanllm/
+.scanllmignore
+
 # Package lock at root (frontend has its own)
 /package-lock.json

@@ -155,8 +155,8 @@ function renderFindings(data,el){
   var findings=data.findings;var show=findings.slice(0,200);
   var h='<div class="card"><h2>Findings ('+findings.length+')</h2>';
   if(findings.length>200)h+='<p class="ml" style="margin-bottom:8px">Showing first 200 of '+findings.length+'</p>';
-  h+='<div class="filter-bar"><button class="filter-btn active" onclick="filterFindings(this,\'all\')">All</button>';
-  ['critical','high','medium','low','info'].forEach(function(s){h+='<button class="filter-btn" onclick="filterFindings(this,\''+s+'\')">'+s.charAt(0).toUpperCase()+s.slice(1)+'</button>'});
+  h+='<div class="filter-bar"><button class="filter-btn active" onclick="filterFindings(this,\\x27all\\x27)">All</button>';
+  ['critical','high','medium','low','info'].forEach(function(s){h+='<button class="filter-btn" onclick="filterFindings(this,\\x27'+s+'\\x27)">'+s.charAt(0).toUpperCase()+s.slice(1)+'</button>'});
   h+='</div><div style="overflow-x:auto"><table><thead><tr><th>Severity</th><th>Type</th><th>File</th><th>Line</th><th>Description</th></tr></thead><tbody id="findings-body">';
   show.forEach(function(f){
     var sev=(f.severity||'info').toLowerCase();
