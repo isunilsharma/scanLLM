@@ -112,7 +112,7 @@ function switchTab(name,btn){
 }
 function fetchAPI(url){
   if(_cache[url])return Promise.resolve(_cache[url]);
-  return fetch(url).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(d){_cache[url]=d;return d});
+  return fetch(url).then(function(r){return r.json()}).then(function(d){_cache[url]=d;return d});
 }
 function loadTab(name){
   var el=document.getElementById('tab-content');
@@ -356,11 +356,6 @@ def create_app(repo_path: Path) -> Any:
 
     @app.get("/", response_class=HTMLResponse)
     async def index():
-        # Check for built frontend
-        dist_dir = Path(__file__).parent.parent.parent / "frontend" / "build"
-        index_html = dist_dir / "index.html"
-        if index_html.exists():
-            return HTMLResponse(index_html.read_text())
         return HTMLResponse(_FALLBACK_HTML)
 
     @app.get("/api/scan/latest")
