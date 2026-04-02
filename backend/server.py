@@ -391,6 +391,37 @@ app.include_router(auth_router)
 app.include_router(github_router)
 app.include_router(scan_github_router)
 
+# ---------------------------------------------------------------------------
+# v1 routers (telemetry, cost, dashboard, audit)
+# ---------------------------------------------------------------------------
+try:
+    from app.api.v1.telemetry import router as v1_telemetry_router
+    app.include_router(v1_telemetry_router, prefix="/api/v1/telemetry", tags=["telemetry"])
+    logger.info("Telemetry router loaded")
+except Exception as e:
+    logger.warning(f"Failed to load telemetry router: {e}")
+
+try:
+    from app.api.v1.cost import router as v1_cost_router
+    app.include_router(v1_cost_router, prefix="/api/v1/cost", tags=["cost"])
+    logger.info("Cost router loaded")
+except Exception as e:
+    logger.warning(f"Failed to load cost router: {e}")
+
+try:
+    from app.api.v1.dashboard import router as v1_dashboard_router
+    app.include_router(v1_dashboard_router, prefix="/api/v1/dashboard", tags=["dashboard"])
+    logger.info("Dashboard router loaded")
+except Exception as e:
+    logger.warning(f"Failed to load dashboard router: {e}")
+
+try:
+    from app.api.v1.audit import router as v1_audit_router
+    app.include_router(v1_audit_router, prefix="/api/v1/audit", tags=["audit"])
+    logger.info("Audit router loaded")
+except Exception as e:
+    logger.warning(f"Failed to load audit router: {e}")
+
 
 @app.get("/health")
 async def health():
