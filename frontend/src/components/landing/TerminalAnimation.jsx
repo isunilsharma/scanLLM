@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const SCAN_LINES = [
   { text: '$ pip install scanllm', delay: 0, type: 'command' },
-  { text: 'Successfully installed scanllm-2.0.0', delay: 800, type: 'success' },
+  { text: 'Successfully installed scanllm', delay: 800, type: 'success' },
   { text: '', delay: 1200, type: 'blank' },
   { text: '$ scanllm scan .', delay: 1400, type: 'command' },
   { text: '', delay: 1800, type: 'blank' },

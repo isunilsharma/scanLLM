@@ -26,7 +26,7 @@ BANNER = r"""[bold cyan]
   ███████║╚██████╗██║  ██║██║ ╚████║███████╗███████╗██║ ╚═╝ ██║
   ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝     ╚═╝
 [/bold cyan]
-  [dim]AI Dependency Intelligence[/dim] [bold white]v2.0.0[/bold white]
+  [dim]AI Dependency Intelligence[/dim]
 """
 
 
@@ -351,7 +351,7 @@ def _output_cyclonedx(scan_result: dict[str, Any]) -> None:
             "tools": [{
                 "vendor": "ScanLLM",
                 "name": "scanllm",
-                "version": "2.0.0",
+                "version": __import__("core").__version__,
             }],
         },
         "components": [],
