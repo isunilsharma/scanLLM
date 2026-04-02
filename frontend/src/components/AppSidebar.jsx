@@ -11,7 +11,7 @@ import Logo from './Logo';
 import {
   Search, Plus, Clock, Settings, History, Shield,
   Lock, Globe, X, GitBranch, ChevronRight, FileEdit,
-  GitCompare, DollarSign
+  GitCompare, DollarSign, BarChart3
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -20,7 +20,7 @@ const API = `${BACKEND_URL}/api`;
 const AppSidebar = ({ onRepoSelect, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -271,6 +271,15 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
           <DollarSign size={14} />
           Cost Insights
         </Link>
+        {user?.is_admin && (
+          <Link
+            to="/app/telemetry"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+          >
+            <BarChart3 size={14} />
+            Telemetry
+          </Link>
+        )}
         <Link
           to="/app/settings"
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"

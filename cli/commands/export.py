@@ -70,6 +70,18 @@ def export(
         except Exception as e:
             console.print(f"  [red]\u2717[/red] {fmt}: {e}")
 
+    # Record telemetry
+    try:
+        from cli.telemetry import record_event
+        record_event(
+            event_type="export",
+            command="export",
+            finding_count=len(latest.get("findings", [])),
+            config_dir=config.base_dir,
+        )
+    except Exception:
+        pass
+
     console.print()
 
 

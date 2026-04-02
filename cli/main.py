@@ -10,6 +10,7 @@ from cli.commands import scan, init_cmd, policy, diff, ui, watch, report, fix
 from cli.commands import score as score_cmd
 from cli.commands import doctor as doctor_cmd
 from cli.commands import export as export_cmd
+from cli.commands import telemetry_cmd
 
 app = typer.Typer(
     name="scanllm",
@@ -62,6 +63,7 @@ app.command(name="export")(export_cmd.export)
 # ── Register sub-command groups ─────────────────────────────────────────────
 app.add_typer(policy.policy_app, name="policy", help="Policy management commands.")
 app.add_typer(report.report_app, name="report", help="Report generation commands.")
+app.add_typer(telemetry_cmd.telemetry_app, name="telemetry", help="Manage anonymous telemetry.")
 
 
 

@@ -22,6 +22,7 @@ if _backend_dir not in sys.path:
 
 from core.database import get_db
 from app.models.telemetry import TelemetryEvent, UserFeedback
+from app.api.deps import get_admin_user
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +43,7 @@ class TelemetryEventCreate(BaseModel):
     os_platform: Optional[str] = None
     scanllm_version: Optional[str] = None
     session_id: Optional[str] = None
+    providers_detected: Optional[List[str]] = None
 
 
 class TelemetryEventOut(BaseModel):
@@ -88,6 +90,11 @@ class DayCount(BaseModel):
     count: int
 
 
+class ProviderCount(BaseModel):
+    provider: str
+    count: int
+
+
 class TelemetryStats(BaseModel):
     total_events: int
     total_scans: int
@@ -95,6 +102,7 @@ class TelemetryStats(BaseModel):
     avg_scan_duration_ms: Optional[float] = None
     top_commands: List[CommandCount]
     events_by_day: List[DayCount]
+    top_providers: List[ProviderCount] = []
 
 
 # ---------------------------------------------------------------------------
@@ -107,6 +115,7 @@ async def record_event(
     db: Session = Depends(get_db),
 ):
     """Record an anonymous telemetry event. No auth required."""
+    import json as _json
     entry = TelemetryEvent(
         event_type=event.event_type,
         command=event.command,
@@ -117,6 +126,7 @@ async def record_event(
         os_platform=event.os_platform,
         scanllm_version=event.scanllm_version,
         session_id=event.session_id,
+        providers_detected=_json.dumps(event.providers_detected) if event.providers_detected else None,
     )
     db.add(entry)
     db.commit()
@@ -146,9 +156,10 @@ async def submit_feedback(
 
 @router.get("/stats", response_model=TelemetryStats)
 async def get_telemetry_stats(
+    admin=Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """Get aggregated telemetry statistics. For admin use."""
+    """Get aggregated telemetry statistics. Admin only."""
     total_events = db.query(sa_func.count(TelemetryEvent.id)).scalar() or 0
     total_scans = (
         db.query(sa_func.count(TelemetryEvent.id))
@@ -194,6 +205,29 @@ async def get_telemetry_stats(
         for row in day_rows
     ]
 
+    # Top providers from providers_detected JSON column
+    import json as _json
+    top_providers: list[ProviderCount] = []
+    try:
+        rows = (
+            db.query(TelemetryEvent.providers_detected)
+            .filter(TelemetryEvent.providers_detected.isnot(None))
+            .all()
+        )
+        provider_counts: dict[str, int] = {}
+        for (raw,) in rows:
+            try:
+                for p in _json.loads(raw):
+                    provider_counts[p] = provider_counts.get(p, 0) + 1
+            except Exception:
+                continue
+        top_providers = [
+            ProviderCount(provider=k, count=v)
+            for k, v in sorted(provider_counts.items(), key=lambda x: -x[1])[:15]
+        ]
+    except Exception:
+        pass
+
     return TelemetryStats(
         total_events=total_events,
         total_scans=total_scans,
@@ -201,6 +235,7 @@ async def get_telemetry_stats(
         avg_scan_duration_ms=round(avg_duration, 1) if avg_duration is not None else None,
         top_commands=top_commands,
         events_by_day=events_by_day,
+        top_providers=top_providers,
     )
 
 
@@ -208,9 +243,10 @@ async def get_telemetry_stats(
 async def list_feedback(
     limit: int = Query(50, ge=1, le=500),
     category: Optional[str] = Query(None, description="Filter by category (bug, feature, general)"),
+    admin=Depends(get_admin_user),
     db: Session = Depends(get_db),
 ):
-    """List user feedback. For admin use."""
+    """List user feedback. Admin only."""
     query = db.query(UserFeedback)
 
     if category:

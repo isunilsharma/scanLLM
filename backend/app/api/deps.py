@@ -53,6 +53,35 @@ def get_current_user(
     return user
 
 
+def is_admin(user: GitHubUser, db: Session) -> bool:
+    """Check if a user has admin/owner role via Membership or ADMIN_EMAILS config."""
+    from app.config import get_admin_emails
+    # Check config-based admin list first
+    if user.email and user.email.lower() in get_admin_emails():
+        return True
+    # Check Membership table for admin/owner role
+    try:
+        from models.organization import Membership
+        membership = (
+            db.query(Membership)
+            .filter(Membership.user_id == user.id, Membership.role.in_(["owner", "admin"]))
+            .first()
+        )
+        return membership is not None
+    except Exception:
+        return False
+
+
+def get_admin_user(
+    user: GitHubUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> GitHubUser:
+    """Require the current user to be an admin. Raises 403 if not."""
+    if not is_admin(user, db):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
 # ---------------------------------------------------------------------------
 # Scan lookup helper
 # ---------------------------------------------------------------------------
