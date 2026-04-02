@@ -129,7 +129,7 @@ function sevColor(s){var m={critical:'#ef4444',high:'#f59e0b',medium:'#eab308',l
 function sevBadge(s){var m={critical:'b-crit',high:'b-high',medium:'b-med',low:'b-low',info:'b-info'};return '<span class="badge '+(m[(s||'').toLowerCase()]||'b-info')+'">'+esc(s)+'</span>'}
 function gradeColor(g){if(g==='A'||g==='B')return '#4ade80';if(g==='C')return '#facc15';return '#f87171'}
 function renderOverview(data,el){
-  if(!data||data.error){el.innerHTML='<div class="empty"><p>No scan data found.</p><p style="margin-top:8px;color:#a1a1aa">Run <code style="background:#27272a;padding:2px 6px;border-radius:4px">scanllm scan . --save</code> first.</p></div>';return}
+  if(!data||data.error){el.innerHTML='<div class="empty"><p>Scanning in progress...</p><p style="margin-top:8px;color:#a1a1aa">Auto-scan is running. This page will refresh automatically.</p></div>';setTimeout(function(){_cache={};loadTab('overview')},3000);return}
   var s=data.summary||{};var r=data.risk||{};var grade=r.grade||'?';var score=r.overall_score||0;
   var pct=Math.min(score,100);var gc=gradeColor(grade);
   var h='<div class="gauge-wrap"><div class="gauge" style="background:conic-gradient('+gc+' 0 '+pct+'%,#27272a '+pct+'% 100%)"><div class="gauge-inner"><span class="gauge-score" style="color:'+gc+'">'+score+'</span><span class="gauge-label">/ 100</span></div></div>';
@@ -360,48 +360,53 @@ def create_app(repo_path: Path) -> Any:
 
     @app.on_event("startup")
     async def _auto_scan_if_empty():
-        """Auto-run an initial scan if no saved scans exist."""
+        """Auto-run an initial scan in background if no saved scans exist."""
         if config.get_latest_scan() is not None:
             return
-        logger.info("No saved scans found — running initial scan on %s", repo_path)
-        try:
-            from core.scanner.engine import ScanEngine
-            from core.scoring.risk_engine import RiskEngine
-            from core.scoring.owasp_mapper import OwaspMapper
-            from core.graph.builder import GraphBuilder
-            from core.graph.serializer import GraphSerializer
-            from core.graph.analyzer import GraphAnalyzer
-            from datetime import datetime, timezone
+        import threading
 
-            engine = ScanEngine()
-            result = engine.scan(repo_path)
-            findings = result.get("findings", [])
+        def _run_scan():
+            logger.info("No saved scans found — running initial scan on %s", repo_path)
+            try:
+                from core.scanner.engine import ScanEngine
+                from core.scoring.risk_engine import RiskEngine
+                from core.scoring.owasp_mapper import OwaspMapper
+                from core.graph.builder import GraphBuilder
+                from core.graph.serializer import GraphSerializer
+                from core.graph.analyzer import GraphAnalyzer
+                from datetime import datetime, timezone
 
-            builder = GraphBuilder()
-            graph = builder.build(findings)
-            serializer = GraphSerializer()
-            graph_data = serializer.to_react_flow(graph)
+                engine = ScanEngine()
+                result = engine.scan(repo_path)
+                findings = result.get("findings", [])
 
-            analyzer = GraphAnalyzer()
-            graph_analysis = analyzer.analyze(graph)
-            risk_engine = RiskEngine()
-            risk_result = risk_engine.score(findings, graph_analysis)
+                builder = GraphBuilder()
+                graph = builder.build(findings)
+                serializer = GraphSerializer()
+                graph_data = serializer.to_react_flow(graph)
 
-            owasp_mapper = OwaspMapper()
-            owasp_result = owasp_mapper.map_findings(findings)
+                analyzer = GraphAnalyzer()
+                graph_analysis = analyzer.analyze(graph)
+                risk_engine = RiskEngine()
+                risk_result = risk_engine.score(findings, graph_analysis)
 
-            result["risk"] = risk_result
-            result["owasp"] = owasp_result
-            result["graph"] = graph_data
-            result["risk_score"] = risk_result.get("overall_score", 0)
-            result["timestamp"] = datetime.now(timezone.utc).isoformat()
+                owasp_mapper = OwaspMapper()
+                owasp_result = owasp_mapper.map_findings(findings)
 
-            if not config.is_initialized():
-                config.initialize()
-            config.save_scan(result)
-            logger.info("Auto-scan complete — %d findings saved", len(findings))
-        except Exception as exc:
-            logger.warning("Auto-scan failed: %s", exc)
+                result["risk"] = risk_result
+                result["owasp"] = owasp_result
+                result["graph"] = graph_data
+                result["risk_score"] = risk_result.get("overall_score", 0)
+                result["timestamp"] = datetime.now(timezone.utc).isoformat()
+
+                if not config.is_initialized():
+                    config.initialize()
+                config.save_scan(result)
+                logger.info("Auto-scan complete — %d findings saved", len(findings))
+            except Exception as exc:
+                logger.warning("Auto-scan failed: %s", exc)
+
+        threading.Thread(target=_run_scan, daemon=True).start()
 
     @app.get("/api/scan/latest")
     async def latest_scan():
