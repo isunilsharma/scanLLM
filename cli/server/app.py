@@ -59,8 +59,8 @@ tr:hover td{background:#1c1c1f}
 .btn:hover{opacity:.85}
 .btn-outline{background:none;border:1px solid #27272a;color:#e4e4e7}
 .btn-outline:hover{background:#27272a}
-.feedback-btn{position:fixed;bottom:20px;right:20px;background:#22d3ee;color:#0a0a0a;border:none;width:48px;height:48px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.5)}
-.feedback-btn:hover{opacity:.85}
+.feedback-btn{position:fixed;bottom:20px;right:20px;background:#22d3ee;color:#0a0a0a;border:none;width:48px;height:48px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.5);pointer-events:auto;transition:transform .15s,opacity .15s}
+.feedback-btn:hover{opacity:.85;transform:scale(1.1)}
 .sev-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:6px}
 .filter-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .filter-btn{background:#27272a;border:1px solid #3f3f46;color:#a1a1aa;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.8rem;font-family:inherit}
@@ -112,7 +112,7 @@ function switchTab(name,btn){
 }
 function fetchAPI(url){
   if(_cache[url])return Promise.resolve(_cache[url]);
-  return fetch(url).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(d){_cache[url]=d;return d});
+  return fetch(url).then(function(r){return r.json()}).then(function(d){_cache[url]=d;return d});
 }
 function loadTab(name){
   var el=document.getElementById('tab-content');
@@ -356,18 +356,58 @@ def create_app(repo_path: Path) -> Any:
 
     @app.get("/", response_class=HTMLResponse)
     async def index():
-        # Check for built frontend
-        dist_dir = Path(__file__).parent.parent.parent / "frontend" / "build"
-        index_html = dist_dir / "index.html"
-        if index_html.exists():
-            return HTMLResponse(index_html.read_text())
         return HTMLResponse(_FALLBACK_HTML)
+
+    @app.on_event("startup")
+    async def _auto_scan_if_empty():
+        """Auto-run an initial scan if no saved scans exist."""
+        if config.get_latest_scan() is not None:
+            return
+        logger.info("No saved scans found — running initial scan on %s", repo_path)
+        try:
+            from core.scanner.engine import ScanEngine
+            from core.scoring.risk_engine import RiskEngine
+            from core.scoring.owasp_mapper import OwaspMapper
+            from core.graph.builder import GraphBuilder
+            from core.graph.serializer import GraphSerializer
+            from core.graph.analyzer import GraphAnalyzer
+            from datetime import datetime, timezone
+
+            engine = ScanEngine()
+            result = engine.scan(repo_path)
+            findings = result.get("findings", [])
+
+            builder = GraphBuilder()
+            graph = builder.build(findings)
+            serializer = GraphSerializer()
+            graph_data = serializer.to_react_flow(graph)
+
+            analyzer = GraphAnalyzer()
+            graph_analysis = analyzer.analyze(graph)
+            risk_engine = RiskEngine()
+            risk_result = risk_engine.score(findings, graph_analysis)
+
+            owasp_mapper = OwaspMapper()
+            owasp_result = owasp_mapper.map_findings(findings)
+
+            result["risk"] = risk_result
+            result["owasp"] = owasp_result
+            result["graph"] = graph_data
+            result["risk_score"] = risk_result.get("overall_score", 0)
+            result["timestamp"] = datetime.now(timezone.utc).isoformat()
+
+            if not config.is_initialized():
+                config.initialize()
+            config.save_scan(result)
+            logger.info("Auto-scan complete — %d findings saved", len(findings))
+        except Exception as exc:
+            logger.warning("Auto-scan failed: %s", exc)
 
     @app.get("/api/scan/latest")
     async def latest_scan():
         data = config.get_latest_scan()
         if data is None:
-            return JSONResponse({"error": "No scans found"}, status_code=404)
+            return JSONResponse({"error": "No scans found. Click 'Run Scan' on the Export tab."})
         return JSONResponse(data)
 
     @app.get("/api/scan/history")

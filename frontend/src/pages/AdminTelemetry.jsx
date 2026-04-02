@@ -26,8 +26,12 @@ const AdminTelemetry = () => {
     } catch (err) {
       if (err.response?.status === 403) {
         setError('Admin access required. You do not have permission to view telemetry data.');
+      } else if (err.response?.status === 500) {
+        setError('Server error loading telemetry. Check backend logs for details.');
+      } else if (err.response?.status === 401) {
+        setError('Authentication required. Please log in first.');
       } else {
-        setError('Failed to load telemetry data.');
+        setError(`Failed to load telemetry data: ${err.message || 'Unknown error'}`);
       }
     } finally {
       setLoading(false);
