@@ -5,6 +5,30 @@ All notable changes to ScanLLM will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-04-02
+
+### Added
+
+- Enterprise 8-tab interactive CLI dashboard (`scanllm ui`) with Overview, Findings, Risk, OWASP, Graph, Policies, History, and Export tabs
+- Admin RBAC system — `ADMIN_EMAILS` env var bootstraps admin users via GitHub OAuth
+- Admin telemetry dashboard at `/app/telemetry` (frontend, admin-only)
+- Telemetry auto-collection after scan, score, and export commands
+- Provider popularity tracking in telemetry events
+- CLI telemetry management: `scanllm telemetry on/off/status`
+- `SCANLLM_TELEMETRY` env var for global opt-out
+- `get_admin_user` permission dependency for securing admin endpoints
+
+### Changed
+
+- Telemetry stats and feedback endpoints now require admin authentication
+- CLI dashboard upgraded from 5-metric card to full 8-tab enterprise dashboard
+- CycloneDX output uses dynamic version from `core.__version__`
+
+### Removed
+
+- Architecture page hidden from public navigation
+- Hardcoded version numbers removed from homepage and CLI banner
+
 ## [2.0.0] - 2026-03-28
 
 ### Added

@@ -30,10 +30,10 @@ BANNER = r"""
   ███████║╚██████╗██║  ██║██║ ╚████║███████╗███████╗██║ ╚═╝ ██║
   ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝     ╚═╝
 [/bold cyan]
-  [dim]AI Dependency Intelligence[/dim] [bold white]v2.2.0[/bold white]
+  [dim]AI Dependency Intelligence[/dim] [bold white]v2.3.0[/bold white]
 """
 
-VERSION = "2.2.0"
+VERSION = "2.3.0"
 
 
 def _version_callback(value: bool) -> None:
