@@ -358,11 +358,56 @@ def create_app(repo_path: Path) -> Any:
     async def index():
         return HTMLResponse(_FALLBACK_HTML)
 
+    @app.on_event("startup")
+    async def _auto_scan_if_empty():
+        """Auto-run an initial scan if no saved scans exist."""
+        if config.get_latest_scan() is not None:
+            return
+        logger.info("No saved scans found — running initial scan on %s", repo_path)
+        try:
+            from core.scanner.engine import ScanEngine
+            from core.scoring.risk_engine import RiskEngine
+            from core.scoring.owasp_mapper import OwaspMapper
+            from core.graph.builder import GraphBuilder
+            from core.graph.serializer import GraphSerializer
+            from core.graph.analyzer import GraphAnalyzer
+            from datetime import datetime, timezone
+
+            engine = ScanEngine()
+            result = engine.scan(repo_path)
+            findings = result.get("findings", [])
+
+            builder = GraphBuilder()
+            graph = builder.build(findings)
+            serializer = GraphSerializer()
+            graph_data = serializer.to_react_flow(graph)
+
+            analyzer = GraphAnalyzer()
+            graph_analysis = analyzer.analyze(graph)
+            risk_engine = RiskEngine()
+            risk_result = risk_engine.score(findings, graph_analysis)
+
+            owasp_mapper = OwaspMapper()
+            owasp_result = owasp_mapper.map_findings(findings)
+
+            result["risk"] = risk_result
+            result["owasp"] = owasp_result
+            result["graph"] = graph_data
+            result["risk_score"] = risk_result.get("overall_score", 0)
+            result["timestamp"] = datetime.now(timezone.utc).isoformat()
+
+            if not config.is_initialized():
+                config.initialize()
+            config.save_scan(result)
+            logger.info("Auto-scan complete — %d findings saved", len(findings))
+        except Exception as exc:
+            logger.warning("Auto-scan failed: %s", exc)
+
     @app.get("/api/scan/latest")
     async def latest_scan():
         data = config.get_latest_scan()
         if data is None:
-            return JSONResponse({"error": "No scans found"}, status_code=404)
+            return JSONResponse({"error": "No scans found. Click 'Run Scan' on the Export tab."})
         return JSONResponse(data)
 
     @app.get("/api/scan/history")
