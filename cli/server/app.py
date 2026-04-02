@@ -112,7 +112,7 @@ function switchTab(name,btn){
 }
 function fetchAPI(url){
   if(_cache[url])return Promise.resolve(_cache[url]);
-  return fetch(url).then(function(r){return r.json()}).then(function(d){_cache[url]=d;return d});
+  return fetch(url).then(function(r){return r.json()}).then(function(d){_cache[url]=d;return d}).catch(function(e){console.error('fetchAPI error for '+url+':',e);return {error:e.message}});
 }
 function loadTab(name){
   var el=document.getElementById('tab-content');
@@ -294,9 +294,11 @@ function renderExport(data,el){
   el.innerHTML=h;
 }
 function exportJSON(){
-  var data=_cache['/api/scan/latest'];if(!data){showExportStatus('No scan data cached','#f87171');return}
+  showExportStatus('Preparing...','#22d3ee');
+  fetch('/api/scan/full').then(function(r){return r.json()}).then(function(data){if(!data||data.error){showExportStatus('No scan data','#f87171');return}
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='scanllm-report.json';a.click();URL.revokeObjectURL(a.href);showExportStatus('JSON downloaded!','#4ade80');
+  }).catch(function(){showExportStatus('Export failed','#f87171')});
 }
 function exportCSV(){
   var data=_cache['/api/scan/latest'];if(!data||!data.findings){showExportStatus('No findings to export','#f87171');return}
@@ -413,6 +415,39 @@ def create_app(repo_path: Path) -> Any:
         data = config.get_latest_scan()
         if data is None:
             return JSONResponse({"error": "No scans found. Click 'Run Scan' on the Export tab."})
+        # Trim findings for dashboard performance (keep full data for export)
+        findings = data.get("findings", [])
+        trimmed = []
+        for f in findings[:500]:
+            trimmed.append({
+                "file_path": f.get("file_path", ""),
+                "line_number": f.get("line_number"),
+                "pattern_name": f.get("pattern_name", ""),
+                "pattern_category": f.get("pattern_category", ""),
+                "severity": f.get("severity") or f.get("pattern_severity", "info"),
+                "provider": f.get("provider") or f.get("framework", ""),
+                "component_type": f.get("component_type", ""),
+                "owasp_id": f.get("owasp_id", ""),
+                "description": f.get("pattern_description") or f.get("description", ""),
+                "message": f.get("message", ""),
+                "model_name": f.get("model_name", ""),
+            })
+        response = {
+            "findings": trimmed,
+            "summary": data.get("summary", {}),
+            "risk": data.get("risk", {}),
+            "owasp": data.get("owasp", {}),
+            "graph": data.get("graph", {}),
+            "timestamp": data.get("timestamp", ""),
+        }
+        return JSONResponse(response)
+
+    @app.get("/api/scan/full")
+    async def full_scan():
+        """Full scan data for JSON/CSV export."""
+        data = config.get_latest_scan()
+        if data is None:
+            return JSONResponse({"error": "No scans found"})
         return JSONResponse(data)
 
     @app.get("/api/scan/history")
