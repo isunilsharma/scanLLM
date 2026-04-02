@@ -30,6 +30,9 @@ _DEFAULT_CONFIG = {
         "format": "table",
         "save_scans": True,
     },
+    "telemetry": {
+        "enabled": True,
+    },
 }
 
 _DEFAULT_IGNORE = """\

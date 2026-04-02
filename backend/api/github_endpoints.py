@@ -43,14 +43,23 @@ def get_github_token(user: GitHubUser, db: Session) -> str:
     return decrypt_token(token_obj.encrypted_token)
 
 @router.get("/user")
-async def get_user(user: GitHubUser = Depends(get_current_user)):
+async def get_user(user: GitHubUser = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Check admin status
+    admin = False
+    try:
+        from app.api.deps import is_admin as check_admin
+        admin = check_admin(user, db)
+    except Exception:
+        pass
+
     return {
         'id': user.id,
         'github_user_id': user.github_user_id,
         'login': user.login,
         'name': user.name,
         'email': user.email,
-        'avatar_url': user.avatar_url
+        'avatar_url': user.avatar_url,
+        'is_admin': admin,
     }
 
 @router.get("/repos")

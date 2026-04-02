@@ -33,6 +33,7 @@ class TelemetryEvent(Base):
     os_platform = Column(String(50))                       # "linux", "darwin", "win32"
     scanllm_version = Column(String(20))                   # "2.2.0"
     session_id = Column(String(64))                        # Anonymous UUID
+    providers_detected = Column(Text, nullable=True)       # JSON list of provider names
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 

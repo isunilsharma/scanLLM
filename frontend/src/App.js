@@ -20,6 +20,7 @@ import Settings from './pages/Settings';
 import PolicyEditor from './pages/PolicyEditor';
 import DriftView from './pages/DriftView';
 import CostInsights from './pages/CostInsights';
+import AdminTelemetry from './pages/AdminTelemetry';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import UserWorkflow from './pages/UserWorkflow';
@@ -126,6 +127,7 @@ function App() {
             <Route path="policy-editor" element={<PolicyEditor />} />
             <Route path="drift" element={<DriftView />} />
             <Route path="cost-insights" element={<CostInsights />} />
+            <Route path="telemetry" element={<AdminTelemetry />} />
             <Route path="settings" element={<Settings />} />
           </Route>
           

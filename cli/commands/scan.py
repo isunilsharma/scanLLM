@@ -26,7 +26,7 @@ BANNER = r"""[bold cyan]
   ███████║╚██████╗██║  ██║██║ ╚████║███████╗███████╗██║ ╚═╝ ██║
   ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝     ╚═╝
 [/bold cyan]
-  [dim]AI Dependency Intelligence[/dim] [bold white]v2.0.0[/bold white]
+  [dim]AI Dependency Intelligence[/dim]
 """
 
 
@@ -171,6 +171,23 @@ def scan(
             policy_result = _run_policy_check(policies_path, findings, scan_result, risk_result)
 
     elapsed = time.monotonic() - start_time
+
+    # Record telemetry (fire-and-forget)
+    try:
+        from cli.telemetry import record_event
+        providers_list = list((scan_result.get("summary", {}).get("providers", {})).keys())
+        config_obj = ScanLLMConfig(scan_path)
+        record_event(
+            event_type="scan",
+            command="scan",
+            scan_duration_ms=int(elapsed * 1000),
+            finding_count=len(scan_result.get("findings", [])),
+            risk_score=risk_result.get("overall_score") if risk_result else None,
+            providers=providers_list or None,
+            config_dir=config_obj.base_dir if config_obj.is_initialized() else None,
+        )
+    except Exception:
+        pass
 
     # Add metadata to scan result for saving
     scan_result["risk_score"] = risk_result.get("overall_score") if risk_result else None
@@ -334,7 +351,7 @@ def _output_cyclonedx(scan_result: dict[str, Any]) -> None:
             "tools": [{
                 "vendor": "ScanLLM",
                 "name": "scanllm",
-                "version": "2.0.0",
+                "version": __import__("core").__version__,
             }],
         },
         "components": [],

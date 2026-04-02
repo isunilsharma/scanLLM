@@ -106,3 +106,16 @@ def score(
     for i, (name, points, count, fix) in enumerate(sorted(active_breakdown, key=lambda x: -x[1])[:3], 1):
         console.print(f"    {i}. {fix} [dim](saves up to {points} points)[/dim]")
     console.print()
+
+    # Record telemetry
+    try:
+        from cli.telemetry import record_event
+        record_event(
+            event_type="score",
+            command="score",
+            risk_score=score_val,
+            finding_count=len(findings),
+            config_dir=config.base_dir,
+        )
+    except Exception:
+        pass

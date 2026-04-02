@@ -46,6 +46,9 @@ try:
         # Token encryption
         TOKEN_ENCRYPTION_KEY: str = ""
 
+        # Admin users (comma-separated emails)
+        ADMIN_EMAILS: str = ""
+
         class Config:
             env_file = str(BACKEND_DIR / ".env")
             env_file_encoding = "utf-8"
@@ -93,6 +96,9 @@ except ImportError:
             # Token encryption
             self.TOKEN_ENCRYPTION_KEY: str = os.getenv("TOKEN_ENCRYPTION_KEY", "")
 
+            # Admin users (comma-separated emails)
+            self.ADMIN_EMAILS: str = os.getenv("ADMIN_EMAILS", "")
+
             # Load YAML configs for backward compatibility
             self._yaml_config: Optional[object] = None
             self._load_yaml_configs()
@@ -122,3 +128,8 @@ except ImportError:
 
 # Singleton instance
 settings = Settings()
+
+
+def get_admin_emails() -> List[str]:
+    """Return ADMIN_EMAILS as a lowercase list."""
+    return [e.strip().lower() for e in settings.ADMIN_EMAILS.split(",") if e.strip()]

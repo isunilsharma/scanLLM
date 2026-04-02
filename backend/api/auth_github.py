@@ -22,6 +22,46 @@ class ExchangeRequest(BaseModel):
     code: str
     state: str
 
+
+def _ensure_admin_membership(github_user, db):
+    """If user's email is in ADMIN_EMAILS, create owner Membership (best-effort)."""
+    try:
+        from app.config import get_admin_emails
+        admin_emails = get_admin_emails()
+        if not admin_emails or not github_user.email:
+            return
+        if github_user.email.lower() not in admin_emails:
+            return
+
+        from models.organization import Organization, Membership
+        # Find or create default org
+        org = db.query(Organization).filter(Organization.slug == "scanllm-default").first()
+        if not org:
+            import uuid
+            org = Organization(id=str(uuid.uuid4()), name="ScanLLM", slug="scanllm-default")
+            db.add(org)
+            db.flush()
+
+        # Find or create membership
+        existing = (
+            db.query(Membership)
+            .filter(Membership.user_id == github_user.id, Membership.organization_id == org.id)
+            .first()
+        )
+        if not existing:
+            import uuid
+            membership = Membership(
+                id=str(uuid.uuid4()),
+                organization_id=org.id,
+                user_id=github_user.id,
+                role="owner",
+            )
+            db.add(membership)
+            db.commit()
+            logger.info("Admin membership created for %s", github_user.email)
+    except Exception as exc:
+        logger.warning("Failed to assign admin membership (non-fatal): %s", exc)
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -135,7 +175,10 @@ async def exchange_github_code(request: ExchangeRequest, db: Session = Depends(g
         logger.info(f"✓ User created: {github_user.id}")
     else:
         logger.info(f"✓ Existing user found: {github_user.id}")
-    
+
+    # Auto-assign admin if email matches
+    _ensure_admin_membership(github_user, db)
+
     # Store encrypted GitHub token
     logger.info("Storing encrypted GitHub access token...")
     existing_token = db.query(GitHubToken).filter(GitHubToken.github_user_id == github_user.id).first()
@@ -246,7 +289,10 @@ async def github_callback(code: str, state: str, db: Session = Depends(get_db)):
         logger.info(f"✓ User created: {github_user.id}")
     else:
         logger.info(f"✓ Existing user found: {github_user.id}")
-    
+
+    # Auto-assign admin if email matches
+    _ensure_admin_membership(github_user, db)
+
     # Store token
     logger.info("Storing encrypted GitHub token...")
     existing_token = db.query(GitHubToken).filter(GitHubToken.github_user_id == github_user.id).first()
