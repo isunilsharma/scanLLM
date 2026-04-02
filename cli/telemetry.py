@@ -92,7 +92,7 @@ def record_event(
             payload["providers_detected"] = providers
 
         # Try to post to backend
-        backend_url = os.environ.get("SCANLLM_BACKEND_URL", "")
+        backend_url = os.environ.get("SCANLLM_BACKEND_URL", "https://scanllm-backend.onrender.com")
         if backend_url:
             try:
                 import urllib.request
