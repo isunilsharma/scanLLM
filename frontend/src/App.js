@@ -22,7 +22,6 @@ import DriftView from './pages/DriftView';
 import CostInsights from './pages/CostInsights';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
-import Architecture from './pages/Architecture';
 import UserWorkflow from './pages/UserWorkflow';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -84,13 +83,6 @@ function App() {
             <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-1"><Terms /></main>
-              <Footer />
-            </div>
-          } />
-          <Route path="/architecture" element={
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-1"><Architecture /></main>
               <Footer />
             </div>
           } />
