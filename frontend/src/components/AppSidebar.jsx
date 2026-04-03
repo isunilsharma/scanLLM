@@ -72,7 +72,6 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
   }, [onClose]);
 
   const handleNewScan = () => {
-    // Navigate to the first repo or a scan page
     if (repos.length > 0) {
       navigate(`/app/repo/${repos[0].owner}/${repos[0].name}`);
     }
@@ -91,12 +90,12 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
   };
 
   return (
-    <div className="w-full h-full bg-white border-r border-gray-200 flex flex-col">
+    <div className="w-full h-full bg-zinc-950 border-r border-zinc-800/50 flex flex-col">
       {/* Mobile Close Button */}
       {onClose && (
         <button
           onClick={onClose}
-          className="md:hidden absolute top-4 right-4 p-2 text-gray-600 hover:text-gray-900 z-10"
+          className="md:hidden absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-100 z-10"
           aria-label="Close menu"
         >
           <X size={20} />
@@ -104,7 +103,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
       )}
 
       {/* Logo Header */}
-      <div className="p-4 border-b border-gray-100">
+      <div className="p-4 border-b border-zinc-800">
         <Link to="/app" className="block">
           <Logo size="default" />
         </Link>
@@ -126,7 +125,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
       {/* Search */}
       <div className="px-4 pb-3">
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
           <Input
             placeholder="Search repos..."
             value={search}
@@ -145,8 +144,8 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
               onClick={() => setFilter(f)}
               className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                 filter === f
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
               }`}
             >
               {f === 'private' && <Lock size={10} />}
@@ -161,7 +160,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
 
       {/* Section Header */}
       <div className="px-4 pt-3 pb-1">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
           Your Repositories
         </p>
       </div>
@@ -172,15 +171,15 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
           {loading ? (
             <div className="space-y-1.5 p-2">
               {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="h-14 bg-gray-100 rounded-lg animate-pulse" />
+                <div key={i} className="h-14 bg-zinc-800 rounded-lg animate-pulse" />
               ))}
             </div>
           ) : repos.length === 0 ? (
             <div className="p-4 text-center">
-              <p className="text-sm text-gray-500">No repositories found</p>
+              <p className="text-sm text-zinc-500">No repositories found</p>
             </div>
           ) : filteredRepos.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 text-sm">
+            <div className="text-center py-8 text-zinc-500 text-sm">
               <p>No repositories found</p>
             </div>
           ) : (
@@ -196,24 +195,23 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
                     }}
                     className={`w-full text-left p-3 rounded-lg transition-all group ${
                       active
-                        ? 'bg-blue-50 border border-blue-200'
-                        : 'hover:bg-gray-50 border border-transparent'
+                        ? 'bg-cyan-500/10 border border-cyan-500/30'
+                        : 'hover:bg-zinc-800/50 border border-transparent'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="font-medium text-sm text-gray-900 truncate">
+                          <h3 className="font-medium text-sm text-zinc-100 truncate">
                             {repo.name}
                           </h3>
                           {repo.private && (
-                            <Lock size={10} className="text-slate-400 flex-shrink-0" />
+                            <Lock size={10} className="text-zinc-500 flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-400 truncate">{repo.owner}</p>
+                        <p className="text-xs text-zinc-500 truncate">{repo.owner}</p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* Risk score placeholder - populated when scan data available */}
                         {repo.last_risk_score != null && (
                           <Badge
                             variant={repo.last_risk_score <= 40 ? 'default' : repo.last_risk_score <= 60 ? 'secondary' : 'destructive'}
@@ -225,7 +223,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
                         )}
                         <ChevronRight
                           size={14}
-                          className={`text-slate-300 transition-transform ${active ? 'text-blue-400' : 'group-hover:translate-x-0.5'}`}
+                          className={`text-zinc-600 transition-transform ${active ? 'text-cyan-400' : 'group-hover:translate-x-0.5'}`}
                         />
                       </div>
                     </div>
@@ -240,33 +238,33 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
       {/* Sidebar Footer */}
       <Separator />
       <div className="p-3 space-y-0.5">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
+        <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider px-3 mb-2">
           Quick Links
         </p>
         <Link
           to="/app/history"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-cyan-400 hover:bg-zinc-800/50 rounded-md transition-colors"
         >
           <History size={14} />
           Scan History
         </Link>
         <Link
           to="/app/policy-editor"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-cyan-400 hover:bg-zinc-800/50 rounded-md transition-colors"
         >
           <FileEdit size={14} />
           Policy Editor
         </Link>
         <Link
           to="/app/drift"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-cyan-400 hover:bg-zinc-800/50 rounded-md transition-colors"
         >
           <GitCompare size={14} />
           Drift Detection
         </Link>
         <Link
           to="/app/cost-insights"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-cyan-400 hover:bg-zinc-800/50 rounded-md transition-colors"
         >
           <DollarSign size={14} />
           Cost Insights
@@ -274,7 +272,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
         {user?.is_admin && (
           <Link
             to="/app/telemetry"
-            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-cyan-400 hover:bg-zinc-800/50 rounded-md transition-colors"
           >
             <BarChart3 size={14} />
             Telemetry
@@ -282,7 +280,7 @@ const AppSidebar = ({ onRepoSelect, onClose }) => {
         )}
         <Link
           to="/app/settings"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary hover:bg-slate-50 rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-400 hover:text-cyan-400 hover:bg-zinc-800/50 rounded-md transition-colors"
         >
           <Settings size={14} />
           Settings

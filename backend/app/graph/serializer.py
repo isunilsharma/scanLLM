@@ -3,7 +3,11 @@ Graph serializer for ScanLLM.
 
 Converts a ``networkx.DiGraph`` into the JSON structure consumed by
 React Flow on the frontend, including automatic layout positioning
-via a simple layered (dagre-style) algorithm.
+via a category-based layered algorithm.
+
+Supports both flat and clustered graphs.  Clustered nodes include
+``children``, ``is_cluster``, and ``model_count`` in their data
+payload so the frontend can render expandable provider badges.
 """
 
 from __future__ import annotations
@@ -16,10 +20,25 @@ import networkx as nx
 logger = logging.getLogger(__name__)
 
 # Layout constants
-_NODE_WIDTH = 220
-_NODE_HEIGHT = 80
-_HORIZONTAL_GAP = 280
-_VERTICAL_GAP = 120
+_NODE_WIDTH = 240
+_NODE_HEIGHT = 90
+_HORIZONTAL_GAP = 320
+_VERTICAL_GAP = 140
+
+# Category ordering for deterministic left-to-right layout.
+# Categories earlier in the list appear further left.
+_CATEGORY_LAYER: dict[str, int] = {
+    "config_reference": 0,
+    "secret": 0,
+    "ai_package": 1,
+    "orchestration_framework": 1,
+    "agent_tool": 2,
+    "mcp_server": 2,
+    "llm_provider": 3,
+    "embedding_service": 3,
+    "inference_server": 3,
+    "vector_db": 4,
+}
 
 
 class GraphSerializer:
@@ -31,9 +50,9 @@ class GraphSerializer:
         The output contains ``nodes`` and ``edges`` lists ready for
         direct consumption by ``<ReactFlow>`` on the frontend.
 
-        Layout is computed via a simplified layered layout algorithm
-        that assigns layers using topological ordering (falling back
-        to BFS layering when the graph contains cycles).
+        Layout is computed using a category-based layered algorithm
+        that groups nodes by their component type into vertical columns,
+        producing a clean left-to-right flow.
 
         Parameters
         ----------
@@ -64,11 +83,11 @@ class GraphSerializer:
     # ------------------------------------------------------------------
 
     def _compute_layout(self, graph: nx.DiGraph) -> dict[str, dict[str, float]]:
-        """Assign (x, y) positions using a layered layout.
+        """Assign (x, y) positions using a category-based layered layout.
 
-        1. Assign each node to a layer (depth from sources).
+        1. Assign each node to a layer based on its component type.
         2. Within each layer, space nodes vertically.
-        3. Layers are spaced horizontally (left → right).
+        3. Layers are spaced horizontally (left -> right).
         """
         layers = self._assign_layers(graph)
 
@@ -102,42 +121,15 @@ class GraphSerializer:
     def _assign_layers(graph: nx.DiGraph) -> dict[str, int]:
         """Assign a layer index to every node.
 
-        Uses topological sort for DAGs.  For graphs with cycles, uses
-        BFS from roots (nodes with in-degree 0), then assigns remaining
-        nodes to the max-predecessor-layer + 1.
+        Uses the node's component type to determine its layer via the
+        ``_CATEGORY_LAYER`` mapping.  This produces a stable, readable
+        layout regardless of graph topology.  Nodes with unknown types
+        are placed in layer 0.
         """
-        if nx.is_directed_acyclic_graph(graph):
-            layers: dict[str, int] = {}
-            for nid in nx.topological_sort(graph):
-                pred_layers = [layers[p] for p in graph.predecessors(nid) if p in layers]
-                layers[nid] = (max(pred_layers) + 1) if pred_layers else 0
-            return layers
-
-        # Fallback: BFS from roots.
-        layers = {}
-        roots = [n for n in graph.nodes() if graph.in_degree(n) == 0]
-        if not roots:
-            # No roots — pick the node with the highest out-degree as root.
-            roots = [max(graph.nodes(), key=lambda n: graph.out_degree(n))]
-
-        visited: set[str] = set()
-        queue: list[tuple[str, int]] = [(r, 0) for r in roots]
-        for r in roots:
-            visited.add(r)
-
-        while queue:
-            nid, depth = queue.pop(0)
-            layers[nid] = max(layers.get(nid, 0), depth)
-            for succ in graph.successors(nid):
-                if succ not in visited:
-                    visited.add(succ)
-                    queue.append((succ, depth + 1))
-
-        # Any disconnected nodes get layer 0.
-        for nid in graph.nodes():
-            if nid not in layers:
-                layers[nid] = 0
-
+        layers: dict[str, int] = {}
+        for nid, data in graph.nodes(data=True):
+            ctype = data.get("type", "unknown")
+            layers[nid] = _CATEGORY_LAYER.get(ctype, 0)
         return layers
 
     # ------------------------------------------------------------------
@@ -149,11 +141,18 @@ class GraphSerializer:
         graph: nx.DiGraph,
         positions: dict[str, dict[str, float]],
     ) -> list[dict[str, Any]]:
-        """Convert graph nodes to React Flow node objects."""
+        """Convert graph nodes to React Flow node objects.
+
+        Clustered nodes include ``children``, ``is_cluster``, and
+        ``model_count`` fields in their data payload.
+        """
         nodes: list[dict[str, Any]] = []
         for nid, data in graph.nodes(data=True):
             pos = positions.get(nid, {"x": 0.0, "y": 0.0})
             node_type = data.get("type", "default")
+            children = data.get("children", [])
+            is_cluster = data.get("is_cluster", False)
+            files = data.get("files", [])
 
             react_node: dict[str, Any] = {
                 "id": nid,
@@ -162,10 +161,14 @@ class GraphSerializer:
                 "data": {
                     "label": data.get("label", nid),
                     "provider": data.get("provider", ""),
-                    "files": data.get("files", []),
+                    "files": files,
+                    "file_count": len(files),
                     "risk_score": data.get("risk_score", 0),
                     "component_type": node_type,
                     "metadata": data.get("metadata", {}),
+                    "children": children,
+                    "is_cluster": is_cluster,
+                    "model_count": len(children) if is_cluster else 0,
                 },
             }
             nodes.append(react_node)

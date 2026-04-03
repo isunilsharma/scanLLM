@@ -3,6 +3,12 @@ Dependency graph builder for ScanLLM.
 
 Constructs a networkx DiGraph from scanner findings, representing
 AI components as nodes and their relationships as edges.
+
+Supports two modes:
+- **flat** (original): every unique component is its own node.
+- **clustered** (default): model-level nodes are grouped under their
+  provider, producing a much more readable graph for repos with many
+  model references.
 """
 
 from __future__ import annotations
@@ -21,6 +27,12 @@ logger = logging.getLogger(__name__)
 def _node_id(component_type: str, provider: str, label: str) -> str:
     """Generate a deterministic node ID from component attributes."""
     raw = f"{component_type}::{provider}::{label}".lower()
+    return hashlib.sha256(raw.encode()).hexdigest()[:12]
+
+
+def _cluster_node_id(component_type: str, provider: str) -> str:
+    """Generate a deterministic node ID for a provider-level cluster node."""
+    raw = f"cluster::{component_type}::{provider}".lower()
     return hashlib.sha256(raw.encode()).hexdigest()[:12]
 
 
@@ -59,6 +71,10 @@ _TOOL_TYPES = {"agent_tool", "mcp_server"}
 _FRAMEWORK_TYPES = {"orchestration_framework"}
 _PROVIDER_TYPES = {"llm_provider", "embedding_service", "inference_server"}
 
+# Component types whose nodes should be clustered by provider when they
+# have multiple model-level variants (e.g. "openai gpt-4o", "openai o1-mini").
+_CLUSTERABLE_TYPES = {"llm_provider", "embedding_service", "inference_server"}
+
 
 class GraphBuilder:
     """Builds a ``networkx.DiGraph`` from a list of scanner findings.
@@ -68,7 +84,12 @@ class GraphBuilder:
     agent-tool bindings.
     """
 
-    def build(self, findings: list[dict[str, Any]]) -> nx.DiGraph:
+    def build(
+        self,
+        findings: list[dict[str, Any]],
+        *,
+        clustered: bool = True,
+    ) -> nx.DiGraph:
         """Construct the dependency graph.
 
         Parameters
@@ -79,18 +100,35 @@ class GraphBuilder:
             ``framework``, ``pattern_category``, ``pattern_name``,
             ``component_type``, ``provider``, ``model_name``.
             Additional optional keys are preserved in node metadata.
+        clustered:
+            When *True* (default) model-level nodes for the same provider
+            are merged into a single provider-level cluster node.  The
+            individual model names are stored in the node's ``children``
+            list.  Set to *False* for the original flat behaviour.
 
         Returns
         -------
         nx.DiGraph
             The constructed dependency graph.
         """
+        # Always build the flat graph first.
+        flat_graph = self._build_flat(findings)
+
+        if not clustered:
+            return flat_graph
+
+        return self._collapse_to_clusters(flat_graph)
+
+    # ------------------------------------------------------------------
+    # Flat graph construction (original logic)
+    # ------------------------------------------------------------------
+
+    def _build_flat(self, findings: list[dict[str, Any]]) -> nx.DiGraph:
+        """Build the original per-component flat graph."""
         graph = nx.DiGraph()
 
         # ---- Phase 1: Create nodes ------------------------------------------
-        # Accumulate file references per logical node.
         node_map: dict[str, dict[str, Any]] = {}
-        # Track which nodes appear in which files and modules.
         file_to_nodes: dict[str, list[str]] = defaultdict(list)
         module_to_nodes: dict[str, list[str]] = defaultdict(list)
 
@@ -144,7 +182,7 @@ class GraphBuilder:
         for nid, ndata in node_map.items():
             graph.add_node(nid, **ndata)
 
-        logger.info("Graph built with %d nodes from %d findings", len(node_map), len(findings))
+        logger.info("Flat graph built with %d nodes from %d findings", len(node_map), len(findings))
 
         # ---- Phase 2: Build edges -------------------------------------------
         edge_set: set[tuple[str, str, str]] = set()
@@ -159,8 +197,138 @@ class GraphBuilder:
             weight = self._edge_weight(rel)
             graph.add_edge(src, tgt, relationship_type=rel, weight=weight)
 
-        logger.info("Graph has %d edges", graph.number_of_edges())
+        logger.info("Flat graph has %d edges", graph.number_of_edges())
         return graph
+
+    # ------------------------------------------------------------------
+    # Clustered graph construction
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _collapse_to_clusters(flat_graph: nx.DiGraph) -> nx.DiGraph:
+        """Collapse model-level nodes into provider-level cluster nodes.
+
+        For each provider that has multiple model-level nodes (e.g.
+        ``openai gpt-4o``, ``openai o1-mini``), create a single cluster
+        node with all model names stored in ``children``.  Non-clusterable
+        node types (frameworks, vector DBs, agents, secrets, etc.) remain
+        as individual nodes.
+
+        Edges are re-mapped so they connect cluster nodes.  Co-located
+        edges between nodes that map to the *same* cluster are dropped.
+        """
+        clustered = nx.DiGraph()
+
+        # Step 1: Decide which flat nodes map to which cluster node.
+        # flat_nid -> cluster_nid (or same nid if not clustered)
+        nid_to_cluster: dict[str, str] = {}
+        cluster_data: dict[str, dict[str, Any]] = {}
+
+        for nid, data in flat_graph.nodes(data=True):
+            ctype = data.get("type", "unknown")
+            provider = (data.get("provider") or "").strip().lower()
+
+            # Only cluster types that tend to have many model variants
+            # AND have a non-empty provider.
+            if ctype in _CLUSTERABLE_TYPES and provider:
+                cid = _cluster_node_id(ctype, provider)
+                nid_to_cluster[nid] = cid
+
+                if cid not in cluster_data:
+                    # Use the provider name (title-cased) as the label.
+                    display_label = provider.replace("_", " ").title()
+                    cluster_data[cid] = {
+                        "id": cid,
+                        "type": ctype,
+                        "label": display_label,
+                        "provider": provider,
+                        "files": [],
+                        "children": [],
+                        "metadata": {},
+                        "risk_score": 0,
+                        "is_cluster": True,
+                    }
+
+                cd = cluster_data[cid]
+                # Merge model names into children list.
+                model_names = data.get("metadata", {}).get("model_name", [])
+                if isinstance(model_names, list):
+                    for m in model_names:
+                        if m and m not in cd["children"]:
+                            cd["children"].append(m)
+                # If the flat node label contains a model name not yet tracked
+                label = data.get("label", "")
+                if label and label != cd["label"] and label not in cd["children"]:
+                    cd["children"].append(label)
+
+                # Merge files.
+                for fref in data.get("files", []):
+                    if fref not in cd["files"]:
+                        cd["files"].append(fref)
+
+                # Merge metadata.
+                for key, vals in data.get("metadata", {}).items():
+                    cd["metadata"].setdefault(key, [])
+                    if isinstance(vals, list):
+                        for v in vals:
+                            if v not in cd["metadata"][key]:
+                                cd["metadata"][key].append(v)
+                    else:
+                        if vals not in cd["metadata"][key]:
+                            cd["metadata"][key].append(vals)
+
+                # Take the max risk score.
+                cd["risk_score"] = max(cd["risk_score"], data.get("risk_score", 0))
+            else:
+                # Non-clusterable: keep as-is.
+                nid_to_cluster[nid] = nid
+                cluster_data[nid] = dict(data)
+                cluster_data[nid]["is_cluster"] = False
+
+        # Sort children alphabetically for stability.
+        for cd in cluster_data.values():
+            if "children" in cd:
+                cd["children"] = sorted(cd["children"])
+
+        # Step 2: Add nodes to the clustered graph.
+        for cid, cdata in cluster_data.items():
+            clustered.add_node(cid, **cdata)
+
+        # Step 3: Re-map edges, dropping self-loops and co-located-only
+        # edges between nodes of the same category.
+        edge_set: set[tuple[str, str, str]] = set()
+
+        for src, tgt, data in flat_graph.edges(data=True):
+            csrc = nid_to_cluster.get(src, src)
+            ctgt = nid_to_cluster.get(tgt, tgt)
+            rel = data.get("relationship_type", "related")
+
+            # Drop self-loops created by clustering.
+            if csrc == ctgt:
+                continue
+
+            # Drop co-located edges between nodes of the same component
+            # category -- these create the hairball.
+            if rel == "co-located":
+                src_type = cluster_data.get(csrc, {}).get("type", "")
+                tgt_type = cluster_data.get(ctgt, {}).get("type", "")
+                if src_type == tgt_type:
+                    continue
+
+            edge_set.add((csrc, ctgt, rel))
+
+        for src, tgt, rel in edge_set:
+            weight = GraphBuilder._edge_weight(rel)
+            clustered.add_edge(src, tgt, relationship_type=rel, weight=weight)
+
+        logger.info(
+            "Clustered graph: %d nodes, %d edges (collapsed from %d flat nodes, %d flat edges)",
+            clustered.number_of_nodes(),
+            clustered.number_of_edges(),
+            flat_graph.number_of_nodes(),
+            flat_graph.number_of_edges(),
+        )
+        return clustered
 
     # ------------------------------------------------------------------
     # Edge-building helpers
@@ -203,7 +371,7 @@ class GraphBuilder:
         node_map: dict[str, dict[str, Any]],
         edge_set: set[tuple[str, str, str]],
     ) -> None:
-        """Embedding service + vector DB in the same file/module → feeds-into."""
+        """Embedding service + vector DB in the same file/module -> feeds-into."""
         for _fpath, nids in file_to_nodes.items():
             unique = list(dict.fromkeys(nids))
             embeddings = [n for n in unique if node_map[n]["type"] in _EMBEDDING_TYPES]
@@ -224,7 +392,7 @@ class GraphBuilder:
         node_map: dict[str, dict[str, Any]],
         edge_set: set[tuple[str, str, str]],
     ) -> None:
-        """Config-file references pointing to the same provider as code → configures."""
+        """Config-file references pointing to the same provider as code -> configures."""
         config_exts = {".yaml", ".yml", ".json", ".toml", ".env"}
         code_exts = {".py", ".js", ".ts", ".jsx", ".tsx"}
 
@@ -253,7 +421,7 @@ class GraphBuilder:
         node_map: dict[str, dict[str, Any]],
         edge_set: set[tuple[str, str, str]],
     ) -> None:
-        """Agent nodes with tool-type nodes in the same file → has-access-to."""
+        """Agent nodes with tool-type nodes in the same file -> has-access-to."""
         for _fpath, nids in file_to_nodes.items():
             unique = list(dict.fromkeys(nids))
             agents = [n for n in unique if node_map[n]["type"] in _AGENT_TYPES]

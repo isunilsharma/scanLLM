@@ -96,7 +96,8 @@ class TestCoLocationEdges:
     """Verify co-location edge detection."""
 
     def test_builds_co_location_edges(self):
-        """Two llm_provider nodes in the same file should produce a co-located edge."""
+        """Two llm_provider nodes in the same file should produce a co-located edge
+        in flat mode."""
         builder = GraphBuilder()
         findings = [
             _make_finding(provider="openai", component_type="llm_provider",
@@ -107,12 +108,33 @@ class TestCoLocationEdges:
                          file_path="src/main.py", line_number=5),
         ]
 
-        graph = builder.build(findings)
+        graph = builder.build(findings, clustered=False)
         assert graph.number_of_edges() >= 1, "Components in same file should have co-location edge"
 
         edges = list(graph.edges(data=True))
         co_located = [e for e in edges if e[2].get("relationship_type") == "co-located"]
         assert len(co_located) >= 1
+
+    def test_clustered_drops_same_type_co_location(self):
+        """Clustered mode drops co-located edges between same component types."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="openai", component_type="llm_provider",
+                         framework="OpenAI", pattern_name="openai_import",
+                         file_path="src/main.py", line_number=1),
+            _make_finding(provider="anthropic", component_type="llm_provider",
+                         framework="Anthropic", pattern_name="anthropic_import",
+                         file_path="src/main.py", line_number=5),
+        ]
+
+        graph = builder.build(findings, clustered=True)
+        co_located = [
+            e for e in graph.edges(data=True)
+            if e[2].get("relationship_type") == "co-located"
+        ]
+        assert len(co_located) == 0, (
+            "Clustered mode should drop co-located edges between same-type nodes"
+        )
 
     def test_no_edges_for_different_files(self):
         builder = GraphBuilder()
@@ -266,7 +288,8 @@ class TestEdgeWeights:
                          file_path="src/main.py", line_number=5),
         ]
 
-        graph = builder.build(findings)
+        # Use flat mode so same-type co-located edges are preserved.
+        graph = builder.build(findings, clustered=False)
         co_located_found = False
         for src, tgt, data in graph.edges(data=True):
             if data.get("relationship_type") == "co-located":
@@ -282,3 +305,103 @@ class TestEdgeWeights:
         assert GraphBuilder._edge_weight("co-located") == 0.3
         assert GraphBuilder._edge_weight("import-chain") == 0.5
         assert GraphBuilder._edge_weight("configures") == 0.4
+
+
+class TestClusteredMode:
+    """Verify clustered graph construction."""
+
+    def test_clusters_model_nodes_by_provider(self):
+        """Multiple models from the same provider should collapse into one cluster node."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-4o", file_path="src/a.py", line_number=1),
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-3.5-turbo", file_path="src/b.py", line_number=5),
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="o1-mini", file_path="src/c.py", line_number=10),
+        ]
+
+        graph = builder.build(findings, clustered=True)
+        assert graph.number_of_nodes() == 1, "3 openai models should cluster into 1 node"
+
+        nid, data = list(graph.nodes(data=True))[0]
+        assert data["is_cluster"] is True
+        assert len(data["children"]) == 3
+        assert len(data["files"]) == 3
+
+    def test_different_providers_stay_separate(self):
+        """Different providers should remain as separate cluster nodes."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-4o", file_path="src/a.py"),
+            _make_finding(provider="anthropic", component_type="llm_provider",
+                         model_name="claude-sonnet-4-20250514", file_path="src/b.py"),
+        ]
+
+        graph = builder.build(findings, clustered=True)
+        assert graph.number_of_nodes() == 2, "Different providers should remain separate"
+
+    def test_non_clusterable_types_stay_individual(self):
+        """Frameworks, vector DBs, agents should not be clustered."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="langchain", component_type="orchestration_framework",
+                         framework="LangChain", pattern_name="langchain_import",
+                         file_path="src/a.py"),
+            _make_finding(provider="chromadb", component_type="vector_db",
+                         framework="ChromaDB", pattern_name="chromadb_import",
+                         file_path="src/b.py"),
+        ]
+
+        graph = builder.build(findings, clustered=True)
+        for nid, data in graph.nodes(data=True):
+            assert data.get("is_cluster") is False, (
+                f"Node {data['label']} should not be clustered"
+            )
+
+    def test_clustered_self_loops_dropped(self):
+        """Edges between models of the same provider should be dropped after clustering."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-4o", file_path="src/main.py", line_number=1),
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-3.5-turbo", file_path="src/main.py", line_number=5),
+        ]
+
+        graph = builder.build(findings, clustered=True)
+        assert graph.number_of_nodes() == 1
+        assert graph.number_of_edges() == 0, "No self-loop edges after clustering"
+
+    def test_flat_mode_backward_compatible(self):
+        """Passing clustered=False should produce the original flat graph."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-4o", file_path="src/a.py"),
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-3.5-turbo", file_path="src/b.py"),
+        ]
+
+        flat_graph = builder.build(findings, clustered=False)
+        # In flat mode the two model findings have different labels so
+        # they produce 2 distinct nodes.
+        assert flat_graph.number_of_nodes() == 2
+
+    def test_cluster_children_sorted(self):
+        """Children list should be sorted alphabetically for determinism."""
+        builder = GraphBuilder()
+        findings = [
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="o1-mini", file_path="src/a.py"),
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-4o", file_path="src/b.py"),
+            _make_finding(provider="openai", component_type="llm_provider",
+                         model_name="gpt-3.5-turbo", file_path="src/c.py"),
+        ]
+
+        graph = builder.build(findings, clustered=True)
+        nid, data = list(graph.nodes(data=True))[0]
+        assert data["children"] == sorted(data["children"])

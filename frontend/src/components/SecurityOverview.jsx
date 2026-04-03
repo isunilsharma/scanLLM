@@ -47,8 +47,8 @@ const SecurityOverview = ({ riskScore, owaspData, graphAnalysis, loading = false
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={18} className="text-slate-600" />
-            <h3 className="text-sm font-semibold text-slate-800">OWASP LLM Coverage</h3>
+            <Shield size={18} className="text-zinc-400" />
+            <h3 className="text-sm font-semibold text-zinc-200">OWASP LLM Coverage</h3>
           </div>
 
           <div className="space-y-3">
@@ -56,48 +56,48 @@ const SecurityOverview = ({ riskScore, owaspData, graphAnalysis, loading = false
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 min-w-[80px]">
                 <ShieldCheck size={14} className="text-green-500" />
-                <span className="text-xs text-slate-600">Clear</span>
+                <span className="text-xs text-zinc-400">Clear</span>
               </div>
-              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-green-500 rounded-full transition-all"
                   style={{ width: `${(owaspClear / owaspTotal) * 100}%` }}
                 />
               </div>
-              <span className="text-xs font-semibold text-slate-700 min-w-[20px] text-right">{owaspClear}</span>
+              <span className="text-xs font-semibold text-zinc-300 min-w-[20px] text-right">{owaspClear}</span>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 min-w-[80px]">
                 <AlertTriangle size={14} className="text-amber-500" />
-                <span className="text-xs text-slate-600">Partial</span>
+                <span className="text-xs text-zinc-400">Partial</span>
               </div>
-              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-amber-400 rounded-full transition-all"
                   style={{ width: `${(owaspPartial / owaspTotal) * 100}%` }}
                 />
               </div>
-              <span className="text-xs font-semibold text-slate-700 min-w-[20px] text-right">{owaspPartial}</span>
+              <span className="text-xs font-semibold text-zinc-300 min-w-[20px] text-right">{owaspPartial}</span>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 min-w-[80px]">
                 <ShieldAlert size={14} className="text-red-500" />
-                <span className="text-xs text-slate-600">Detected</span>
+                <span className="text-xs text-zinc-400">Detected</span>
               </div>
-              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-red-500 rounded-full transition-all"
                   style={{ width: `${(owaspDetected / owaspTotal) * 100}%` }}
                 />
               </div>
-              <span className="text-xs font-semibold text-slate-700 min-w-[20px] text-right">{owaspDetected}</span>
+              <span className="text-xs font-semibold text-zinc-300 min-w-[20px] text-right">{owaspDetected}</span>
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100">
-            <p className="text-xs text-slate-500">
+          <div className="mt-4 pt-3 border-t border-zinc-800">
+            <p className="text-xs text-zinc-500">
               {owaspTotal} categories scanned
               {owaspDetected === 0 && owaspPartial === 0 && (
                 <span className="text-green-600 font-medium ml-1">- All clear</span>
@@ -111,34 +111,34 @@ const SecurityOverview = ({ riskScore, owaspData, graphAnalysis, loading = false
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Activity size={18} className="text-slate-600" />
-            <h3 className="text-sm font-semibold text-slate-800">Key Findings</h3>
+            <Activity size={18} className="text-zinc-400" />
+            <h3 className="text-sm font-semibold text-zinc-200">Key Findings</h3>
           </div>
 
           <div className="space-y-3">
             {/* Critical Findings */}
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-red-50 border border-red-100">
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-red-500/10 border border-red-500/20">
               <div className="flex items-center gap-2">
                 <Zap size={14} className="text-red-500" />
-                <span className="text-xs font-medium text-slate-700">Critical Findings</span>
+                <span className="text-xs font-medium text-zinc-300">Critical Findings</span>
               </div>
               <span className="text-sm font-bold text-red-600">{criticalFindings}</span>
             </div>
 
             {/* Secrets Found */}
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-50 border border-amber-100">
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
               <div className="flex items-center gap-2">
                 <KeyRound size={14} className="text-amber-500" />
-                <span className="text-xs font-medium text-slate-700">Secrets Found</span>
+                <span className="text-xs font-medium text-zinc-300">Secrets Found</span>
               </div>
               <span className="text-sm font-bold text-amber-600">{secretsFound}</span>
             </div>
 
             {/* Concentration Risk */}
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-100">
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
               <div className="flex items-center gap-2">
                 <Target size={14} className="text-blue-500" />
-                <span className="text-xs font-medium text-slate-700">Concentration Risk</span>
+                <span className="text-xs font-medium text-zinc-300">Concentration Risk</span>
               </div>
               {concentrationRisk != null ? (
                 <Badge
@@ -148,13 +148,13 @@ const SecurityOverview = ({ riskScore, owaspData, graphAnalysis, loading = false
                   {typeof concentrationRisk === 'string' ? concentrationRisk.toUpperCase() : `${concentrationRisk}%`}
                 </Badge>
               ) : (
-                <span className="text-xs text-slate-400">N/A</span>
+                <span className="text-xs text-zinc-500">N/A</span>
               )}
             </div>
 
             {/* Graph Stats */}
             {(totalNodes > 0 || totalEdges > 0) && (
-              <div className="pt-2 border-t border-slate-100 flex items-center gap-4 text-xs text-slate-500">
+              <div className="pt-2 border-t border-zinc-800 flex items-center gap-4 text-xs text-zinc-500">
                 <span>{totalNodes} component{totalNodes !== 1 ? 's' : ''}</span>
                 <span>{totalEdges} connection{totalEdges !== 1 ? 's' : ''}</span>
               </div>

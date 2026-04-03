@@ -55,8 +55,8 @@ class ScanLLMConfig:
 
     SCANLLM_DIR = ".scanllm"
 
-    def __init__(self, repo_path: Path | None = None) -> None:
-        self.repo_path = repo_path or Path.cwd()
+    def __init__(self, repo_path: Path | str | None = None) -> None:
+        self.repo_path = Path(repo_path) if repo_path else Path.cwd()
         self.scanllm_dir = self.repo_path / self.SCANLLM_DIR
 
     # ── Queries ──────────────────────────────────────────────────────
@@ -143,6 +143,13 @@ class ScanLLMConfig:
                     "risk_score": data.get("risk_score"),
                 })
         return history
+
+    def get_scan_by_id(self, scan_id: str) -> dict[str, Any] | None:
+        """Load a specific scan by its timestamp ID (e.g. '20260403T180000Z')."""
+        for scan_file in self._scan_files():
+            if scan_id in scan_file.stem:
+                return self._load_json(scan_file)
+        return None
 
     # ── Policy helpers ───────────────────────────────────────────────
 

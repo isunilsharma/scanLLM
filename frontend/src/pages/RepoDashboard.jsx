@@ -22,10 +22,10 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const STATUS_BADGE = {
-  SUCCESS: { variant: 'default', icon: CheckCircle, className: 'bg-green-100 text-green-800 border-green-200' },
-  FAILED: { variant: 'destructive', icon: XCircle, className: 'bg-red-100 text-red-800 border-red-200' },
-  RUNNING: { variant: 'secondary', icon: Loader2, className: 'bg-blue-100 text-blue-800 border-blue-200' },
-  PENDING: { variant: 'secondary', icon: Clock, className: 'bg-slate-100 text-slate-800 border-slate-200' },
+  SUCCESS: { variant: 'default', icon: CheckCircle, className: 'bg-green-500/10 text-green-400 border-green-500/20' },
+  FAILED: { variant: 'destructive', icon: XCircle, className: 'bg-red-500/10 text-red-400 border-red-500/20' },
+  RUNNING: { variant: 'secondary', icon: Loader2, className: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  PENDING: { variant: 'secondary', icon: Clock, className: 'bg-zinc-800 text-zinc-300 border-zinc-700' },
 };
 
 const RepoDashboard = () => {
@@ -115,12 +115,12 @@ const RepoDashboard = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{owner}/{repo}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-zinc-100">{owner}/{repo}</h1>
               <a
                 href={`https://github.com/${owner}/${repo}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-zinc-500 hover:text-zinc-300 transition-colors"
               >
                 <ExternalLink size={18} />
               </a>
@@ -162,9 +162,9 @@ const RepoDashboard = () => {
                 <RiskScoreGauge score={latestRiskScore} compact={false} />
               ) : (
                 <div className="text-center">
-                  <Shield size={40} className="text-slate-200 mx-auto mb-3" />
-                  <p className="text-sm text-slate-500">No risk data yet</p>
-                  <p className="text-xs text-slate-400">Run a scan to see your risk score</p>
+                  <Shield size={40} className="text-zinc-600 mx-auto mb-3" />
+                  <p className="text-sm text-zinc-500">No risk data yet</p>
+                  <p className="text-xs text-zinc-500">Run a scan to see your risk score</p>
                 </div>
               )}
             </CardContent>
@@ -174,7 +174,7 @@ const RepoDashboard = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Shield size={16} className="text-slate-500" />
+                <Shield size={16} className="text-zinc-500" />
                 OWASP LLM Coverage
               </CardTitle>
             </CardHeader>
@@ -189,7 +189,7 @@ const RepoDashboard = () => {
                 <div className="space-y-2">
                   {(latestOwaspData.categories || []).slice(0, 5).map((cat) => (
                     <div key={cat.id} className="flex items-center justify-between text-xs">
-                      <span className="text-slate-600">{cat.id}: {cat.name}</span>
+                      <span className="text-zinc-400">{cat.id}: {cat.name}</span>
                       {cat.status === 'detected' ? (
                         <XCircle size={14} className="text-red-500" />
                       ) : cat.status === 'partially' ? (
@@ -200,15 +200,15 @@ const RepoDashboard = () => {
                     </div>
                   ))}
                   {(latestOwaspData.categories || []).length > 5 && (
-                    <p className="text-[10px] text-slate-400 pt-1">
+                    <p className="text-[10px] text-zinc-500 pt-1">
                       +{(latestOwaspData.categories || []).length - 5} more categories
                     </p>
                   )}
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm text-slate-500">No OWASP data</p>
-                  <p className="text-xs text-slate-400">Run a full scan to see coverage</p>
+                  <p className="text-sm text-zinc-500">No OWASP data</p>
+                  <p className="text-xs text-zinc-500">Run a full scan to see coverage</p>
                 </div>
               )}
             </CardContent>
@@ -218,14 +218,14 @@ const RepoDashboard = () => {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Play size={16} className="text-slate-500" />
+                <Play size={16} className="text-zinc-500" />
                 Run a Scan
               </CardTitle>
               <CardDescription>Configure and start a new scan</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block">Branch</label>
+                <label className="text-xs font-medium text-zinc-400 mb-1.5 block">Branch</label>
                 <Input
                   type="text"
                   value={branch}
@@ -237,10 +237,10 @@ const RepoDashboard = () => {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <label htmlFor="full-scan-switch" className="text-xs font-medium text-slate-700 block">
+                  <label htmlFor="full-scan-switch" className="text-xs font-medium text-zinc-300 block">
                     Full Scan
                   </label>
-                  <p className="text-[10px] text-slate-400">Scan entire repository</p>
+                  <p className="text-[10px] text-zinc-500">Scan entire repository</p>
                 </div>
                 <Switch
                   id="full-scan-switch"
@@ -275,7 +275,7 @@ const RepoDashboard = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Clock size={16} className="text-slate-500" />
+                <Clock size={16} className="text-zinc-500" />
                 Recent Scans
               </CardTitle>
               {!loadingScans && recentScans.length > 0 && (
@@ -294,12 +294,12 @@ const RepoDashboard = () => {
               </div>
             ) : recentScans.length === 0 ? (
               <div className="text-center py-8">
-                <FileSearch size={40} className="text-slate-200 mx-auto mb-3" />
-                <p className="text-sm text-slate-500 mb-1">No scans yet</p>
-                <p className="text-xs text-slate-400">Run your first scan to get started</p>
+                <FileSearch size={40} className="text-zinc-600 mx-auto mb-3" />
+                <p className="text-sm text-zinc-500 mb-1">No scans yet</p>
+                <p className="text-xs text-zinc-500">Run your first scan to get started</p>
               </div>
             ) : (
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border border-zinc-800 rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -318,10 +318,10 @@ const RepoDashboard = () => {
                       return (
                         <TableRow
                           key={scan.id}
-                          className="cursor-pointer hover:bg-slate-50 transition-colors"
+                          className="cursor-pointer hover:bg-zinc-800/30 transition-colors"
                           onClick={() => navigate(`/app/repo/${owner}/${repo}/scan/${scan.id}`)}
                         >
-                          <TableCell className="text-xs text-slate-600">
+                          <TableCell className="text-xs text-zinc-400">
                             {new Date(scan.created_at).toLocaleString(undefined, {
                               month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                             })}
@@ -332,10 +332,10 @@ const RepoDashboard = () => {
                               {scan.status}
                             </span>
                           </TableCell>
-                          <TableCell className="text-xs text-right font-medium text-slate-700">
+                          <TableCell className="text-xs text-right font-medium text-zinc-300">
                             {scan.total_matches || 0}
                           </TableCell>
-                          <TableCell className="text-xs text-right text-slate-600">
+                          <TableCell className="text-xs text-right text-zinc-400">
                             {scan.files_count || 0}
                           </TableCell>
                           <TableCell className="text-xs text-right">
@@ -347,12 +347,12 @@ const RepoDashboard = () => {
                                 {Math.round(scan.risk_score)}
                               </Badge>
                             ) : (
-                              <span className="text-slate-400">--</span>
+                              <span className="text-zinc-500">--</span>
                             )}
                           </TableCell>
                           <TableCell className="text-right">
                             <Button variant="ghost" size="sm" className="h-7 px-2">
-                              <Eye size={14} className="text-slate-400" />
+                              <Eye size={14} className="text-zinc-500" />
                             </Button>
                           </TableCell>
                         </TableRow>

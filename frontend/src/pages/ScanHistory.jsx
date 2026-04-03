@@ -34,52 +34,52 @@ const ScanHistory = () => {
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Scan History</h1>
-        
+        <h1 className="text-3xl font-bold text-zinc-100 mb-6">Scan History</h1>
+
         {loading ? (
           <div className="space-y-3">
             {[1,2,3,4,5].map(i => (
-              <div key={i} className="h-20 bg-gray-100 rounded animate-pulse"></div>
+              <div key={i} className="h-20 bg-zinc-800 rounded animate-pulse"></div>
             ))}
           </div>
         ) : scans.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No scans yet</p>
+            <p className="text-zinc-500">No scans yet</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+          <div className="bg-zinc-900 rounded-lg border border-zinc-800 overflow-x-auto">
             <table className="w-full min-w-[600px]">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-zinc-800/50 border-b border-zinc-800">
                 <tr>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-600">Repository</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-600">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-600">Time</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-600">Summary</th>
-                  <th className="text-right px-4 py-3 text-xs font-medium text-gray-600">Action</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400">Repository</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400">Time</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-zinc-400">Summary</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-zinc-400">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-zinc-800/50">
                 {scans.map(scan => (
-                  <tr key={scan.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                  <tr key={scan.id} className="hover:bg-zinc-800/30">
+                    <td className="px-4 py-3 text-sm font-medium text-zinc-100">
                       {scan.repo_owner}/{scan.repo_name || scan.repo_url}
                     </td>
                     <td className="px-4 py-3">
                       {scan.status === 'SUCCESS' && (
-                        <Badge className="bg-green-100 text-green-800">Success</Badge>
+                        <Badge className="bg-green-500/10 text-green-400 border-green-500/20">Success</Badge>
                       )}
                       {scan.status === 'FAILED' && (
-                        <Badge className="bg-red-100 text-red-800">Failed</Badge>
+                        <Badge className="bg-red-500/10 text-red-400 border-red-500/20">Failed</Badge>
                       )}
                       {scan.status === 'RUNNING' && (
-                        <Badge className="bg-blue-100 text-blue-800">Running</Badge>
+                        <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/20">Running</Badge>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-zinc-400">
                       {new Date(scan.created_at).toLocaleString()}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
-                      {scan.total_matches || 0} matches • {scan.files_count || 0} files
+                    <td className="px-4 py-3 text-sm text-zinc-400">
+                      {scan.total_matches || 0} matches &bull; {scan.files_count || 0} files
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Button

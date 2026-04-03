@@ -123,23 +123,23 @@ const ScanLoader = ({ repoName, branch, commit, startTime }) => {
 
         {/* Phase Text */}
         <div className="text-center mb-8 min-h-[120px]">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 transition-opacity duration-500">
+          <h2 className="text-2xl md:text-3xl font-bold text-zinc-100 mb-3 transition-opacity duration-500">
             {phase.title}
           </h2>
-          <p className="text-lg text-gray-600 transition-opacity duration-500">
+          <p className="text-lg text-zinc-400 transition-opacity duration-500">
             {phase.subtitle}
           </p>
         </div>
 
         {/* Horizontal Shimmer Bar */}
-        <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-6">
+        <div className="relative w-full h-2 bg-zinc-800 rounded-full overflow-hidden mb-6">
           <div className="absolute inset-0">
             <div className="h-full bg-gradient-to-r from-transparent via-blue-500 to-transparent shimmer"></div>
           </div>
         </div>
 
         {/* Metadata Footer */}
-        <div className="text-center space-y-2 text-sm text-gray-600">
+        <div className="text-center space-y-2 text-sm text-zinc-400">
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <span className="font-mono">{repoName}</span>
             {branch && (
@@ -157,11 +157,11 @@ const ScanLoader = ({ repoName, branch, commit, startTime }) => {
           </div>
           <p className="text-xs">Elapsed: {elapsed}s</p>
           {showReassurance && (
-            <p className="text-sm text-blue-600 font-medium mt-4 transition-opacity duration-500">
+            <p className="text-sm text-blue-400 font-medium mt-4 transition-opacity duration-500">
               {REASSURANCE_MESSAGES[reassuranceIndex]}
             </p>
           )}
-          <p className="text-xs text-gray-500 mt-4">
+          <p className="text-xs text-zinc-500 mt-4">
             This may take a few minutes for larger repositories
           </p>
         </div>

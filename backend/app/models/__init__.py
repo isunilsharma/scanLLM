@@ -46,6 +46,11 @@ try:
 except ImportError:
     pass
 
+try:
+    from app.models.policy import Policy  # noqa: F401
+except ImportError:
+    pass
+
 __all__ = [
     "ScanJob",
     "ScanStatus",
@@ -59,4 +64,5 @@ __all__ = [
     "AuditResourceType",
     "TelemetryEvent",
     "UserFeedback",
+    "Policy",
 ]

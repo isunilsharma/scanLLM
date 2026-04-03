@@ -21,9 +21,9 @@ const OWASP_DEFAULTS = [
 ];
 
 const STATUS_CONFIG = {
-  detected: { icon: XCircle, color: '#ef4444', bgColor: '#fef2f2', borderColor: '#fecaca', label: 'Detected' },
-  partially: { icon: AlertTriangle, color: '#f59e0b', bgColor: '#fffbeb', borderColor: '#fde68a', label: 'Partial' },
-  not_detected: { icon: CheckCircle, color: '#22c55e', bgColor: '#f0fdf4', borderColor: '#bbf7d0', label: 'Clear' },
+  detected: { icon: XCircle, color: '#ef4444', bgColor: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.2)', label: 'Detected' },
+  partially: { icon: AlertTriangle, color: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.2)', label: 'Partial' },
+  not_detected: { icon: CheckCircle, color: '#22c55e', bgColor: 'rgba(34,197,94,0.1)', borderColor: 'rgba(34,197,94,0.2)', label: 'Clear' },
 };
 
 const SEVERITY_COLORS = {
@@ -41,7 +41,7 @@ const OwaspMapping = ({ owaspData, loading = false }) => {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <Shield size={20} className="text-slate-500" />
+            <Shield size={20} className="text-zinc-500" />
             OWASP LLM Top 10
           </CardTitle>
         </CardHeader>
@@ -85,7 +85,7 @@ const OwaspMapping = ({ owaspData, loading = false }) => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Shield size={20} className="text-slate-600" />
+            <Shield size={20} className="text-zinc-400" />
             OWASP LLM Top 10 (2025)
           </CardTitle>
           <Badge variant={coveragePercent >= 80 ? 'default' : coveragePercent >= 50 ? 'secondary' : 'destructive'}>
@@ -97,12 +97,12 @@ const OwaspMapping = ({ owaspData, loading = false }) => {
       <CardContent className="space-y-5">
         {/* Coverage Summary Bar */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-slate-500">
+          <div className="flex items-center justify-between text-xs text-zinc-500">
             <span>{coverage.not_detected || 0} clear</span>
             <span>{coverage.partially || 0} partial</span>
             <span>{coverage.detected || 0} detected</span>
           </div>
-          <div className="flex h-2.5 rounded-full overflow-hidden bg-slate-100">
+          <div className="flex h-2.5 rounded-full overflow-hidden bg-zinc-800">
             {coverage.not_detected > 0 && (
               <div
                 className="bg-green-500 transition-all"
@@ -153,17 +153,17 @@ const OwaspMapping = ({ owaspData, loading = false }) => {
                       {cat.id}
                     </Badge>
                   </div>
-                  <p className="text-xs font-semibold text-slate-800 leading-tight mb-1">
+                  <p className="text-xs font-semibold text-zinc-200 leading-tight mb-1">
                     {cat.name}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-zinc-500">
                       {cat.findings_count > 0 ? `${cat.findings_count} finding${cat.findings_count !== 1 ? 's' : ''}` : statusConfig.label}
                     </span>
                     {isExpanded ? (
-                      <ChevronUp size={12} className="text-slate-400" />
+                      <ChevronUp size={12} className="text-zinc-500" />
                     ) : (
-                      <ChevronDown size={12} className="text-slate-400" />
+                      <ChevronDown size={12} className="text-zinc-500" />
                     )}
                   </div>
                 </button>
@@ -172,20 +172,20 @@ const OwaspMapping = ({ owaspData, loading = false }) => {
                 {isExpanded && (
                   <div
                     className="mt-2 p-3 rounded-lg border text-xs space-y-2"
-                    style={{ borderColor: statusConfig.borderColor, backgroundColor: '#fff' }}
+                    style={{ borderColor: statusConfig.borderColor, backgroundColor: '#18181b' }}
                   >
                     <div>
-                      <p className="font-medium text-slate-700 mb-1 flex items-center gap-1">
+                      <p className="font-medium text-zinc-300 mb-1 flex items-center gap-1">
                         <Info size={12} /> What we detect
                       </p>
-                      <p className="text-slate-600 leading-relaxed">{cat.description}</p>
+                      <p className="text-zinc-400 leading-relaxed">{cat.description}</p>
                     </div>
                     <Separator />
                     <div>
-                      <p className="font-medium text-slate-700 mb-1 flex items-center gap-1">
+                      <p className="font-medium text-zinc-300 mb-1 flex items-center gap-1">
                         <ShieldCheck size={12} className="text-green-600" /> Remediation
                       </p>
-                      <p className="text-slate-600 leading-relaxed">{cat.remediation}</p>
+                      <p className="text-zinc-400 leading-relaxed">{cat.remediation}</p>
                     </div>
                     {cat.severity && (
                       <div className="pt-1">

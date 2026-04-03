@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -23,6 +23,8 @@ from models.finding import Finding
 
 import json
 import logging
+import uuid
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +108,45 @@ class FindingOut(BaseModel):
     owner_name: Optional[str] = None
     owner_email: Optional[str] = None
     owner_committed_at: Optional[str] = None
+
+
+class CLIFindingImport(BaseModel):
+    file_path: str
+    line_number: int = 0
+    line_text: str = ""
+    framework: str = ""
+    pattern_name: str = ""
+    pattern_category: Optional[str] = None
+    pattern_severity: Optional[str] = None
+    pattern_description: Optional[str] = None
+    snippet: Optional[str] = None
+    model_name: Optional[str] = None
+    temperature: Optional[float] = None
+    max_tokens: Optional[int] = None
+    is_streaming: Optional[bool] = None
+    has_tools: Optional[bool] = None
+    component_type: Optional[str] = None
+    provider: Optional[str] = None
+    owasp_id: Optional[str] = None
+
+
+class ScanImportRequest(BaseModel):
+    """Accepts the CLI scan JSON format for importing into the cloud."""
+    findings: List[CLIFindingImport] = []
+    summary: Optional[Dict[str, Any]] = None
+    risk_score: Optional[Any] = None
+    timestamp: Optional[str] = None
+    path: Optional[str] = None
+    risk: Optional[Dict[str, Any]] = None
+    owasp: Optional[Dict[str, Any]] = None
+    graph: Optional[Dict[str, Any]] = None
+
+
+class ScanImportResponse(BaseModel):
+    scan_id: str
+    status: str
+    total_findings: int
+    message: str
 
 
 class ScanSummary(BaseModel):
@@ -220,6 +261,26 @@ def _enrich_with_owasp(findings: List[Dict[str, Any]]) -> Optional[List[Dict[str
 
 
 # ---------------------------------------------------------------------------
+# Auth dependency (safe import for environments without auth infra)
+# ---------------------------------------------------------------------------
+
+def _get_current_user_safe(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    """Validate Bearer token and return the authenticated user.
+
+    Falls back gracefully when auth modules are unavailable (local dev).
+    """
+    try:
+        from app.api.deps import get_current_user as _real_get_current_user
+        return _real_get_current_user(authorization=authorization, db=db)
+    except ImportError:
+        logger.warning("Auth modules not available — import endpoint is unprotected")
+        return None
+
+
+# ---------------------------------------------------------------------------
 # Router
 # ---------------------------------------------------------------------------
 
@@ -323,6 +384,108 @@ async def create_scan(request: ScanCreateRequest, db: Session = Depends(get_db))
     except Exception as exc:
         logger.error("Scan failed: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.post("/scans/import", response_model=ScanImportResponse)
+async def import_scan(
+    request: ScanImportRequest,
+    db: Session = Depends(get_db),
+    user=Depends(_get_current_user_safe),
+):
+    """Import a CLI-generated scan into the cloud database.
+
+    Accepts the full scan JSON produced by ``scanllm scan --save`` and
+    creates the corresponding ScanJob + Finding records.  Requires a
+    valid Bearer token.
+    """
+    try:
+        # Derive repo URL from the local path stored in the scan JSON
+        scan_path = request.path or ""
+        # Try to extract a meaningful repo name from the local path
+        repo_name = Path(scan_path).name if scan_path else "cli-import"
+        repo_url = f"cli://{repo_name}"
+
+        # Build summary data
+        summary = request.summary or {}
+        findings_data = [f.model_dump() for f in request.findings]
+        total_findings = len(findings_data)
+        unique_files = list({f["file_path"] for f in findings_data})
+
+        # Compute frameworks from findings
+        frameworks: Dict[str, int] = {}
+        for f in findings_data:
+            fw = f.get("framework") or ""
+            frameworks[fw] = frameworks.get(fw, 0) + 1
+
+        # Create the ScanJob record
+        scan_job = ScanJob(
+            id=str(uuid.uuid4()),
+            repo_url=repo_url,
+            status=ScanStatus.SUCCESS,
+            total_occurrences=total_findings,
+            files_count=len(unique_files),
+            total_matches=total_findings,
+            ai_files_count=summary.get("ai_files_count", len(unique_files)),
+            frameworks_json=json.dumps(summary.get("frameworks", frameworks)),
+            risk_flags_json=None,
+            policies_result_json=None,
+            summary_json=json.dumps(summary) if summary else None,
+            github_user_id=getattr(user, "id", None) if user else None,
+            risk_score_json=json.dumps(request.risk) if request.risk else None,
+            owasp_json=json.dumps(request.owasp) if request.owasp else None,
+            graph_json=json.dumps(request.graph) if request.graph else None,
+            source="cli_import",
+        )
+        db.add(scan_job)
+
+        # Create Finding records
+        for f_data in findings_data:
+            finding = Finding(
+                id=str(uuid.uuid4()),
+                scan_id=scan_job.id,
+                file_path=f_data["file_path"],
+                line_number=f_data.get("line_number", 0),
+                line_text=f_data.get("line_text", ""),
+                framework=f_data.get("framework", ""),
+                pattern_name=f_data.get("pattern_name", ""),
+                pattern_category=f_data.get("pattern_category"),
+                pattern_severity=f_data.get("pattern_severity"),
+                pattern_description=f_data.get("pattern_description"),
+                snippet=f_data.get("snippet"),
+                model_name=f_data.get("model_name"),
+                temperature=f_data.get("temperature"),
+                max_tokens=f_data.get("max_tokens"),
+                is_streaming=f_data.get("is_streaming"),
+                has_tools=f_data.get("has_tools"),
+                component_type=f_data.get("component_type"),
+                provider=f_data.get("provider"),
+                owasp_id=f_data.get("owasp_id"),
+            )
+            db.add(finding)
+
+        db.commit()
+        db.refresh(scan_job)
+
+        logger.info(
+            "Imported CLI scan %s: %d findings from %s",
+            scan_job.id,
+            total_findings,
+            scan_path,
+        )
+
+        return ScanImportResponse(
+            scan_id=scan_job.id,
+            status="success",
+            total_findings=total_findings,
+            message=f"Imported {total_findings} findings from CLI scan",
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        logger.error("Import failed: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Import failed: {exc}")
 
 
 @router.get("/scans", response_model=Dict[str, Any])

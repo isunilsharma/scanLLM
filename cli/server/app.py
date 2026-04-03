@@ -20,11 +20,25 @@ _FALLBACK_HTML = """<!DOCTYPE html>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#0a0a0a;color:#e4e4e7;min-height:100vh}
 a{color:#22d3ee}
-.tab-bar{display:flex;gap:2px;background:#18181b;padding:8px 16px;border-bottom:1px solid #27272a;overflow-x:auto;position:sticky;top:0;z-index:10}
-.tab-btn{background:none;border:none;color:#71717a;padding:8px 16px;cursor:pointer;font-size:.875rem;border-radius:6px;white-space:nowrap;font-family:inherit}
+.app-shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:240px;min-width:240px;background:#18181b;border-right:1px solid #27272a;display:flex;flex-direction:column;overflow:hidden}
+.sidebar-logo{padding:16px 20px;border-bottom:1px solid #27272a;font-size:1rem;font-weight:700;color:#22d3ee;letter-spacing:-.5px}
+.sidebar-logo span{color:#71717a;font-weight:400;font-size:.75rem;display:block;margin-top:2px}
+.scan-switcher{padding:12px 12px 0;border-bottom:1px solid #27272a;padding-bottom:12px}
+.scan-switcher label{font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:#71717a;font-weight:600;display:block;margin-bottom:6px;padding:0 4px}
+.scan-select{width:100%;background:#27272a;border:1px solid #3f3f46;color:#e4e4e7;border-radius:6px;padding:6px 8px;font-size:.8rem;font-family:inherit;cursor:pointer}
+.scan-select:focus{outline:none;border-color:#22d3ee}
+.nav-section{flex:1;overflow-y:auto;padding:8px}
+.nav-section p{font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;color:#71717a;font-weight:600;padding:8px 12px 4px}
+.tab-btn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;color:#a1a1aa;padding:8px 12px;cursor:pointer;font-size:.825rem;border-radius:6px;white-space:nowrap;font-family:inherit;text-align:left}
 .tab-btn:hover{color:#e4e4e7;background:#27272a}
-.tab-btn.active{color:#22d3ee;background:#27272a;font-weight:600}
+.tab-btn.active{color:#22d3ee;background:#22d3ee10;font-weight:600}
+.tab-btn svg{width:16px;height:16px;opacity:.6}
+.tab-btn.active svg{opacity:1}
+.sidebar-footer{padding:12px;border-top:1px solid #27272a;font-size:.75rem;color:#52525b;text-align:center}
+.main-area{flex:1;overflow-y:auto;background:#0a0a0a}
 #tab-content{max-width:1100px;margin:0 auto;padding:24px 16px}
+@media(max-width:768px){.sidebar{display:none}.main-area{width:100%}}
 .card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:20px;margin-bottom:16px}
 .card h2{font-size:1.1rem;margin-bottom:12px;color:#e4e4e7}
 .grid{display:grid;gap:16px}
@@ -54,6 +68,7 @@ table{width:100%;border-collapse:collapse;font-size:.85rem}
 th{text-align:left;padding:8px;border-bottom:2px solid #27272a;color:#a1a1aa;font-weight:600;position:sticky;top:0;background:#18181b}
 td{padding:8px;border-bottom:1px solid #27272a}
 tr:hover td{background:#1c1c1f}
+.scan-row{cursor:pointer}.scan-row:hover td{background:#27272a}
 .empty{text-align:center;color:#71717a;padding:40px 20px}
 .btn{background:#22d3ee;color:#0a0a0a;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.875rem;font-family:inherit}
 .btn:hover{opacity:.85}
@@ -77,17 +92,35 @@ tr:hover td{background:#1c1c1f}
 </style>
 </head>
 <body>
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
-  <button class="tab-btn" onclick="switchTab('findings',this)">Findings</button>
-  <button class="tab-btn" onclick="switchTab('risk',this)">Risk</button>
-  <button class="tab-btn" onclick="switchTab('owasp',this)">OWASP</button>
-  <button class="tab-btn" onclick="switchTab('graph',this)">Graph</button>
-  <button class="tab-btn" onclick="switchTab('policies',this)">Policies</button>
-  <button class="tab-btn" onclick="switchTab('history',this)">History</button>
-  <button class="tab-btn" onclick="switchTab('export',this)">Export</button>
+<div class="app-shell">
+<aside class="sidebar">
+  <div class="sidebar-logo">ScanLLM<span>AI Dependency Intelligence</span></div>
+  <div class="scan-switcher">
+    <label>Active Scan</label>
+    <select class="scan-select" id="scan-select" onchange="onScanSwitch(this.value)">
+      <option value="">Latest scan</option>
+    </select>
+  </div>
+  <nav class="nav-section">
+    <p>Analysis</p>
+    <button class="tab-btn active" onclick="switchTab('overview',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Overview</button>
+    <button class="tab-btn" onclick="switchTab('findings',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Findings</button>
+    <button class="tab-btn" onclick="switchTab('risk',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Risk</button>
+    <button class="tab-btn" onclick="switchTab('owasp',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>OWASP</button>
+    <p>Visualization</p>
+    <button class="tab-btn" onclick="switchTab('graph',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M6 9v6c0 1 .6 3 3 3h3"/><path d="M18 9v0"/></svg>Graph</button>
+    <p>Governance</p>
+    <button class="tab-btn" onclick="switchTab('policies',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="m9 15 2 2 4-4"/></svg>Policies</button>
+    <button class="tab-btn" onclick="switchTab('history',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</button>
+    <p>Actions</p>
+    <button class="tab-btn" onclick="switchTab('export',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+  </nav>
+  <div class="sidebar-footer">scanllm v2.3.0</div>
+</aside>
+<main class="main-area">
+  <div id="tab-content"><p class="empty">Loading...</p></div>
+</main>
 </div>
-<div id="tab-content"><p class="empty">Loading...</p></div>
 <button class="feedback-btn" onclick="openFeedback()" title="Send feedback">&#9993;</button>
 <div id="fb-modal" class="modal-overlay">
   <div class="modal">
@@ -103,11 +136,37 @@ tr:hover td{background:#1c1c1f}
   </div>
 </div>
 <script>
-var _cache={};var _fbRating=0;
-function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+window.onerror=function(msg,src,line,col,err){document.getElementById('tab-content').innerHTML='<div class="empty" style="color:#f87171"><p>JS Error: '+msg+'</p><p style="margin-top:8px;color:#71717a">Line '+line+', Col '+col+'</p></div>'};
+var _cache={};var _fbRating=0;var _activeScanId=null;
+function esc(s){if(s==null)return'';var lt=String.fromCharCode(60);return String(s).replace(/&/g,'&amp;').replace(new RegExp(lt,'g'),'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function initScanSwitcher(){
+  fetch('/api/scan/history').then(function(r){return r.json()}).then(function(scans){
+    var sel=document.getElementById('scan-select');if(!sel||!scans||!scans.length)return;
+    sel.innerHTML='';
+    scans.forEach(function(s,i){
+      var ts=s.timestamp||'';var d=ts?new Date(ts):null;var label=d?d.toLocaleDateString()+' '+d.toLocaleTimeString():'Scan '+(i+1);
+      var score=(s.risk_score!=null)?(' (Score: '+s.risk_score+')'):('');
+      var scanFile=s.file||'';var scanId=scanFile.split('/').pop().replace('scan_','').replace('.json','');
+      var opt=document.createElement('option');opt.value=scanId;opt.textContent=(i===0?'Latest: ':'')+label+score;
+      sel.appendChild(opt);
+    });
+  });
+}
+function onScanSwitch(scanId){
+  _cache={};_activeScanId=scanId;
+  if(!scanId){switchTab('overview');return}
+  fetch('/api/scan/load/'+encodeURIComponent(scanId)).then(function(r){return r.json()}).then(function(d){
+    if(d.error)return;
+    _cache['/api/scan/latest']=d;_cache['/api/risk']=d.risk||{};_cache['/api/owasp']=d.owasp||{};_cache['/api/graph']=d.graph||{nodes:[],edges:[]};
+    var activeBtn=document.querySelector('.tab-btn.active');
+    var activeTab=activeBtn?activeBtn.textContent.trim().toLowerCase():'overview';
+    switchTab(activeTab);
+  });
+}
 function switchTab(name,btn){
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
   if(btn)btn.classList.add('active');
+  else{document.querySelectorAll('.tab-btn').forEach(function(b){if(b.textContent.trim().toLowerCase()===name)b.classList.add('active')})}
   loadTab(name);
 }
 function fetchAPI(url){
@@ -123,11 +182,25 @@ function loadTab(name){
     export:['/api/scan/latest',renderExport]};
   var r=routes[name];
   if(!r){el.innerHTML='<p class="empty">Unknown tab</p>';return}
-  fetchAPI(r[0]).then(function(d){r[1](d,el)}).catch(function(e){el.innerHTML='<p class="empty" style="color:#f87171">Failed to load data: '+esc(e.message)+'</p>'});
+  fetchAPI(r[0]).then(function(d){try{r[1](d,el)}catch(ex){el.innerHTML='<div class="empty" style="color:#f87171">Render error: '+esc(ex.message)+'<br><pre style="margin-top:8px;font-size:11px;color:#71717a;text-align:left;max-width:600px;margin-left:auto;margin-right:auto;overflow:auto">'+esc(ex.stack)+'</pre></div>'}}).catch(function(e){el.innerHTML='<p class="empty" style="color:#f87171">Fetch error: '+esc(e.message)+'</p>'});
 }
 function sevColor(s){var m={critical:'#ef4444',high:'#f59e0b',medium:'#eab308',low:'#22c55e',info:'#3b82f6'};return m[(s||'').toLowerCase()]||'#71717a'}
 function sevBadge(s){var m={critical:'b-crit',high:'b-high',medium:'b-med',low:'b-low',info:'b-info'};return '<span class="badge '+(m[(s||'').toLowerCase()]||'b-info')+'">'+esc(s)+'</span>'}
 function gradeColor(g){if(g==='A'||g==='B')return '#4ade80';if(g==='C')return '#facc15';return '#f87171'}
+function loadScanById(scanId){
+  _cache={};
+  var el=document.getElementById('tab-content');el.innerHTML='<p class="empty">Loading scan...</p>';
+  fetch('/api/scan/load/'+encodeURIComponent(scanId)).then(function(r){return r.json()}).then(function(d){
+    if(d.error){el.innerHTML='<p class="empty" style="color:#f87171">'+esc(d.error)+'</p>';return}
+    _cache['/api/scan/latest']=d;_cache['/api/risk']=d.risk||{};_cache['/api/owasp']=d.owasp||{};_cache['/api/graph']=d.graph||{nodes:[],edges:[]};
+    var ts=d.timestamp?new Date(d.timestamp).toLocaleString():'loaded scan';
+    document.getElementById('scan-indicator')&&document.getElementById('scan-indicator').remove();
+    var bar=document.createElement('div');bar.id='scan-indicator';bar.style.cssText='background:#18181b;border:1px solid #3f3f46;border-radius:8px;padding:8px 16px;margin:0 16px 12px;display:flex;align-items:center;justify-content:space-between';
+    bar.innerHTML='<span style="color:#a1a1aa;font-size:13px">Viewing scan: <strong style="color:#22d3ee">'+esc(ts)+'</strong></span><button class="btn" style="padding:4px 12px;font-size:12px" onclick="this.parentElement.remove();_cache={};switchTab(&quot;overview&quot;)">Back to latest</button>';
+    document.getElementById('tab-content').parentElement.insertBefore(bar,document.getElementById('tab-content'));
+    switchTab('overview');
+  }).catch(function(e){el.innerHTML='<p class="empty" style="color:#f87171">Error: '+esc(e.message)+'</p>'});
+}
 function renderOverview(data,el){
   if(!data||data.error){el.innerHTML='<div class="empty"><p>Scanning in progress...</p><p style="margin-top:8px;color:#a1a1aa">Auto-scan is running. This page will refresh automatically.</p></div>';setTimeout(function(){_cache={};loadTab('overview')},3000);return}
   var s=data.summary||{};var r=data.risk||{};var grade=r.grade||'?';var score=r.overall_score||0;
@@ -225,9 +298,11 @@ function renderGraph(data,el){
   var nodes=data.nodes||[];var edges=data.edges||[];
   if(!nodes.length){el.innerHTML='<div class="empty">No graph data. Run a scan first.</div>';return}
   var typeColors={llm_provider:'#22d3ee',vector_db:'#a78bfa',orchestration_framework:'#f59e0b',agent_tool:'#ef4444',ai_package:'#22c55e',secret:'#f87171',config_reference:'#71717a',mcp_server:'#ec4899',embedding_service:'#6366f1',inference_server:'#14b8a6'};
-  var W=1060;var H=Math.max(500,nodes.length*18);var cx=W/2;var cy=H/2;var radius=Math.min(cx,cy)-60;
-  var h='<div class="card"><h2>Dependency Graph ('+nodes.length+' nodes, '+edges.length+' edges)</h2>';
-  h+='<div style="overflow:auto;max-height:600px"><svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">';
+  var clusters=nodes.filter(function(n){return(n.data||n).is_cluster});
+  var statsText=nodes.length+' nodes, '+edges.length+' edges'+(clusters.length?' ('+clusters.length+' clusters)':'');
+  var W=1060;var H=Math.max(500,nodes.length*25);var cx=W/2;var cy=H/2;var radius=Math.min(cx,cy)-80;
+  var h='<div class="card"><h2>Dependency Graph &mdash; '+statsText+'</h2>';
+  h+='<div style="overflow:auto;max-height:650px"><svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">';
   var posMap={};
   nodes.forEach(function(n,i){
     var a=(2*Math.PI*i)/nodes.length - Math.PI/2;
@@ -237,23 +312,34 @@ function renderGraph(data,el){
   edges.forEach(function(e){
     var src=e.source;var tgt=e.target;if(typeof src==='object')src=src.id||src;if(typeof tgt==='object')tgt=tgt.id||tgt;
     var s=posMap[src];var t=posMap[tgt];if(!s||!t)return;
-    h+='<line x1="'+s.x+'" y1="'+s.y+'" x2="'+t.x+'" y2="'+t.y+'" stroke="#3f3f46" stroke-width="1.5"/>';
-    if(e.label){var mx=(s.x+t.x)/2;var my=(s.y+t.y)/2;h+='<text x="'+mx+'" y="'+(my-4)+'" fill="#52525b" font-size="9" text-anchor="middle">'+esc(e.label)+'</text>'}
+    h+='<line x1="'+s.x+'" y1="'+s.y+'" x2="'+t.x+'" y2="'+t.y+'" stroke="#3f3f46" stroke-width="1" opacity="0.5"/>';
   });
   nodes.forEach(function(n){
     var p=posMap[n.id];if(!p)return;var ndata=n.data||n;var ntype=ndata.type||ndata.component_type||'ai_package';
     var col=typeColors[ntype]||'#71717a';var label=ndata.label||ndata.name||n.id;
-    h+='<circle cx="'+p.x+'" cy="'+p.y+'" r="10" fill="'+col+'" stroke="#0a0a0a" stroke-width="2"><title>'+esc(label)+' ('+esc(ntype)+')</title></circle>';
-    h+='<text x="'+p.x+'" y="'+(p.y+22)+'" fill="#a1a1aa" font-size="10" text-anchor="middle">'+esc(label.length>20?label.slice(0,18)+'..':label)+'</text>';
+    var isCluster=ndata.is_cluster;var childCount=(ndata.children||[]).length;
+    var r=isCluster?Math.min(8+childCount,24):10;
+    h+='<circle cx="'+p.x+'" cy="'+p.y+'" r="'+r+'" fill="'+col+'" fill-opacity="'+(isCluster?'0.25':'0.8')+'" stroke="'+col+'" stroke-width="2"><title>'+esc(label)+(isCluster?' ('+childCount+' models)':' ('+esc(ntype)+')')+'</title></circle>';
+    if(isCluster&&childCount>1){h+='<text x="'+p.x+'" y="'+(p.y+4)+'" fill="#fff" font-size="10" font-weight="bold" text-anchor="middle">'+childCount+'</text>'}
+    h+='<text x="'+p.x+'" y="'+(p.y+r+14)+'" fill="#a1a1aa" font-size="11" font-weight="'+(isCluster?'600':'400')+'" text-anchor="middle">'+esc(label.length>22?label.slice(0,20)+'..':label)+'</text>';
   });
   h+='</svg></div></div>';
   h+='<div class="card"><h2>Legend</h2><div style="display:flex;flex-wrap:wrap;gap:12px">';
   Object.keys(typeColors).forEach(function(t){h+='<span class="ml"><span style="color:'+typeColors[t]+'">&#9679;</span> '+t.replace(/_/g,' ')+'</span>'});
   h+='</div></div>';
-  h+='<div class="card"><h2>Node List</h2><table><thead><tr><th>Name</th><th>Type</th><th>Files</th></tr></thead><tbody>';
-  nodes.slice(0,50).forEach(function(n){var d=n.data||n;h+='<tr><td>'+esc(d.label||d.name||n.id)+'</td><td>'+esc(d.type||d.component_type||'-')+'</td><td>'+esc((d.files||[]).join(', ')||'-')+'</td></tr>'});
-  if(nodes.length>50)h+='<tr><td colspan="3" class="ml">... and '+(nodes.length-50)+' more</td></tr>';
-  h+='</tbody></table></div>';
+  if(clusters.length){
+    h+='<div class="card"><h2>Provider Clusters</h2><table><thead><tr><th>Provider</th><th>Type</th><th>Models</th><th>Files</th></tr></thead><tbody>';
+    clusters.forEach(function(n){var d=n.data||n;var children=(d.children||[]).sort();
+      h+='<tr><td style="font-weight:600">'+esc(d.label||n.id)+'</td><td>'+esc((d.type||'').replace(/_/g,' '))+'</td><td>'+children.length+'<div style="color:#71717a;font-size:11px;margin-top:2px">'+esc(children.slice(0,5).join(', '))+(children.length>5?' +' +(children.length-5)+' more':'')+'</div></td><td>'+esc(((d.files||[]).length||0)+' files')+'</td></tr>'});
+    h+='</tbody></table></div>';
+  }
+  var nonClusters=nodes.filter(function(n){return!(n.data||n).is_cluster});
+  if(nonClusters.length){
+    h+='<div class="card"><h2>Individual Nodes</h2><table><thead><tr><th>Name</th><th>Type</th><th>Files</th></tr></thead><tbody>';
+    nonClusters.slice(0,30).forEach(function(n){var d=n.data||n;h+='<tr><td>'+esc(d.label||d.name||n.id)+'</td><td>'+esc((d.type||d.component_type||'-').replace(/_/g,' '))+'</td><td>'+esc((d.files||[]).join(', ')||'-')+'</td></tr>'});
+    if(nonClusters.length>30)h+='<tr><td colspan="3" class="ml">... and '+(nonClusters.length-30)+' more</td></tr>';
+    h+='</tbody></table></div>';
+  }
   el.innerHTML=h;
 }
 function renderPolicies(data,el){
@@ -274,20 +360,26 @@ function renderPolicies(data,el){
   el.innerHTML=h;
 }
 function renderHistory(data,el){
-  if(!data||!data.length){el.innerHTML='<div class="empty">No scan history yet. Run your first scan.</div>';return}
-  var h='<div class="card"><h2>Scan History ('+data.length+' scans)</h2><table><thead><tr><th>Date</th><th>Risk Score</th><th>Grade</th><th>Findings</th></tr></thead><tbody>';
-  data.forEach(function(s){
+  if(!data||!data.length){el.innerHTML='<div class="empty">No scan history yet. Run <code style="background:#27272a;padding:2px 6px;border-radius:4px">scanllm scan . --save</code> to save scans.</div>';return}
+  var h='<div class="card"><h2>Scan History ('+data.length+' scans)</h2><p style="color:#71717a;font-size:13px;margin-bottom:12px">Click a row to load that scan into all tabs</p><table><thead><tr><th>Date</th><th>Risk Score</th><th>Grade</th><th>Findings</th><th></th></tr></thead><tbody>';
+  data.forEach(function(s,i){
     var ts=s.timestamp||s.created_at||'';var d=ts?new Date(ts):null;var dateStr=d?d.toLocaleDateString()+' '+d.toLocaleTimeString():'Unknown';
     var risk=s.risk||{};var summary=s.summary||{};var grade=risk.grade||s.grade||'?';var score=risk.overall_score||s.risk_score||0;
-    h+='<tr><td>'+esc(dateStr)+'</td><td><span style="color:'+gradeColor(grade)+'">'+score+'/100</span></td><td class="grade-'+grade+'">'+esc(grade)+'</td><td>'+(summary.total_findings||s.total_findings||0)+'</td></tr>'});
+    var scanFile=s.file||'';var scanId=scanFile.split('/').pop().replace('scan_','').replace('.json','');
+    h+='<tr class="scan-row" data-scan="'+esc(scanId)+'" onclick="loadScanById(this.dataset.scan)">';
+    h+='<td>'+esc(dateStr)+(i===0?' <span style="color:#22d3ee;font-size:10px;font-weight:600">LATEST</span>':'')+'</td>';
+    h+='<td><span style="color:'+gradeColor(grade)+'">'+score+'/100</span></td>';
+    h+='<td class="grade-'+grade+'">'+esc(grade)+'</td>';
+    h+='<td>'+(summary.total_findings||s.total_findings||0)+'</td>';
+    h+='<td style="text-align:right"><span style="color:#22d3ee;font-size:12px">View &rarr;</span></td></tr>'});
   h+='</tbody></table></div>';
   el.innerHTML=h;
 }
 function renderExport(data,el){
   var h='<div class="grid grid-3">';
-  h+='<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">&#128196;</div><h2>JSON Report</h2><p class="ml" style="margin-bottom:12px">Full scan data in JSON format</p><button class="btn" onclick="exportJSON()">Download JSON</button></div>';
-  h+='<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">&#128202;</div><h2>CSV Findings</h2><p class="ml" style="margin-bottom:12px">Findings table as CSV</p><button class="btn" onclick="exportCSV()">Download CSV</button></div>';
-  h+='<div class="card" style="text-align:center"><div style="font-size:2rem;margin-bottom:8px">&#128203;</div><h2>Copy Summary</h2><p class="ml" style="margin-bottom:12px">Text summary to clipboard</p><button class="btn" onclick="copySummary()">Copy</button></div>';
+  h+='<div class="card" style="text-align:center"><div style="margin-bottom:8px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"/><path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"/></svg></div><h2>JSON Report</h2><p class="ml" style="margin-bottom:12px">Full scan data in JSON format</p><button class="btn" onclick="exportJSON()">Download JSON</button></div>';
+  h+='<div class="card" style="text-align:center"><div style="margin-bottom:8px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg></div><h2>CSV Findings</h2><p class="ml" style="margin-bottom:12px">Findings table as CSV</p><button class="btn" onclick="exportCSV()">Download CSV</button></div>';
+  h+='<div class="card" style="text-align:center"><div style="margin-bottom:8px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div><h2>Copy Summary</h2><p class="ml" style="margin-bottom:12px">Text summary to clipboard</p><button class="btn" onclick="copySummary()">Copy</button></div>';
   h+='</div>';
   h+='<div class="card" style="text-align:center"><h2>Re-scan Repository</h2><p class="ml" style="margin-bottom:12px">Trigger a fresh scan from the dashboard</p><button class="btn" onclick="triggerScan()" id="scan-btn">Run Scan</button><p id="scan-status" class="ml" style="margin-top:8px"></p></div>';
   h+='<p id="export-status" class="ml" style="text-align:center;margin-top:8px"></p>';
@@ -335,7 +427,7 @@ function submitFeedback(){
     .then(function(r){return r.json()}).then(function(){st.textContent='Thanks for your feedback!';st.style.color='#4ade80';setTimeout(closeFeedback,1500)})
     .catch(function(){st.textContent='Failed to send';st.style.color='#f87171'});
 }
-loadTab('overview');
+initScanSwitcher();loadTab('overview');
 </script>
 </body>
 </html>"""
@@ -454,6 +546,37 @@ def create_app(repo_path: Path) -> Any:
     async def scan_history():
         scans = config.get_scan_history()
         return JSONResponse(scans)
+
+    @app.get("/api/scan/load/{scan_id}")
+    async def load_scan(scan_id: str):
+        """Load a specific scan by timestamp ID and return full dashboard data."""
+        data = config.get_scan_by_id(scan_id)
+        if not data:
+            return JSONResponse({"error": f"Scan {scan_id} not found"}, status_code=404)
+        findings = data.get("findings", [])
+        trimmed = []
+        for f in findings[:500]:
+            trimmed.append({
+                "file_path": f.get("file_path", ""),
+                "line_number": f.get("line_number"),
+                "pattern_name": f.get("pattern_name", ""),
+                "pattern_category": f.get("pattern_category", ""),
+                "severity": f.get("severity") or f.get("pattern_severity", "info"),
+                "provider": f.get("provider") or f.get("framework", ""),
+                "component_type": f.get("component_type", ""),
+                "owasp_id": f.get("owasp_id", ""),
+                "description": f.get("pattern_description") or f.get("description", ""),
+                "message": f.get("message", ""),
+                "model_name": f.get("model_name", ""),
+            })
+        return JSONResponse({
+            "findings": trimmed,
+            "summary": data.get("summary", {}),
+            "risk": data.get("risk", {}),
+            "owasp": data.get("owasp", {}),
+            "graph": data.get("graph", {}),
+            "timestamp": data.get("timestamp", ""),
+        })
 
     @app.get("/api/graph")
     async def graph():

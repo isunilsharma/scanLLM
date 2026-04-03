@@ -6,23 +6,23 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/t
 import { Info } from 'lucide-react';
 
 const EXAMPLE_REPOS = [
-  { 
-    name: 'LLMs from Scratch', 
+  {
+    name: 'LLMs from Scratch',
     url: 'https://github.com/rasbt/LLMs-from-scratch',
     description: 'Educational LLM implementation'
   },
-  { 
-    name: 'Transformers', 
+  {
+    name: 'Transformers',
     url: 'https://github.com/huggingface/transformers',
     description: 'HuggingFace library'
   },
-  { 
-    name: 'Hands-On LLMs', 
+  {
+    name: 'Hands-On LLMs',
     url: 'https://github.com/HandsOnLLM/Hands-On-Large-Language-Models',
     description: 'Practical LLM guide'
   },
-  { 
-    name: 'Awesome LLM', 
+  {
+    name: 'Awesome LLM',
     url: 'https://github.com/Hannibal046/Awesome-LLM',
     description: 'Curated LLM resources'
   }
@@ -48,7 +48,7 @@ const RepoForm = ({ onScan, isScanning }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-6" data-testid="repo-form">
       <div>
-        <label htmlFor="repo-url" className="block text-sm font-medium text-gray-900 mb-3">
+        <label htmlFor="repo-url" className="block text-sm font-medium text-zinc-100 mb-3">
           GitHub Repository URL
         </label>
         <div className="flex gap-2">
@@ -64,26 +64,26 @@ const RepoForm = ({ onScan, isScanning }) => {
               className="h-12 text-base"
             />
           </div>
-          
+
           {/* Sample repos button */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
               disabled={isScanning}
-              className="h-12 px-4 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-12 px-4 bg-zinc-900 border border-zinc-700 rounded-lg hover:bg-zinc-800/30 transition-colors flex items-center gap-2 text-sm font-medium text-zinc-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               Sample
             </button>
-            
+
             {/* Dropdown menu */}
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-20">
-                <div className="p-3 border-b border-gray-100">
-                  <p className="text-xs font-medium text-gray-700">Try an example repository</p>
+              <div className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-20">
+                <div className="p-3 border-b border-zinc-800">
+                  <p className="text-xs font-medium text-zinc-300">Try an example repository</p>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {EXAMPLE_REPOS.map((repo, idx) => (
@@ -91,14 +91,14 @@ const RepoForm = ({ onScan, isScanning }) => {
                       key={idx}
                       type="button"
                       onClick={() => selectExample(repo.url)}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                      className="w-full text-left px-4 py-3 hover:bg-zinc-800/30 transition-colors border-b border-zinc-800/50 last:border-0"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{repo.name}</p>
-                          <p className="text-xs text-gray-500">{repo.description}</p>
+                          <p className="text-sm font-medium text-zinc-100">{repo.name}</p>
+                          <p className="text-xs text-zinc-500">{repo.description}</p>
                         </div>
-                        <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-zinc-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
@@ -109,8 +109,8 @@ const RepoForm = ({ onScan, isScanning }) => {
             )}
           </div>
         </div>
-        
-        <p className="text-xs text-gray-500 mt-2">
+
+        <p className="text-xs text-zinc-500 mt-2">
           Enter a public GitHub repository URL to scan for AI/LLM dependencies.
         </p>
       </div>
@@ -120,7 +120,7 @@ const RepoForm = ({ onScan, isScanning }) => {
         <div className="flex flex-wrap items-center gap-3">
           <label
             htmlFor="full-scan"
-            className="text-sm font-medium text-gray-900 cursor-pointer"
+            className="text-sm font-medium text-zinc-100 cursor-pointer"
           >
             Scan entire repository
           </label>
@@ -132,7 +132,7 @@ const RepoForm = ({ onScan, isScanning }) => {
                   className="inline-flex items-center justify-center"
                   aria-label="More information about full scan"
                 >
-                  <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
+                  <Info className="w-4 h-4 text-zinc-500 hover:text-zinc-400 transition-colors" />
                 </button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
@@ -151,15 +151,15 @@ const RepoForm = ({ onScan, isScanning }) => {
             data-testid="full-scan-toggle"
             aria-label="Toggle full repository scan"
           />
-          
+
           {/* Conditional warning - inline on desktop, wraps on mobile */}
           {fullScan && (
             <div className="transition-all duration-200 ease-in-out animate-in fade-in">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-100 border border-amber-300 rounded-full">
-                <svg className="w-3.5 h-3.5 flex-shrink-0 text-amber-700" fill="currentColor" viewBox="0 0 20 20">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full">
+                <svg className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-                <p className="text-xs font-medium text-amber-800">
+                <p className="text-xs font-medium text-amber-400">
                   May take 30+ seconds for large repos
                 </p>
               </div>

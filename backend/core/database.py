@@ -55,6 +55,10 @@ def init_db():
     except Exception:
         pass
     try:
+        import app.models.policy  # noqa
+    except Exception:
+        pass
+    try:
         import models.organization  # noqa
     except Exception:
         pass

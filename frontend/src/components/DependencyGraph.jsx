@@ -7,7 +7,8 @@ import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import {
   Brain, Database, Layers, Bot, Server, Cpu, Hash,
-  Download, AlertTriangle, FileCode, ExternalLink, X
+  Download, AlertTriangle, FileCode, ChevronRight,
+  Filter, Eye, EyeOff, KeyRound
 } from 'lucide-react';
 
 // Check if @xyflow/react is available
@@ -30,90 +31,305 @@ try {
   // @xyflow/react not installed
 }
 
+// Check if dagre is available
+let dagre = null;
+try {
+  dagre = require('@dagrejs/dagre');
+} catch (e) {
+  try {
+    dagre = require('dagre');
+  } catch (e2) {
+    // dagre not installed, will use backend positions
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Node type configuration with dark-theme-compatible colors
+// ---------------------------------------------------------------------------
 const NODE_TYPE_CONFIG = {
-  llm_provider: { color: '#3b82f6', bgColor: '#eff6ff', borderColor: '#bfdbfe', icon: Brain, label: 'LLM Provider' },
-  vector_db: { color: '#8b5cf6', bgColor: '#f5f3ff', borderColor: '#ddd6fe', icon: Database, label: 'Vector DB' },
-  orchestration_framework: { color: '#22c55e', bgColor: '#f0fdf4', borderColor: '#bbf7d0', icon: Layers, label: 'Framework' },
-  agent_tool: { color: '#f59e0b', bgColor: '#fffbeb', borderColor: '#fde68a', icon: Bot, label: 'Agent Tool' },
-  mcp_server: { color: '#06b6d4', bgColor: '#ecfeff', borderColor: '#a5f3fc', icon: Server, label: 'MCP Server' },
-  inference_server: { color: '#ec4899', bgColor: '#fdf2f8', borderColor: '#fbcfe8', icon: Cpu, label: 'Inference Server' },
-  embedding_service: { color: '#6366f1', bgColor: '#eef2ff', borderColor: '#c7d2fe', icon: Hash, label: 'Embedding' },
+  llm_provider: {
+    color: '#3b82f6',
+    bgColor: 'rgba(59,130,246,0.15)',
+    borderColor: 'rgba(59,130,246,0.4)',
+    icon: Brain,
+    label: 'LLM Provider',
+    filterKey: 'llm_provider',
+  },
+  vector_db: {
+    color: '#8b5cf6',
+    bgColor: 'rgba(139,92,246,0.15)',
+    borderColor: 'rgba(139,92,246,0.4)',
+    icon: Database,
+    label: 'Vector DB',
+    filterKey: 'vector_db',
+  },
+  orchestration_framework: {
+    color: '#22c55e',
+    bgColor: 'rgba(34,197,94,0.15)',
+    borderColor: 'rgba(34,197,94,0.4)',
+    icon: Layers,
+    label: 'Framework',
+    filterKey: 'orchestration_framework',
+  },
+  agent_tool: {
+    color: '#f59e0b',
+    bgColor: 'rgba(245,158,11,0.15)',
+    borderColor: 'rgba(245,158,11,0.4)',
+    icon: Bot,
+    label: 'Agent Tool',
+    filterKey: 'agent_tool',
+  },
+  mcp_server: {
+    color: '#06b6d4',
+    bgColor: 'rgba(6,182,212,0.15)',
+    borderColor: 'rgba(6,182,212,0.4)',
+    icon: Server,
+    label: 'MCP Server',
+    filterKey: 'mcp_server',
+  },
+  inference_server: {
+    color: '#ec4899',
+    bgColor: 'rgba(236,72,153,0.15)',
+    borderColor: 'rgba(236,72,153,0.4)',
+    icon: Cpu,
+    label: 'Inference Server',
+    filterKey: 'inference_server',
+  },
+  embedding_service: {
+    color: '#6366f1',
+    bgColor: 'rgba(99,102,241,0.15)',
+    borderColor: 'rgba(99,102,241,0.4)',
+    icon: Hash,
+    label: 'Embedding',
+    filterKey: 'embedding_service',
+  },
+  secret: {
+    color: '#ef4444',
+    bgColor: 'rgba(239,68,68,0.15)',
+    borderColor: 'rgba(239,68,68,0.4)',
+    icon: KeyRound,
+    label: 'Secret',
+    filterKey: 'secret',
+  },
+  config_reference: {
+    color: '#71717a',
+    bgColor: 'rgba(113,113,122,0.15)',
+    borderColor: 'rgba(113,113,122,0.4)',
+    icon: FileCode,
+    label: 'Config',
+    filterKey: 'config_reference',
+  },
 };
 
-const DEFAULT_CONFIG = { color: '#64748b', bgColor: '#f8fafc', borderColor: '#e2e8f0', icon: FileCode, label: 'Component' };
+const DEFAULT_CONFIG = {
+  color: '#71717a',
+  bgColor: 'rgba(113,113,122,0.15)',
+  borderColor: 'rgba(113,113,122,0.4)',
+  icon: FileCode,
+  label: 'Component',
+  filterKey: 'unknown',
+};
 
 function getNodeConfig(type) {
   return NODE_TYPE_CONFIG[type] || DEFAULT_CONFIG;
 }
 
 function getRiskColor(score) {
-  if (score == null) return '#94a3b8';
+  if (score == null || score === 0) return '#94a3b8';
   if (score >= 75) return '#ef4444';
   if (score >= 50) return '#f59e0b';
   if (score >= 25) return '#eab308';
   return '#22c55e';
 }
 
-// Custom node component for the graph
+// ---------------------------------------------------------------------------
+// Dagre layout helper
+// ---------------------------------------------------------------------------
+function applyDagreLayout(nodes, edges, direction = 'LR') {
+  if (!dagre || !nodes.length) return nodes;
+
+  const g = new dagre.graphlib.Graph();
+  g.setDefaultEdgeLabel(() => ({}));
+  g.setGraph({
+    rankdir: direction,
+    nodesep: 80,
+    ranksep: 200,
+    marginx: 40,
+    marginy: 40,
+  });
+
+  nodes.forEach((node) => {
+    const isCluster = node.data?.is_cluster;
+    g.setNode(node.id, {
+      width: isCluster ? 260 : 220,
+      height: isCluster ? 110 : 90,
+    });
+  });
+
+  edges.forEach((edge) => {
+    g.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(g);
+
+  return nodes.map((node) => {
+    const pos = g.node(node.id);
+    if (!pos) return node;
+    return {
+      ...node,
+      position: {
+        x: pos.x - (pos.width || 220) / 2,
+        y: pos.y - (pos.height || 90) / 2,
+      },
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Custom node component - handles both cluster and individual nodes
+// ---------------------------------------------------------------------------
 const CustomNode = ({ data, selected }) => {
-  const config = getNodeConfig(data.type);
+  const config = getNodeConfig(data.component_type || data.type);
   const Icon = config.icon;
   const riskColor = getRiskColor(data.risk_score);
+  const isCluster = data.is_cluster;
+  const modelCount = data.model_count || 0;
 
   return (
     <div
       className="relative"
       style={{
-        minWidth: 180,
-        maxWidth: 240,
+        minWidth: isCluster ? 220 : 180,
+        maxWidth: isCluster ? 280 : 240,
         borderRadius: 12,
         border: `2px solid ${selected ? config.color : config.borderColor}`,
         backgroundColor: config.bgColor,
         padding: '12px 16px',
         cursor: 'pointer',
-        boxShadow: selected ? `0 0 0 2px ${config.color}40` : '0 1px 3px rgba(0,0,0,0.08)',
+        boxShadow: selected
+          ? `0 0 0 2px ${config.color}40, 0 4px 12px rgba(0,0,0,0.4)`
+          : '0 2px 8px rgba(0,0,0,0.3)',
         transition: 'box-shadow 0.2s, border-color 0.2s',
+        backdropFilter: 'blur(8px)',
       }}
     >
       {xyflowAvailable && Handle && Position && (
         <>
-          <Handle type="target" position={Position.Top} style={{ background: config.color, width: 8, height: 8 }} />
-          <Handle type="source" position={Position.Bottom} style={{ background: config.color, width: 8, height: 8 }} />
+          <Handle
+            type="target"
+            position={Position.Left}
+            style={{
+              background: config.color,
+              width: 8,
+              height: 8,
+              border: `2px solid ${config.bgColor}`,
+            }}
+          />
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={{
+              background: config.color,
+              width: 8,
+              height: 8,
+              border: `2px solid ${config.bgColor}`,
+            }}
+          />
         </>
       )}
 
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2.5">
         <div
-          className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: `${config.color}20` }}
+          className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: `${config.color}25` }}
         >
-          <Icon size={16} style={{ color: config.color }} />
+          <Icon size={18} style={{ color: config.color }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-slate-900 truncate">{data.label}</p>
+          <p className="text-sm font-semibold text-zinc-100 truncate">
+            {data.label}
+          </p>
           <div className="flex items-center gap-1.5 mt-1">
             <span
               className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-              style={{ backgroundColor: `${config.color}15`, color: config.color }}
+              style={{
+                backgroundColor: `${config.color}20`,
+                color: config.color,
+              }}
             >
               {config.label}
             </span>
+            {isCluster && modelCount > 0 && (
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: `${config.color}30`,
+                  color: config.color,
+                }}
+              >
+                {modelCount} model{modelCount !== 1 ? 's' : ''}
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-2 pt-2 border-t" style={{ borderColor: config.borderColor }}>
-        <span className="text-[11px] text-slate-500">
+      {/* Cluster children preview */}
+      {isCluster && data.children && data.children.length > 0 && (
+        <div
+          className="mt-2 pt-2 border-t flex flex-wrap gap-1"
+          style={{ borderColor: `${config.color}20` }}
+        >
+          {data.children.slice(0, 3).map((child, i) => (
+            <span
+              key={i}
+              className="text-[9px] px-1.5 py-0.5 rounded"
+              style={{
+                backgroundColor: `${config.color}10`,
+                color: `${config.color}cc`,
+              }}
+            >
+              {child}
+            </span>
+          ))}
+          {data.children.length > 3 && (
+            <span
+              className="text-[9px] px-1.5 py-0.5 rounded"
+              style={{
+                backgroundColor: `${config.color}10`,
+                color: `${config.color}99`,
+              }}
+            >
+              +{data.children.length - 3} more
+            </span>
+          )}
+        </div>
+      )}
+
+      <div
+        className="flex items-center justify-between mt-2 pt-2 border-t"
+        style={{ borderColor: `${config.color}15` }}
+      >
+        <span className="text-[11px] text-zinc-500">
           {data.file_count || 0} file{(data.file_count || 0) !== 1 ? 's' : ''}
         </span>
-        {data.risk_score != null && (
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: riskColor }} />
-            <span className="text-[11px] font-medium" style={{ color: riskColor }}>
-              {data.risk_score}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {data.risk_score != null && data.risk_score > 0 && (
+            <div className="flex items-center gap-1">
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: riskColor }}
+              />
+              <span
+                className="text-[11px] font-medium"
+                style={{ color: riskColor }}
+              >
+                {data.risk_score}
+              </span>
+            </div>
+          )}
+          <ChevronRight size={12} className="text-zinc-600" />
+        </div>
       </div>
     </div>
   );
@@ -121,12 +337,69 @@ const CustomNode = ({ data, selected }) => {
 
 const nodeTypes = { custom: CustomNode };
 
-// Node detail panel content
+// ---------------------------------------------------------------------------
+// Filter toggle bar
+// ---------------------------------------------------------------------------
+const FilterBar = ({ filters, onToggle, nodeCounts }) => {
+  // Only show categories that have nodes
+  const activeCategories = Object.entries(NODE_TYPE_CONFIG).filter(
+    ([key]) => (nodeCounts[key] || 0) > 0
+  );
+
+  if (activeCategories.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 px-4 py-2 border-b border-zinc-800 bg-zinc-950/50">
+      <Filter size={14} className="text-zinc-500 mr-1" />
+      {activeCategories.map(([key, config]) => {
+        const Icon = config.icon;
+        const isVisible = filters[key] !== false;
+        const count = nodeCounts[key] || 0;
+
+        return (
+          <button
+            key={key}
+            onClick={() => onToggle(key)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all"
+            style={{
+              backgroundColor: isVisible ? `${config.color}15` : 'transparent',
+              color: isVisible ? config.color : '#52525b',
+              border: `1px solid ${isVisible ? `${config.color}30` : '#27272a'}`,
+              opacity: isVisible ? 1 : 0.5,
+            }}
+          >
+            {isVisible ? (
+              <Eye size={12} />
+            ) : (
+              <EyeOff size={12} />
+            )}
+            <Icon size={12} />
+            <span>{config.label}</span>
+            <span
+              className="ml-0.5 px-1 py-0 rounded text-[10px]"
+              style={{
+                backgroundColor: isVisible ? `${config.color}20` : '#27272a',
+              }}
+            >
+              {count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Node detail panel
+// ---------------------------------------------------------------------------
 const NodeDetailPanel = ({ node, onClose }) => {
   if (!node) return null;
 
-  const config = getNodeConfig(node.data.type);
+  const data = node.data || {};
+  const config = getNodeConfig(data.component_type || data.type);
   const Icon = config.icon;
+  const isCluster = data.is_cluster;
 
   return (
     <>
@@ -139,11 +412,24 @@ const NodeDetailPanel = ({ node, onClose }) => {
             <Icon size={20} style={{ color: config.color }} />
           </div>
           <div>
-            <SheetTitle>{node.data.label}</SheetTitle>
+            <SheetTitle className="text-zinc-100">{data.label}</SheetTitle>
             <SheetDescription>
-              <Badge variant="outline" className="mt-1" style={{ borderColor: config.color, color: config.color }}>
+              <Badge
+                variant="outline"
+                className="mt-1"
+                style={{ borderColor: config.color, color: config.color }}
+              >
                 {config.label}
               </Badge>
+              {isCluster && (
+                <Badge
+                  variant="outline"
+                  className="mt-1 ml-1.5"
+                  style={{ borderColor: config.color, color: config.color }}
+                >
+                  Cluster ({data.model_count || 0} models)
+                </Badge>
+              )}
             </SheetDescription>
           </div>
         </div>
@@ -154,32 +440,64 @@ const NodeDetailPanel = ({ node, onClose }) => {
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="space-y-6 pr-2">
           {/* Risk Score */}
-          {node.data.risk_score != null && (
+          {data.risk_score != null && data.risk_score > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-slate-900 mb-2">Risk Score</h4>
+              <h4 className="text-sm font-medium text-zinc-100 mb-2">
+                Risk Score
+              </h4>
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
-                      width: `${node.data.risk_score}%`,
-                      backgroundColor: getRiskColor(node.data.risk_score),
+                      width: `${data.risk_score}%`,
+                      backgroundColor: getRiskColor(data.risk_score),
                     }}
                   />
                 </div>
-                <span className="text-sm font-semibold" style={{ color: getRiskColor(node.data.risk_score) }}>
-                  {node.data.risk_score}/100
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: getRiskColor(data.risk_score) }}
+                >
+                  {data.risk_score}/100
                 </span>
               </div>
             </div>
           )}
 
-          {/* Model Details */}
-          {node.data.models && node.data.models.length > 0 && (
+          {/* Children (models) for cluster nodes */}
+          {isCluster && data.children && data.children.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-slate-900 mb-2">Models</h4>
+              <h4 className="text-sm font-medium text-zinc-100 mb-2">
+                Models ({data.children.length})
+              </h4>
               <div className="flex flex-wrap gap-1.5">
-                {node.data.models.map((model, i) => (
+                {data.children.map((child, i) => (
+                  <Badge
+                    key={i}
+                    variant="secondary"
+                    className="text-xs"
+                    style={{
+                      backgroundColor: `${config.color}15`,
+                      color: config.color,
+                      borderColor: `${config.color}30`,
+                    }}
+                  >
+                    {child}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Model Details (non-cluster) */}
+          {!isCluster && data.models && data.models.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-zinc-100 mb-2">
+                Models
+              </h4>
+              <div className="flex flex-wrap gap-1.5">
+                {data.models.map((model, i) => (
                   <Badge key={i} variant="secondary" className="text-xs">
                     {model}
                   </Badge>
@@ -189,40 +507,64 @@ const NodeDetailPanel = ({ node, onClose }) => {
           )}
 
           {/* Files */}
-          {node.data.files && node.data.files.length > 0 && (
+          {data.files && data.files.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-slate-900 mb-2">
-                Files ({node.data.files.length})
+              <h4 className="text-sm font-medium text-zinc-100 mb-2">
+                Files ({data.files.length})
               </h4>
               <div className="space-y-2">
-                {node.data.files.map((file, i) => (
-                  <div
-                    key={i}
-                    className="p-3 bg-slate-50 rounded-lg border border-slate-100"
-                  >
-                    <p className="text-xs font-mono text-slate-700 truncate">{file.path}</p>
-                    {file.lines && file.lines.length > 0 && (
-                      <p className="text-[11px] text-slate-500 mt-1">
-                        Lines: {file.lines.join(', ')}
+                {data.files.map((file, i) => {
+                  const filePath = file.file_path || file.path || '';
+                  const lineNumber = file.line_number;
+                  const lines = file.lines;
+                  return (
+                    <div
+                      key={i}
+                      className="p-3 bg-zinc-800/50 rounded-lg border border-zinc-800"
+                    >
+                      <p className="text-xs font-mono text-zinc-300 truncate">
+                        {filePath}
                       </p>
-                    )}
-                  </div>
-                ))}
+                      {lineNumber && (
+                        <p className="text-[11px] text-zinc-500 mt-1">
+                          Line {lineNumber}
+                        </p>
+                      )}
+                      {lines && lines.length > 0 && (
+                        <p className="text-[11px] text-zinc-500 mt-1">
+                          Lines: {lines.join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Risk Flags */}
-          {node.data.risk_flags && node.data.risk_flags.length > 0 && (
+          {data.risk_flags && data.risk_flags.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-slate-900 mb-2">Risk Flags</h4>
+              <h4 className="text-sm font-medium text-zinc-100 mb-2">
+                Risk Flags
+              </h4>
               <div className="space-y-2">
-                {node.data.risk_flags.map((flag, i) => (
-                  <div key={i} className="flex items-start gap-2 p-2 bg-amber-50 rounded-lg border border-amber-100">
-                    <AlertTriangle size={14} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                {data.risk_flags.map((flag, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-2 p-2 bg-amber-500/10 rounded-lg border border-amber-500/20"
+                  >
+                    <AlertTriangle
+                      size={14}
+                      className="text-amber-500 mt-0.5 flex-shrink-0"
+                    />
                     <div>
-                      <p className="text-xs font-medium text-amber-800">{flag.title || flag.owasp}</p>
-                      <p className="text-[11px] text-amber-700 mt-0.5">{flag.message}</p>
+                      <p className="text-xs font-medium text-amber-300">
+                        {flag.title || flag.owasp}
+                      </p>
+                      <p className="text-[11px] text-amber-400 mt-0.5">
+                        {flag.message}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -231,14 +573,18 @@ const NodeDetailPanel = ({ node, onClose }) => {
           )}
 
           {/* Metadata */}
-          {node.data.metadata && Object.keys(node.data.metadata).length > 0 && (
+          {data.metadata && Object.keys(data.metadata).length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-slate-900 mb-2">Metadata</h4>
-              <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                {Object.entries(node.data.metadata).map(([key, value]) => (
+              <h4 className="text-sm font-medium text-zinc-100 mb-2">
+                Metadata
+              </h4>
+              <div className="bg-zinc-800/50 rounded-lg p-3 border border-zinc-800">
+                {Object.entries(data.metadata).map(([key, value]) => (
                   <div key={key} className="flex justify-between py-1 text-xs">
-                    <span className="text-slate-500">{key}</span>
-                    <span className="text-slate-700 font-medium">{String(value)}</span>
+                    <span className="text-zinc-500">{key}</span>
+                    <span className="text-zinc-300 font-medium text-right max-w-[60%] truncate">
+                      {Array.isArray(value) ? value.join(', ') : String(value)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -250,6 +596,9 @@ const NodeDetailPanel = ({ node, onClose }) => {
   );
 };
 
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 const DependencyGraph = ({ graphData }) => {
   const [selectedNode, setSelectedNode] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -263,11 +612,11 @@ const DependencyGraph = ({ graphData }) => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Layers size={48} className="text-slate-300 mb-4" />
-            <p className="text-slate-600 font-medium mb-2">
+            <Layers size={48} className="text-zinc-600 mb-4" />
+            <p className="text-zinc-400 font-medium mb-2">
               Install @xyflow/react to enable dependency graph visualization
             </p>
-            <code className="text-xs bg-slate-100 px-3 py-1.5 rounded-md text-slate-600">
+            <code className="text-xs bg-zinc-800 px-3 py-1.5 rounded-md text-zinc-400">
               npm install @xyflow/react
             </code>
           </div>
@@ -287,58 +636,120 @@ const DependencyGraph = ({ graphData }) => {
   );
 };
 
-const DependencyGraphInner = ({ graphData, selectedNode, setSelectedNode, sheetOpen, setSheetOpen }) => {
-  // Process nodes for React Flow
-  const initialNodes = useMemo(() => {
-    if (!graphData?.nodes?.length) return [];
-    return graphData.nodes.map((node) => ({
-      id: node.id,
-      type: 'custom',
-      position: node.position || { x: 0, y: 0 },
-      data: {
-        label: node.data?.label || node.label || node.id,
-        type: node.data?.type || node.type || 'component',
-        file_count: node.data?.file_count || node.data?.files?.length || 0,
-        risk_score: node.data?.risk_score ?? null,
-        files: node.data?.files || [],
-        models: node.data?.models || [],
-        risk_flags: node.data?.risk_flags || [],
-        metadata: node.data?.metadata || {},
-      },
+const DependencyGraphInner = ({
+  graphData,
+  selectedNode,
+  setSelectedNode,
+  sheetOpen,
+  setSheetOpen,
+}) => {
+  // Category visibility filters
+  const [filters, setFilters] = useState({});
+
+  const toggleFilter = useCallback((key) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key] === false ? true : false,
     }));
+  }, []);
+
+  // Count nodes per category (before filtering)
+  const nodeCounts = useMemo(() => {
+    if (!graphData?.nodes?.length) return {};
+    const counts = {};
+    graphData.nodes.forEach((node) => {
+      const ctype = node.data?.component_type || node.type || 'unknown';
+      counts[ctype] = (counts[ctype] || 0) + 1;
+    });
+    return counts;
   }, [graphData]);
 
-  // Process edges
-  const initialEdges = useMemo(() => {
-    if (!graphData?.edges?.length) return [];
-    return graphData.edges.map((edge) => ({
-      id: edge.id || `${edge.source}-${edge.target}`,
-      source: edge.source,
-      target: edge.target,
-      label: edge.label || edge.data?.label || '',
-      type: 'smoothstep',
-      animated: edge.animated || false,
-      style: { stroke: '#94a3b8', strokeWidth: 1.5 },
-      labelStyle: { fontSize: 10, fill: '#64748b' },
-      labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
-      labelBgPadding: [4, 2],
-      labelBgBorderRadius: 4,
-    }));
-  }, [graphData]);
+  // Process and filter nodes for React Flow
+  const { filteredNodes, filteredEdges } = useMemo(() => {
+    if (!graphData?.nodes?.length) return { filteredNodes: [], filteredEdges: [] };
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    // Build the visible node set based on filters
+    const visibleNodeIds = new Set();
+    const processedNodes = [];
 
-  // Update when graphData changes
+    graphData.nodes.forEach((node) => {
+      const ctype = node.data?.component_type || node.type || 'unknown';
+      if (filters[ctype] === false) return; // filtered out
+
+      visibleNodeIds.add(node.id);
+      processedNodes.push({
+        id: node.id,
+        type: 'custom',
+        position: node.position || { x: 0, y: 0 },
+        data: {
+          label: node.data?.label || node.label || node.id,
+          type: node.data?.component_type || node.type || 'component',
+          component_type: node.data?.component_type || node.type || 'component',
+          file_count: node.data?.file_count || node.data?.files?.length || 0,
+          risk_score: node.data?.risk_score ?? null,
+          files: node.data?.files || [],
+          models: node.data?.models || [],
+          children: node.data?.children || [],
+          is_cluster: node.data?.is_cluster || false,
+          model_count: node.data?.model_count || 0,
+          risk_flags: node.data?.risk_flags || [],
+          metadata: node.data?.metadata || {},
+        },
+      });
+    });
+
+    // Filter edges to only include visible nodes
+    const processedEdges = (graphData.edges || [])
+      .filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target))
+      .map((edge) => {
+        const rel = edge.label || edge.data?.label || '';
+        const isHighPriority = ['feeds-into', 'has-access-to', 'import-chain'].includes(rel);
+
+        return {
+          id: edge.id || `${edge.source}-${edge.target}`,
+          source: edge.source,
+          target: edge.target,
+          label: rel,
+          type: 'smoothstep',
+          animated: edge.animated || false,
+          style: {
+            stroke: isHighPriority ? '#52525b' : '#3f3f46',
+            strokeWidth: isHighPriority ? 1.5 : 1,
+            opacity: isHighPriority ? 0.8 : 0.4,
+          },
+          labelStyle: {
+            fontSize: 10,
+            fill: '#71717a',
+            fontWeight: isHighPriority ? 500 : 400,
+          },
+          labelBgStyle: { fill: '#09090b', fillOpacity: 0.9 },
+          labelBgPadding: [4, 2],
+          labelBgBorderRadius: 4,
+        };
+      });
+
+    // Apply dagre layout if available
+    const layoutNodes = applyDagreLayout(processedNodes, processedEdges, 'LR');
+
+    return { filteredNodes: layoutNodes, filteredEdges: processedEdges };
+  }, [graphData, filters]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(filteredNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(filteredEdges);
+
+  // Update when filtered data changes
   useEffect(() => {
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, [initialNodes, initialEdges, setNodes, setEdges]);
+    setNodes(filteredNodes);
+    setEdges(filteredEdges);
+  }, [filteredNodes, filteredEdges, setNodes, setEdges]);
 
-  const onNodeClick = useCallback((event, node) => {
-    setSelectedNode(node);
-    setSheetOpen(true);
-  }, [setSelectedNode, setSheetOpen]);
+  const onNodeClick = useCallback(
+    (event, node) => {
+      setSelectedNode(node);
+      setSheetOpen(true);
+    },
+    [setSelectedNode, setSheetOpen]
+  );
 
   const handleExportPng = useCallback(() => {
     const svgElement = document.querySelector('.react-flow__viewport');
@@ -353,7 +764,9 @@ const DependencyGraphInner = ({ graphData, selectedNode, setSelectedNode, sheetO
 
     const svgData = new XMLSerializer().serializeToString(svgElement);
     const img = new Image();
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgBlob = new Blob([svgData], {
+      type: 'image/svg+xml;charset=utf-8',
+    });
     const url = URL.createObjectURL(svgBlob);
 
     img.onload = () => {
@@ -376,46 +789,66 @@ const DependencyGraphInner = ({ graphData, selectedNode, setSelectedNode, sheetO
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Layers size={48} className="text-slate-300 mb-4" />
-            <p className="text-slate-500 mb-1">No dependency graph data available</p>
-            <p className="text-xs text-slate-400">Run a full scan to generate the AI dependency graph</p>
+            <Layers size={48} className="text-zinc-600 mb-4" />
+            <p className="text-zinc-500 mb-1">
+              No dependency graph data available
+            </p>
+            <p className="text-xs text-zinc-500">
+              Run a full scan to generate the AI dependency graph
+            </p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
+  // Stats summary
+  const totalNodes = graphData.nodes?.length || 0;
+  const totalEdges = graphData.edges?.length || 0;
+  const clusterCount = (graphData.nodes || []).filter(
+    (n) => n.data?.is_cluster
+  ).length;
+
   // MiniMap color function
   const miniMapNodeColor = (node) => {
-    const config = getNodeConfig(node.data?.type);
+    const config = getNodeConfig(node.data?.component_type || node.data?.type);
     return config.color;
   };
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between py-4">
-        <CardTitle className="text-lg">AI Dependency Graph</CardTitle>
-        <div className="flex items-center gap-2">
-          {/* Legend */}
-          <div className="hidden lg:flex items-center gap-3 mr-4">
-            {Object.entries(NODE_TYPE_CONFIG).map(([key, config]) => {
-              const Icon = config.icon;
-              return (
-                <div key={key} className="flex items-center gap-1">
-                  <Icon size={12} style={{ color: config.color }} />
-                  <span className="text-[10px] text-slate-500">{config.label}</span>
-                </div>
-              );
-            })}
+      <CardHeader className="flex flex-row items-center justify-between py-3">
+        <div className="flex items-center gap-3">
+          <CardTitle className="text-lg">AI Dependency Graph</CardTitle>
+          <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <span>{totalNodes} nodes</span>
+            <span className="text-zinc-700">|</span>
+            <span>{totalEdges} edges</span>
+            {clusterCount > 0 && (
+              <>
+                <span className="text-zinc-700">|</span>
+                <span>{clusterCount} clustered</span>
+              </>
+            )}
           </div>
+        </div>
+        <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExportPng}>
             <Download size={14} className="mr-1.5" />
             PNG
           </Button>
         </div>
       </CardHeader>
+
+      {/* Filter bar */}
+      <FilterBar
+        filters={filters}
+        onToggle={toggleFilter}
+        nodeCounts={nodeCounts}
+      />
+
       <CardContent className="p-0">
-        <div style={{ height: 600 }} className="border-t border-slate-200">
+        <div style={{ height: 600 }} className="bg-zinc-950">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -424,27 +857,44 @@ const DependencyGraphInner = ({ graphData, selectedNode, setSelectedNode, sheetO
             onNodeClick={onNodeClick}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.2 }}
-            minZoom={0.2}
+            fitViewOptions={{ padding: 0.3 }}
+            minZoom={0.1}
             maxZoom={2}
             attributionPosition="bottom-left"
+            proOptions={{ hideAttribution: true }}
+            defaultEdgeOptions={{
+              type: 'smoothstep',
+              style: { stroke: '#3f3f46', strokeWidth: 1 },
+            }}
           >
-            <Controls position="top-right" />
+            <Controls
+              position="top-right"
+              style={{
+                borderRadius: 8,
+                overflow: 'hidden',
+                border: '1px solid #27272a',
+              }}
+            />
             <MiniMap
               nodeColor={miniMapNodeColor}
-              nodeStrokeWidth={3}
+              nodeStrokeWidth={2}
               zoomable
               pannable
-              style={{ border: '1px solid #e2e8f0', borderRadius: 8 }}
+              maskColor="rgba(0,0,0,0.7)"
+              style={{
+                border: '1px solid #27272a',
+                borderRadius: 8,
+                backgroundColor: '#09090b',
+              }}
             />
-            <Background color="#e2e8f0" gap={20} size={1} />
+            <Background color="#1c1c1c" gap={24} size={1} />
           </ReactFlow>
         </div>
       </CardContent>
 
       {/* Node Detail Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetContent side="right" className="w-full sm:max-w-md bg-zinc-950 border-zinc-800">
           <NodeDetailPanel
             node={selectedNode}
             onClose={() => setSheetOpen(false)}

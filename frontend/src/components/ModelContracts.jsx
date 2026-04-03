@@ -14,11 +14,11 @@ const ModelContracts = ({ contracts }) => {
 
   return (
     <div>
-      <h3 className="text-base font-semibold text-gray-900 mb-4">Model & Prompt Contracts</h3>
-      <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+      <h3 className="text-base font-semibold text-zinc-100 mb-4">Model & Prompt Contracts</h3>
+      <div className="bg-zinc-800/50 rounded-lg p-5 border border-zinc-800">
         {/* Models */}
         <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Models in Use</h4>
+          <h4 className="text-sm font-medium text-zinc-300 mb-2">Models in Use</h4>
           <div className="flex flex-wrap gap-2">
             {unique_models.map((model, idx) => (
               <Badge key={idx} variant="secondary" className="text-sm">
@@ -31,10 +31,10 @@ const ModelContracts = ({ contracts }) => {
         {/* Temperature */}
         {(temperature_range.min !== null || temperature_range.max !== null) && (
           <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Temperature Range</h4>
-            <p className="text-sm text-gray-900">
-              Min: {temperature_range.min?.toFixed(2) || 'N/A'} | 
-              Max: {temperature_range.max?.toFixed(2) || 'N/A'} | 
+            <h4 className="text-sm font-medium text-zinc-300 mb-2">Temperature Range</h4>
+            <p className="text-sm text-zinc-100">
+              Min: {temperature_range.min?.toFixed(2) || 'N/A'} |
+              Max: {temperature_range.max?.toFixed(2) || 'N/A'} |
               Avg: {temperature_range.avg?.toFixed(2) || 'N/A'}
             </p>
           </div>
@@ -43,10 +43,10 @@ const ModelContracts = ({ contracts }) => {
         {/* Max Tokens */}
         {(max_tokens_range.min !== null || max_tokens_range.max !== null) && (
           <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Max Tokens Range</h4>
-            <p className="text-sm text-gray-900">
-              Min: {max_tokens_range.min || 'N/A'} | 
-              Max: {max_tokens_range.max || 'N/A'} | 
+            <h4 className="text-sm font-medium text-zinc-300 mb-2">Max Tokens Range</h4>
+            <p className="text-sm text-zinc-100">
+              Min: {max_tokens_range.min || 'N/A'} |
+              Max: {max_tokens_range.max || 'N/A'} |
               Avg: {Math.round(max_tokens_range.avg || 0)}
             </p>
           </div>

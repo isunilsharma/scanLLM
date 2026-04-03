@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const GRADE_CONFIG = {
-  A: { color: '#22c55e', bgColor: '#f0fdf4', label: 'Low Risk' },
-  B: { color: '#84cc16', bgColor: '#f7fee7', label: 'Moderate' },
-  C: { color: '#eab308', bgColor: '#fefce8', label: 'Medium' },
-  D: { color: '#f97316', bgColor: '#fff7ed', label: 'High Risk' },
-  F: { color: '#ef4444', bgColor: '#fef2f2', label: 'Critical' },
+  A: { color: '#22c55e', bgColor: 'rgba(34,197,94,0.1)', label: 'Low Risk' },
+  B: { color: '#84cc16', bgColor: 'rgba(132,204,22,0.1)', label: 'Moderate' },
+  C: { color: '#eab308', bgColor: 'rgba(234,179,8,0.1)', label: 'Medium' },
+  D: { color: '#f97316', bgColor: 'rgba(249,115,22,0.1)', label: 'High Risk' },
+  F: { color: '#ef4444', bgColor: 'rgba(239,68,68,0.1)', label: 'Critical' },
 };
 
 function getGradeFromScore(score) {
@@ -84,7 +84,7 @@ const RiskScoreGauge = ({ score = 0, grade, compact = false }) => {
             <path
               d={bgPath}
               fill="none"
-              stroke="#e2e8f0"
+              stroke="#3f3f46"
               strokeWidth={strokeWidth}
               strokeLinecap="round"
             />
@@ -116,7 +116,7 @@ const RiskScoreGauge = ({ score = 0, grade, compact = false }) => {
           >
             {resolvedGrade}
           </span>
-          <p className="text-xs text-slate-500 mt-1">{config.label}</p>
+          <p className="text-xs text-zinc-500 mt-1">{config.label}</p>
         </div>
       </div>
     );
@@ -130,7 +130,7 @@ const RiskScoreGauge = ({ score = 0, grade, compact = false }) => {
           <path
             d={bgPath}
             fill="none"
-            stroke="#e2e8f0"
+            stroke="#3f3f46"
             strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
@@ -157,7 +157,7 @@ const RiskScoreGauge = ({ score = 0, grade, compact = false }) => {
               <line
                 key={tick}
                 x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke="#94a3b8"
+                stroke="#52525b"
                 strokeWidth={1}
               />
             );
@@ -171,7 +171,7 @@ const RiskScoreGauge = ({ score = 0, grade, compact = false }) => {
           <span className="text-4xl font-bold leading-none" style={{ color: config.color }}>
             {animatedScore}
           </span>
-          <span className="text-xs text-slate-400 mt-1">/ 100</span>
+          <span className="text-xs text-zinc-500 mt-1">/ 100</span>
         </div>
       </div>
       {/* Grade badge */}
@@ -182,7 +182,7 @@ const RiskScoreGauge = ({ score = 0, grade, compact = false }) => {
         >
           {resolvedGrade}
         </span>
-        <p className="text-sm text-slate-500 mt-2">{config.label}</p>
+        <p className="text-sm text-zinc-500 mt-2">{config.label}</p>
       </div>
     </div>
   );

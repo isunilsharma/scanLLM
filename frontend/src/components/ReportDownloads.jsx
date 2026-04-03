@@ -17,7 +17,7 @@ const REPORT_TYPES = [
     filename: (scanId) => `scanllm-report-${scanId}.pdf`,
     contentType: 'application/pdf',
     color: '#ef4444',
-    bgColor: '#fef2f2',
+    bgColor: 'rgba(239, 68, 68, 0.1)',
   },
   {
     id: 'aibom-json',
@@ -28,7 +28,7 @@ const REPORT_TYPES = [
     filename: (scanId) => `scanllm-aibom-${scanId}.json`,
     contentType: 'application/json',
     color: '#3b82f6',
-    bgColor: '#eff6ff',
+    bgColor: 'rgba(59, 130, 246, 0.1)',
   },
   {
     id: 'aibom-xml',
@@ -39,7 +39,7 @@ const REPORT_TYPES = [
     filename: (scanId) => `scanllm-aibom-${scanId}.xml`,
     contentType: 'application/xml',
     color: '#8b5cf6',
-    bgColor: '#f5f3ff',
+    bgColor: 'rgba(139, 92, 246, 0.1)',
   },
 ];
 
@@ -95,7 +95,7 @@ const ReportDownloads = ({ scanId }) => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Download size={20} className="text-slate-600" />
+            <Download size={20} className="text-zinc-400" />
             Export Reports
           </CardTitle>
           {scanId && (
@@ -116,7 +116,7 @@ const ReportDownloads = ({ scanId }) => {
             return (
               <div
                 key={report.id}
-                className="p-4 rounded-xl border-2 border-slate-100 hover:border-slate-200 transition-all"
+                className="p-4 rounded-xl border-2 border-zinc-800 hover:border-zinc-700 transition-all"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div
@@ -126,10 +126,10 @@ const ReportDownloads = ({ scanId }) => {
                     <Icon size={20} style={{ color: report.color }} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-800">{report.label}</h4>
+                    <h4 className="text-sm font-semibold text-zinc-200">{report.label}</h4>
                   </div>
                 </div>
-                <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+                <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
                   {report.description}
                 </p>
                 <Button
@@ -146,7 +146,7 @@ const ReportDownloads = ({ scanId }) => {
                     </>
                   ) : isCompleted ? (
                     <>
-                      <CheckCircle size={14} className="mr-1.5 text-green-600" />
+                      <CheckCircle size={14} className="mr-1.5 text-green-400" />
                       Downloaded
                     </>
                   ) : (

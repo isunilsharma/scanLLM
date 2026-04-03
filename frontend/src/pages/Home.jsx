@@ -29,7 +29,7 @@ const Home = () => {
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-medium mb-6 border border-cyan-500/20">
                 <Terminal className="w-3.5 h-3.5" />
-                Now available: scanllm v2.0
+                pip install scanllm
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">

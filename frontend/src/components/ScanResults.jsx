@@ -87,13 +87,13 @@ const ScanResults = ({ result, showRescan = true }) => {
   const riskGrade = getRiskGrade(riskScore);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200" data-testid="scan-results">
+    <div className="bg-zinc-900 rounded-lg shadow-sm border border-zinc-800" data-testid="scan-results">
       {/* Scan Metadata Header */}
-      <div className="px-4 md:px-6 py-4 border-b border-indigo-100 bg-gradient-to-r from-indigo-50/60 to-slate-50">
+      <div className="px-4 md:px-6 py-4 border-b border-zinc-800 bg-zinc-900">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-lg md:text-xl font-semibold text-gray-900">Scan Results</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-zinc-100">Scan Results</h2>
               <Badge
                 variant={result.status === 'SUCCESS' ? 'default' : 'destructive'}
                 className={`text-xs flex-shrink-0 ${result.status === 'SUCCESS' ? 'bg-emerald-600 hover:bg-emerald-600/80' : ''}`}
@@ -111,10 +111,10 @@ const ScanResults = ({ result, showRescan = true }) => {
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-gray-600 truncate">{result.repo_url}</p>
+            <p className="text-sm text-zinc-400 truncate">{result.repo_url}</p>
           </div>
           {showRescan && (
-            <Button onClick={handleRescan} variant="outline" size="sm" className="w-full sm:w-auto border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+            <Button onClick={handleRescan} variant="outline" size="sm" className="w-full sm:w-auto border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
               <RefreshCw size={14} className="mr-2" />
               Rescan
             </Button>
@@ -123,23 +123,23 @@ const ScanResults = ({ result, showRescan = true }) => {
       </div>
 
       {/* Quick Stats */}
-      <div className="p-4 md:p-6 border-b border-slate-200">
+      <div className="p-4 md:p-6 border-b border-zinc-800">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-500">
-            <p className="text-xs text-slate-500 mb-1 font-medium">Total Files</p>
-            <p className="text-2xl font-bold text-indigo-900" data-testid="total-files">{result.files_count}</p>
+          <div className="bg-zinc-800/50 rounded-lg p-4 border-t-2 border-cyan-500">
+            <p className="text-xs text-zinc-500 mb-1 font-medium">Total Files</p>
+            <p className="text-2xl font-bold text-cyan-300" data-testid="total-files">{result.files_count}</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-400">
-            <p className="text-xs text-slate-500 mb-1 font-medium">Total Matches</p>
-            <p className="text-2xl font-bold text-indigo-900" data-testid="total-matches">{result.total_occurrences}</p>
+          <div className="bg-zinc-800/50 rounded-lg p-4 border-t-2 border-cyan-400">
+            <p className="text-xs text-zinc-500 mb-1 font-medium">Total Matches</p>
+            <p className="text-2xl font-bold text-cyan-300" data-testid="total-matches">{result.total_occurrences}</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-300">
-            <p className="text-xs text-slate-500 mb-1 font-medium">Frameworks Found</p>
-            <p className="text-2xl font-bold text-indigo-900" data-testid="frameworks-count">{frameworks.length}</p>
+          <div className="bg-zinc-800/50 rounded-lg p-4 border-t-2 border-cyan-300">
+            <p className="text-xs text-zinc-500 mb-1 font-medium">Frameworks Found</p>
+            <p className="text-2xl font-bold text-cyan-300" data-testid="frameworks-count">{frameworks.length}</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4 border-t-2 border-indigo-200">
-            <p className="text-xs text-slate-500 mb-1 font-medium">Avg per File</p>
-            <p className="text-2xl font-bold text-indigo-900">
+          <div className="bg-zinc-800/50 rounded-lg p-4 border-t-2 border-cyan-200">
+            <p className="text-xs text-zinc-500 mb-1 font-medium">Avg per File</p>
+            <p className="text-2xl font-bold text-cyan-300">
               {result.files_count > 0 ? (result.total_occurrences / result.files_count).toFixed(1) : '0'}
             </p>
           </div>
@@ -148,14 +148,14 @@ const ScanResults = ({ result, showRescan = true }) => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="px-6 pt-6 border-b border-slate-200">
-          <TabsList className="grid w-full max-w-2xl grid-cols-6 bg-indigo-50/60">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-overview">Overview</TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-security">Security</TabsTrigger>
-            <TabsTrigger value="graph" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-graph">Graph</TabsTrigger>
-            <TabsTrigger value="files" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-files">Files</TabsTrigger>
-            <TabsTrigger value="reports" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-reports">Reports</TabsTrigger>
-            <TabsTrigger value="raw" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white" data-testid="tab-raw">Raw Data</TabsTrigger>
+        <div className="px-6 pt-6 border-b border-zinc-800">
+          <TabsList className="grid w-full max-w-2xl grid-cols-6 bg-zinc-800">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="security" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white" data-testid="tab-security">Security</TabsTrigger>
+            <TabsTrigger value="graph" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white" data-testid="tab-graph">Graph</TabsTrigger>
+            <TabsTrigger value="files" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white" data-testid="tab-files">Files</TabsTrigger>
+            <TabsTrigger value="reports" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white" data-testid="tab-reports">Reports</TabsTrigger>
+            <TabsTrigger value="raw" className="data-[state=active]:bg-cyan-600 data-[state=active]:text-white" data-testid="tab-raw">Raw Data</TabsTrigger>
           </TabsList>
         </div>
 
@@ -209,7 +209,7 @@ const ScanResults = ({ result, showRescan = true }) => {
 
           {/* Filtered Stats */}
           {(selectedFramework !== 'all' || searchQuery.trim()) && (
-            <div className="flex gap-6 text-sm text-slate-600">
+            <div className="flex gap-6 text-sm text-zinc-400">
               <span>Showing {filteredStats.files_count} files</span>
               <span>•</span>
               <span>{filteredStats.total_occurrences} occurrences</span>
@@ -228,7 +228,7 @@ const ScanResults = ({ result, showRescan = true }) => {
         {/* Raw Data Tab */}
         <TabsContent value="raw" className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-900">Raw JSON Data</h3>
+            <h3 className="text-sm font-medium text-zinc-100">Raw JSON Data</h3>
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -263,8 +263,8 @@ const ScanResults = ({ result, showRescan = true }) => {
               </Button>
             </div>
           </div>
-          <div className="bg-slate-50 rounded-lg p-4 overflow-auto max-h-[600px]">
-            <pre className="text-xs text-slate-800" data-testid="raw-data">
+          <div className="bg-zinc-800/50 rounded-lg p-4 overflow-auto max-h-[600px]">
+            <pre className="text-xs text-zinc-200" data-testid="raw-data">
               {JSON.stringify(result, null, 2)}
             </pre>
           </div>

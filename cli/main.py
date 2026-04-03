@@ -6,7 +6,7 @@ from __future__ import annotations
 import typer
 from rich.console import Console
 
-from cli.commands import scan, init_cmd, policy, diff, ui, watch, report, fix
+from cli.commands import scan, init_cmd, policy, diff, ui, watch, report, fix, push, auth
 from cli.commands import score as score_cmd
 from cli.commands import doctor as doctor_cmd
 from cli.commands import export as export_cmd
@@ -60,7 +60,11 @@ app.command(name="score")(score_cmd.score)
 app.command(name="doctor")(doctor_cmd.doctor)
 app.command(name="export")(export_cmd.export)
 
+# ── Register top-level push command ────────────────────────────────────────
+app.command(name="push")(push.push)
+
 # ── Register sub-command groups ─────────────────────────────────────────────
+app.add_typer(auth.auth_app, name="auth", help="Manage cloud authentication.")
 app.add_typer(policy.policy_app, name="policy", help="Policy management commands.")
 app.add_typer(report.report_app, name="report", help="Report generation commands.")
 app.add_typer(telemetry_cmd.telemetry_app, name="telemetry", help="Manage anonymous telemetry.")

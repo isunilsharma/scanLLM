@@ -16,7 +16,7 @@ import ScanHistory from './ScanHistory';
 import ExplainRepoButton from './ExplainRepoButton';
 import SecurityOverview from './SecurityOverview';
 
-const COLORS = ['#4f46e5', '#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'];
+const COLORS = ['#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc', '#cffafe', '#ecfeff'];
 
 const ResultsOverview = ({ result, frameworks }) => {
   // Framework distribution data
@@ -103,7 +103,7 @@ const ResultsOverview = ({ result, frameworks }) => {
 
       {/* Framework Badges */}
       <div>
-        <h3 className="text-sm font-medium text-slate-900 mb-3">Detected Frameworks</h3>
+        <h3 className="text-sm font-medium text-zinc-100 mb-3">Detected Frameworks</h3>
         <div className="flex flex-wrap gap-2">
           {frameworks.map(fw => (
             <Badge key={fw} variant="secondary" className="text-sm py-1 px-3">
@@ -149,23 +149,23 @@ const ResultsOverview = ({ result, frameworks }) => {
       <div className="grid md:grid-cols-2 gap-8">
         {/* Occurrences by Framework */}
         <div>
-          <h3 className="text-sm font-medium text-slate-900 mb-4">Occurrences by Framework</h3>
+          <h3 className="text-sm font-medium text-zinc-100 mb-4">Occurrences by Framework</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={frameworkData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
               <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '8px', color: '#e4e4e7' }}
               />
-              <Bar dataKey="count" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill="#06b6d4" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Files by Framework */}
         <div>
-          <h3 className="text-sm font-medium text-slate-900 mb-4">Files by Framework</h3>
+          <h3 className="text-sm font-medium text-zinc-100 mb-4">Files by Framework</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -192,20 +192,20 @@ const ResultsOverview = ({ result, frameworks }) => {
 
       {/* Top Files Table */}
       <div>
-        <h3 className="text-sm font-medium text-slate-900 mb-4">Top Files by Matches</h3>
-        <div className="border border-slate-200 rounded-lg overflow-hidden">
+        <h3 className="text-sm font-medium text-zinc-100 mb-4">Top Files by Matches</h3>
+        <div className="border border-zinc-800 rounded-lg overflow-hidden">
           <table className="w-full">
-            <thead className="bg-slate-50">
+            <thead className="bg-zinc-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-600 px-4 py-3">File Path</th>
-                <th className="text-left text-xs font-medium text-slate-600 px-4 py-3">Frameworks</th>
-                <th className="text-right text-xs font-medium text-slate-600 px-4 py-3">Matches</th>
+                <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">File Path</th>
+                <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Frameworks</th>
+                <th className="text-right text-xs font-medium text-zinc-400 px-4 py-3">Matches</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-zinc-800/50">
               {topFiles.map((file, idx) => (
-                <tr key={idx} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-sm text-slate-900 font-mono max-w-[200px] truncate">{file.file_path}</td>
+                <tr key={idx} className="hover:bg-zinc-800/30">
+                  <td className="px-4 py-3 text-sm text-zinc-100 font-mono max-w-[200px] truncate">{file.file_path}</td>
                   <td className="px-4 py-3 max-w-[160px] md:max-w-none">
                     <div className="flex flex-wrap gap-1">
                       {file.frameworks.map(fw => (
@@ -215,7 +215,7 @@ const ResultsOverview = ({ result, frameworks }) => {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-900 text-right font-medium">
+                  <td className="px-4 py-3 text-sm text-zinc-100 text-right font-medium">
                     {file.occurrences.length}
                   </td>
                 </tr>

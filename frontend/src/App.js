@@ -21,6 +21,7 @@ import PolicyEditor from './pages/PolicyEditor';
 import DriftView from './pages/DriftView';
 import CostInsights from './pages/CostInsights';
 import AdminTelemetry from './pages/AdminTelemetry';
+import GradingDocs from './pages/GradingDocs';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import UserWorkflow from './pages/UserWorkflow';
@@ -91,6 +92,13 @@ function App() {
             <div className="flex flex-col min-h-screen">
               <Header />
               <main className="flex-1"><UserWorkflow /></main>
+              <Footer />
+            </div>
+          } />
+          <Route path="/docs/grading" element={
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-1"><GradingDocs /></main>
               <Footer />
             </div>
           } />

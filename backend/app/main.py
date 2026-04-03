@@ -59,6 +59,12 @@ except Exception as _e:
     v1_telemetry_router = None
     logging.getLogger(__name__).warning("Telemetry router failed to load: %s", _e)
 
+try:
+    from app.api.v1.policies import router as v1_policies_router
+except Exception as _e:
+    v1_policies_router = None
+    logging.getLogger(__name__).warning("Policies router failed to load: %s", _e)
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -415,6 +421,8 @@ app.include_router(v1_cost_router, prefix="/api/v1/cost", tags=["cost"])
 app.include_router(v1_audit_router, prefix="/api/v1/audit", tags=["audit"])
 if v1_telemetry_router is not None:
     app.include_router(v1_telemetry_router, prefix="/api/v1/telemetry", tags=["telemetry"])
+if v1_policies_router is not None:
+    app.include_router(v1_policies_router, prefix="/api/v1/policies", tags=["policies"])
 
 
 # ---------------------------------------------------------------------------
