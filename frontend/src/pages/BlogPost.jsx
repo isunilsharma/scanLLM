@@ -128,9 +128,9 @@ AI systems introduce new operational risks, and monitoring must evolve according
 
   if (!blog) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Blog post not found</h1>
+          <h1 className="text-2xl font-bold text-zinc-100 mb-4">Blog post not found</h1>
           <Button onClick={() => navigate('/blog')}>Back to Blog</Button>
         </div>
       </div>
@@ -138,12 +138,12 @@ AI systems introduce new operational risks, and monitoring must evolve according
   }
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-zinc-950 py-16">
       <article className="max-w-4xl mx-auto px-6">
         {/* Back button */}
         <button
           onClick={() => navigate('/blog')}
-          className="flex items-center gap-2 text-gray-600 hover:text-primary mb-8 transition-colors"
+          className="flex items-center gap-2 text-zinc-400 hover:text-primary mb-8 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -154,10 +154,10 @@ AI systems introduce new operational risks, and monitoring must evolve according
         {/* Header */}
         <header className="mb-12">
           <Badge className="mb-4">{blog.category}</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-zinc-100 mb-6 leading-tight">
             {blog.title}
           </h1>
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-sm text-zinc-400">
             <span className="flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -176,19 +176,19 @@ AI systems introduce new operational risks, and monitoring must evolve according
         {/* Content */}
         <div className="prose prose-lg max-w-none">
           {blog.content.split('\n\n').map((paragraph, idx) => (
-            <p key={idx} className="text-gray-700 leading-relaxed mb-6">
+            <p key={idx} className="text-zinc-300 leading-relaxed mb-6">
               {paragraph}
             </p>
           ))}
         </div>
 
         {/* Footer CTA */}
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <div className="bg-primary/5 rounded-2xl p-8 text-center border border-primary/20">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+        <div className="mt-16 pt-8 border-t border-zinc-800">
+          <div className="bg-zinc-900 rounded-2xl p-8 text-center border border-primary/20">
+            <h3 className="text-2xl font-semibold text-zinc-100 mb-4">
               Ready to map your AI dependencies?
             </h3>
-            <p className="text-gray-700 mb-6">
+            <p className="text-zinc-400 mb-6">
               Start scanning your repositories today with ScanLLM.ai
             </p>
             <Button
