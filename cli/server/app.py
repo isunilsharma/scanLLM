@@ -440,7 +440,7 @@ def create_app(repo_path: Path) -> Any:
         from fastapi.responses import HTMLResponse, JSONResponse
     except ImportError:
         raise ImportError(
-            "FastAPI is required for `scanllm ui`. Install with: pip install scanllm[server]"
+            "FastAPI is required for `scanllm ui`. Install with: pip install 'scanllm[server]'"
         )
 
     from cli.config import ScanLLMConfig

@@ -24,11 +24,12 @@ def ui(
     repo_path = Path(path).resolve()
 
     try:
+        import fastapi  # noqa: F401
         import uvicorn
     except ImportError:
         console.print(
-            "[bold red]Error:[/bold red] uvicorn is required for the local dashboard.\n"
-            "  Run: [dim]pip install uvicorn[/dim]"
+            "[bold red]Error:[/bold red] FastAPI and uvicorn are required for the local dashboard.\n"
+            "  Run: [dim]pip install 'scanllm\\[server]'[/dim]"
         )
         raise typer.Exit(code=1)
 
