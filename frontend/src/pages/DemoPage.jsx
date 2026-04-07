@@ -46,19 +46,19 @@ const DemoPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-zinc-950 py-16">
       <div className="max-w-3xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Try a Demo Scan</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-4xl font-bold text-zinc-100 mb-4">Try a Demo Scan</h1>
+          <p className="text-lg text-zinc-400">
             Analyze any public GitHub repository. No sign-in required.
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+        <div className="bg-zinc-900 rounded-2xl shadow-lg border border-zinc-800 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-3">
+              <label className="block text-sm font-medium text-zinc-100 mb-3">
                 GitHub Repository URL
               </label>
               <Input
@@ -66,13 +66,13 @@ const DemoPage = () => {
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
                 disabled={isSubmitting}
-                className="h-12 text-base"
+                className="h-12 text-base bg-zinc-800 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
               />
             </div>
 
             {/* Example Chips */}
             <div>
-              <p className="text-sm text-gray-700 font-medium mb-2">Quick start with an example:</p>
+              <p className="text-sm text-zinc-300 font-medium mb-2">Quick start with an example:</p>
               <div className="flex flex-wrap gap-2">
                 {EXAMPLE_REPOS.map((repo, idx) => (
                   <button
@@ -80,7 +80,7 @@ const DemoPage = () => {
                     type="button"
                     onClick={() => setRepoUrl(repo.url)}
                     disabled={isSubmitting}
-                    className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-full transition-colors disabled:opacity-50"
+                    className="px-3 py-1.5 text-sm bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 text-zinc-300 rounded-full transition-colors disabled:opacity-50"
                   >
                     {repo.name}
                   </button>
@@ -90,7 +90,7 @@ const DemoPage = () => {
 
             {/* Full Scan Toggle */}
             <div className="flex items-center gap-3">
-              <label htmlFor="full-scan-demo" className="text-sm font-medium text-gray-900">
+              <label htmlFor="full-scan-demo" className="text-sm font-medium text-zinc-100">
                 Scan entire repository
               </label>
               <Switch
@@ -100,7 +100,7 @@ const DemoPage = () => {
                 disabled={isSubmitting}
               />
               {fullScan && (
-                <span className="text-xs text-amber-600">May take 30+ seconds</span>
+                <span className="text-xs text-amber-400">May take 30+ seconds</span>
               )}
             </div>
 
@@ -114,7 +114,7 @@ const DemoPage = () => {
           </form>
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-zinc-500 mt-6">
           Want to scan private repos? <button onClick={() => navigate('/')} className="text-primary hover:underline">Sign in with GitHub</button>
         </p>
       </div>
