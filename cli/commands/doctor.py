@@ -60,10 +60,10 @@ def doctor(
 
     # Optional dependencies
     optional_deps = [
-        ("fastapi", "scanllm ui", "pip install scanllm[server]"),
-        ("uvicorn", "scanllm ui", "pip install scanllm[server]"),
-        ("watchdog", "scanllm watch", "pip install scanllm[watch]"),
-        ("xhtml2pdf", "scanllm report pdf", "pip install scanllm[reports]"),
+        ("fastapi", "scanllm ui", "pip install 'scanllm[server]'"),
+        ("uvicorn", "scanllm ui", "pip install 'scanllm[server]'"),
+        ("watchdog", "scanllm watch", "pip install 'scanllm[watch]'"),
+        ("xhtml2pdf", "scanllm report pdf", "pip install 'scanllm[reports]'"),
     ]
     for mod, feature, install_cmd in optional_deps:
         try:

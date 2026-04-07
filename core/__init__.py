@@ -2,4 +2,9 @@
 
 from __future__ import annotations
 
-__version__ = "2.3.0"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("scanllm")
+except PackageNotFoundError:
+    __version__ = "0.0.0-dev"
