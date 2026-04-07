@@ -5,6 +5,23 @@ All notable changes to ScanLLM will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2026-04-07
+
+### Fixed
+
+- CLI `--version` now reads from package metadata (`importlib.metadata`) so it always matches the installed pip version
+- Removed hardcoded version strings from `core/__init__.py`, `cli/main.py`, and `cli/server/app.py`
+- Quoted brackets in all `pip install` instructions (e.g., `pip install 'scanllm[server]'`) for zsh compatibility
+- Added early FastAPI import check in `scanllm ui` — users now get a clean error instead of a full traceback
+- Blog post pages (`/blog/:id`) — text was invisible (dark text on dark background)
+- Demo page (`/demo`) — form and text were unreadable on dark theme
+
+## [2.3.1] - 2026-04-05
+
+### Fixed
+
+- Package metadata version bump for PyPI release
+
 ## [2.3.0] - 2026-04-02
 
 ### Added
