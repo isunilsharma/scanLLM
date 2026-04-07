@@ -21,6 +21,11 @@ app = typer.Typer(
 
 console = Console()
 
+def _get_version() -> str:
+    from core import __version__
+    return __version__
+
+
 BANNER = r"""
 [bold cyan]
   ███████╗ ██████╗ █████╗ ███╗   ██╗██╗     ██╗     ███╗   ███╗
@@ -30,16 +35,13 @@ BANNER = r"""
   ███████║╚██████╗██║  ██║██║ ╚████║███████╗███████╗██║ ╚═╝ ██║
   ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝     ╚═╝
 [/bold cyan]
-  [dim]AI Dependency Intelligence[/dim] [bold white]v2.3.0[/bold white]
-"""
-
-VERSION = "2.3.0"
+  [dim]AI Dependency Intelligence[/dim] [bold white]v{version}[/bold white]
+""".replace("{version}", _get_version())
 
 
 def _version_callback(value: bool) -> None:
     if value:
-        from core import __version__
-        typer.echo(f"scanllm {__version__}")
+        typer.echo(f"scanllm {_get_version()}")
         raise typer.Exit()
 
 @app.callback()
