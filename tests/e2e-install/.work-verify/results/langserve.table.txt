@@ -1,0 +1,98 @@
+
+  Scan saved to /Users/sunilsharma/Documents/vs/ScanLLM/tests/e2e-install/.work-verify/repos/langserve/.scanllm/scans/scan_20260925T231034Z.json
+
+╭────────────────────────────────────────────────────────────────────────────────────────── ScanLLM Results ───────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                                                                                                                      │
+│    Risk Score: 10/100 (Grade A)                                                                                                                                                                      │
+│    AI Components: 57 found across 11 files (103 files scanned)                                                                                                                                       │
+│    Providers: langchain                                                                                                                                                                              │
+│    OWASP Issues: None detected                                                                                                                                                                       │
+│    Severity: 57 info                                                                                                                                                                                 │
+│                                                                                                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+                                             Findings (57 total)                                             
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━┓
+┃ File                                ┃ Finding                        ┃ Provider  ┃ Severity ┃ OWASP ┃ Fix ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━╇━━━━━┩
+│ ...d/src/components/ShareDialog.tsx │ import:langchain/runnables/... │ langchain │ info     │       │     │
+│ ...d/src/components/ShareDialog.tsx │ import:langchain/runnables/... │ langchain │ info     │       │     │
+│ langserve/server.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/server.py                 │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/server.py                 │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langsmith               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langsmith               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langsmith               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/api_handler.py            │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/playground.py             │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/client.py                 │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/validation.py             │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/validation.py             │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/validation.py             │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/validation.py             │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/__init__.py               │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/__init__.py               │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/__init__.py               │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/__init__.py               │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/__init__.py               │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/serialization.py          │ import:langserve               │ langchain │ info     │       │     │
+│ langserve/callbacks.py              │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/callbacks.py              │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/callbacks.py              │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/callbacks.py              │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/callbacks.py              │ import:langchain               │ langchain │ info     │       │     │
+│ langserve/callbacks.py              │ import:langchain               │ langchain │ info     │       │     │
+│ .github/workflows/_lint.yml         │ github_action:langchain        │ langchain │ info     │       │     │
+└─────────────────────────────────────┴────────────────────────────────┴───────────┴──────────┴───────┴─────┘
+
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   Policy Check: PASS  --  no rules evaluated                                                                                                                                                         │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─────────────────────────────────────────────────────────────────────────────────────────── Action Summary ───────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                                                                                                                      │
+│    57 low severity issues (run scanllm fix for details)                                                                                                                                              │
+│                                                                                                                                                                                                      │
+│    What's good                                                                                                                                                                                       │
+│      ✓ No prompt injection risks detected                                                                                                                                                            │
+│      ✓ No unsafe output handling (eval/exec)                                                                                                                                                         │
+│      ✓ No hardcoded API keys found                                                                                                                                                                   │
+│                                                                                                                                                                                                      │
+│    Next Steps                                                                                                                                                                                        │
+│      scanllm fix          ← Detailed fix suggestions with code examples                                                                                                                              │
+│      scanllm policy check  ← Enforce team security policies                                                                                                                                          │
+│      scanllm report aibom  ← Generate AI-BOM for compliance                                                                                                                                          │
+│      scanllm ui            ← Interactive dashboard + dependency graph                                                                                                                                │
+│                                                                                                                                                                                                      │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+  Scanned in 0.3s | 103 files | 57 findings
+  Run scanllm ui to explore the interactive dashboard
+

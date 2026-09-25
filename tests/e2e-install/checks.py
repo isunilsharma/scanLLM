@@ -113,8 +113,8 @@ def main():
     if ls:
         provs = set(ls["summary"].get("providers", {}))
         check("langserve: detects langchain", "langchain" in provs, str(provs))
-        drift("langserve: total findings", ls["summary"]["total_findings"], 60)
-        drift("langserve: ai files", ls["summary"]["ai_files_count"], 13)
+        drift("langserve: total findings", ls["summary"]["total_findings"], 57)
+        drift("langserve: ai files", ls["summary"]["ai_files_count"], 11)
 
     if cb:
         provs = set(cb["summary"].get("providers", {}))
@@ -127,57 +127,72 @@ def main():
         bp = findings_at(cb, "lib/build-prompt.ts", "prompt_injection")
         check("chatbot-ui: flags real prompt construction in lib/build-prompt.ts",
               len(bp) >= 3, f"{len(bp)} hits")
-        drift("chatbot-ui: total findings", cb["summary"]["total_findings"], 98)
+        drift("chatbot-ui: total findings", cb["summary"]["total_findings"], 81)
         drift("chatbot-ui: providers detected", len(provs), 10)
 
-    # ------------------------------------------- known bugs as of 2.3.2 ----
+    # ---------------------------------- precision regressions (promoted) ---
+    # These were false positives in 2.3.2. They are now blocking checks so
+    # they can never come back.
     if cb:
-        # 1. TypeScript enum of key *names* reported as hardcoded credentials.
         vk = findings_at(cb, "types/valid-keys.ts", "hardcoded_credential")
-        known("FP: types/valid-keys.ts enum counted as hardcoded credentials",
-              len(vk) > 0, f"{len(vk)} false secrets -> pins grade to F")
+        check("no FP: TS enum of key names is not reported as a secret",
+              len(vk) == 0, f"{len(vk)} false secrets")
 
-        # 2. Any JS template literal flagged as prompt injection.
         noise = (findings_at(cb, "login/page.tsx", "template_literal")
                  + findings_at(cb, "components/ui/form.tsx", "template_literal")
                  + findings_at(cb, "db/storage/files.ts", "template_literal"))
-        known("FP: template literals in non-LLM code flagged as LLM01",
-              len(noise) > 0, f"{len(noise)} hits in auth/ui/storage code")
+        check("no FP: template literals in auth/ui/storage code are not LLM01",
+              len(noise) == 0, f"{len(noise)} hits")
 
-        # 3. findings[] carries pattern_severity but no severity/finding_type,
-        #    so JSON consumers see null.
+        check("chatbot-ui: grade recovered from F to a realistic grade",
+              cb["risk"]["grade"] in ("A", "B", "C"),
+              f"grade {cb['risk']['grade']} score {cb['risk']['overall_score']}")
+
+    if ls:
+        ls_noise = findings_at(ls, "CorrectnessFeedback.tsx", "template_literal")
+        check("no FP: React error-message template literals are not LLM01",
+              len(ls_noise) == 0, f"{len(ls_noise)} hits")
+
+    # Scanning must be reproducible: scan --save writes .scanllm/ into the
+    # target, and re-ingesting it used to inflate every subsequent run.
+    idem = _load(R, "idempotency-2.json")
+    if idem and cb:
+        check("scan is idempotent (re-scanning gives identical counts)",
+              idem["summary"]["total_findings"] == cb["summary"]["total_findings"],
+              f"{cb['summary']['total_findings']} then "
+              f"{idem['summary']['total_findings']}")
+
+    # CI gating via --fail-on.
+    def _exit(fn):
+        p_ = os.path.join(R, fn)
+        return open(p_).read().strip() if os.path.exists(p_) else None
+
+    check("gate: bare scan still exits 0 (no pipeline breakage on upgrade)",
+          _exit("gate-default.exit") == "0", f"got {_exit('gate-default.exit')}")
+    check("gate: --fail-on trips and exits 1",
+          _exit("gate-strict.exit") == "1", f"got {_exit('gate-strict.exit')}")
+    check("gate: invalid --fail-on exits 2 without a traceback",
+          _exit("gate-bogus.exit") == "2", f"got {_exit('gate-bogus.exit')}")
+
+    # ------------------------------------------- known bugs still open ----
+    if cb:
         f0 = (cb.get("findings") or [{}])[0]
         known("schema: findings[] lacks 'severity' and 'finding_type' keys",
               "severity" not in f0 or "finding_type" not in f0,
-              f"keys present: {sorted(f0)[:6]}...")
+              f"keys: {sorted(f0)[:5]}...")
 
-        # 4. Two severity tallies in one document disagree.
         rs = cb["risk"].get("severity_counts", {})
         ss = cb["summary"].get("severities", {})
         known("schema: risk.severity_counts contradicts summary.severities",
               rs.get("high", 0) != ss.get("high", 0),
               f"risk={rs.get('high')} vs summary={ss.get('high')}")
 
-        # 5. --severity filter is ignored.
-        hi = _load(R, "chatbot-ui.high.json")
-        if hi:
-            known("cli: --severity high does not filter results",
-                  hi["summary"]["total_findings"] == cb["summary"]["total_findings"],
-                  f"{hi['summary']['total_findings']} vs unfiltered "
-                  f"{cb['summary']['total_findings']}")
-
-        # 6. Grade F still exits 0, so `scanllm scan` alone cannot gate CI.
-        ep = os.path.join(R, "chatbot-ui.exit")
-        if os.path.exists(ep):
-            code = open(ep).read().strip()
-            known("cli: exit code is 0 even at grade F (no CI gating)",
-                  code == "0" and cb["risk"]["grade"] == "F", f"exit={code}")
-
-    # 7. Rich markup eats the extras name in doctor's remediation hint.
     if doctor and "not installed" in doctor:
-        known("doctor: Rich markup swallows extras in 'pip install scanllm[server]'",
-              "scanllm[server]" not in doctor,
-              "hint renders as `pip install 'scanllm'`")
+        # Rich used to parse [server] as a style tag and delete it, so the
+        # remediation read `pip install 'scanllm'` -- install what you have.
+        check("doctor: pip hint keeps the extras name",
+              "scanllm[server]" in doctor,
+              "hint lost its [extra]")
 
     # ----------------------------------------------------------- report ---
     w = sys.stdout.write

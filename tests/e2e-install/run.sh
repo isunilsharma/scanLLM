@@ -105,6 +105,8 @@ echo
 
 # --------------------------------------------------------------- 4. scans ---
 bold "[4/4] Scanning fixtures and running checks"
+rm -rf "$REPOS"/*/.scanllm   # scan --save writes here; never scan our own output
+
 for d in "$REPOS"/*/; do
   name="$(basename "$d")"
   COLUMNS=200 "$SCANLLM" scan "$d" -o json --no-banner > "$RESULTS/$name.json" 2>"$RESULTS/$name.err"
@@ -118,6 +120,18 @@ for d in "$REPOS"/*/; do
     fail "$name produced no JSON output"; cat "$RESULTS/$name.err"
   fi
 done
+# Idempotency: scanning the same commit twice must give the same answer.
+COLUMNS=200 "$SCANLLM" scan "$REPOS/chatbot-ui" -o json --no-banner \
+  > "$RESULTS/idempotency-2.json" 2>/dev/null
+
+# CI gating: default must stay 0; an impossible threshold must trip; junk must be 2.
+COLUMNS=200 "$SCANLLM" scan "$REPOS/chatbot-ui" -q --no-banner >/dev/null 2>&1
+echo "$?" > "$RESULTS/gate-default.exit"
+COLUMNS=200 "$SCANLLM" scan "$REPOS/chatbot-ui" -q --no-banner --fail-on A >/dev/null 2>&1
+echo "$?" > "$RESULTS/gate-strict.exit"
+COLUMNS=200 "$SCANLLM" scan "$REPOS/chatbot-ui" -q --no-banner --fail-on bogus >/dev/null 2>&1
+echo "$?" > "$RESULTS/gate-bogus.exit"
+
 COLUMNS=200 "$SCANLLM" doctor > "$RESULTS/doctor.txt" 2>&1
 echo
 

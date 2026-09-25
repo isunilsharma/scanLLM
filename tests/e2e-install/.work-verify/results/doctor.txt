@@ -1,0 +1,22 @@
+
+ScanLLM Doctor
+
+  ✓ Python 3.9.6
+  ✓ scanllm 2.3.2
+  ✓ All core dependencies installed
+  ! fastapi not installed (needed for scanllm ui)
+     → pip install 'scanllm[server]'
+  ! uvicorn not installed (needed for scanllm ui)
+     → pip install 'scanllm[server]'
+  ! watchdog not installed (needed for scanllm watch)
+     → pip install 'scanllm[watch]'
+  ! xhtml2pdf not installed (needed for scanllm report pdf)
+     → pip install 'scanllm[reports]'
+
+  ! .scanllm/ not initialized
+     → scanllm init
+  ! Not a git repository
+  ✓ AI signatures loaded (35 providers)
+
+  All checks passed!
+

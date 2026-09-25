@@ -1,0 +1,2656 @@
+{
+  "version": "2.0.0",
+  "findings": [
+    {
+      "file_path": "app/api/chat/tools/route.ts",
+      "line_number": 5,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { Tables } from \"@/supabase/types\"\nimport { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/tools/route.ts",
+      "line_number": 6,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/tools/route.ts",
+      "line_number": 7,
+      "line_text": "import { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai/resources/chat/completions.mjs",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai/resources/chat/completions.mjs' detected",
+      "snippet": "import { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n\nexport async function POST(request: Request) {",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/tools/route.ts",
+      "line_number": 22,
+      "line_text": "    const openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    checkApiKey(profile.openai_api_key, \"OpenAI\")\n\n    const openai = new OpenAI({\n      apiKey: profile.openai_api_key || \"\",\n      organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/azure/route.ts",
+      "line_number": 3,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatAPIPayload } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/azure/route.ts",
+      "line_number": 4,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { ChatAPIPayload } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/azure/route.ts",
+      "line_number": 5,
+      "line_text": "import { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai/resources/chat/completions.mjs",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai/resources/chat/completions.mjs' detected",
+      "snippet": "import { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n\nexport const runtime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/azure/route.ts",
+      "line_number": 47,
+      "line_text": "    const azureOpenai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    }\n\n    const azureOpenai = new OpenAI({\n      apiKey: KEY,\n      baseURL: `${ENDPOINT}/openai/deployments/${DEPLOYMENT_ID}`,",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/google/route.ts",
+      "line_number": 3,
+      "line_text": "import { GoogleGenerativeAI } from \"@google/generative-ai\"",
+      "framework": "Google AI",
+      "pattern_name": "import:@google/generative-ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Google AI package '@google/generative-ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatSettings } from \"@/types\"\nimport { GoogleGenerativeAI } from \"@google/generative-ai\"\n\nexport const runtime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "google_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/groq/route.ts",
+      "line_number": 4,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/groq/route.ts",
+      "line_number": 5,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\n\nexport const runtime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/groq/route.ts",
+      "line_number": 21,
+      "line_text": "    const groq = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "\n    // Groq is compatible with the OpenAI SDK\n    const groq = new OpenAI({\n      apiKey: profile.groq_api_key || \"\",\n      baseURL: \"https://api.groq.com/openai/v1\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openrouter/route.ts",
+      "line_number": 3,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openrouter/route.ts",
+      "line_number": 5,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openrouter/route.ts",
+      "line_number": 6,
+      "line_text": "import { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai/resources/chat/completions.mjs",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai/resources/chat/completions.mjs' detected",
+      "snippet": "import { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n\nexport const runtime: ServerRuntime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openrouter/route.ts",
+      "line_number": 22,
+      "line_text": "    const openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    checkApiKey(profile.openrouter_api_key, \"OpenRouter\")\n\n    const openai = new OpenAI({\n      apiKey: profile.openrouter_api_key || \"\",\n      baseURL: \"https://openrouter.ai/api/v1\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/perplexity/route.ts",
+      "line_number": 3,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/perplexity/route.ts",
+      "line_number": 4,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\n\nexport const runtime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/perplexity/route.ts",
+      "line_number": 21,
+      "line_text": "    const perplexity = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "\n    // Perplexity is compatible the OpenAI SDK\n    const perplexity = new OpenAI({\n      apiKey: profile.perplexity_api_key || \"\",\n      baseURL: \"https://api.perplexity.ai/\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/retrieve/route.ts",
+      "line_number": 5,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { Database } from \"@/supabase/types\"\nimport { createClient } from \"@supabase/supabase-js\"\nimport OpenAI from \"openai\"\n\nexport async function POST(request: Request) {",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/retrieve/route.ts",
+      "line_number": 38,
+      "line_text": "      openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    let openai\n    if (profile.use_azure_openai) {\n      openai = new OpenAI({\n        apiKey: profile.azure_openai_api_key || \"\",\n        baseURL: `${profile.azure_openai_endpoint}/openai/deployments/${profile.azure_openai_embeddings_id}`,",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/retrieve/route.ts",
+      "line_number": 45,
+      "line_text": "      openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "      })\n    } else {\n      openai = new OpenAI({\n        apiKey: profile.openai_api_key || \"\",\n        organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/retrieve/route.ts",
+      "line_number": 53,
+      "line_text": "        model: \"text-embedding-3-small\",",
+      "framework": "",
+      "pattern_name": "model_ref:text-embedding-3-small",
+      "pattern_category": "model_reference",
+      "pattern_severity": "info",
+      "pattern_description": "Model name 'text-embedding-3-small' referenced",
+      "snippet": "    if (embeddingsProvider === \"openai\") {\n      const response = await openai.embeddings.create({\n        model: \"text-embedding-3-small\",\n        input: userInput\n      })",
+      "model_name": "text-embedding-3-small",
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/anthropic/route.ts",
+      "line_number": 5,
+      "line_text": "import Anthropic from \"@anthropic-ai/sdk\"",
+      "framework": "Anthropic",
+      "pattern_name": "import:@anthropic-ai/sdk",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Anthropic package '@anthropic-ai/sdk' detected",
+      "snippet": "import { getBase64FromDataURL, getMediaTypeFromDataURL } from \"@/lib/utils\"\nimport { ChatSettings } from \"@/types\"\nimport Anthropic from \"@anthropic-ai/sdk\"\nimport { AnthropicStream, StreamingTextResponse } from \"ai\"\nimport { NextRequest, NextResponse } from \"next/server\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "anthropic",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/anthropic/route.ts",
+      "line_number": 6,
+      "line_text": "import { AnthropicStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { ChatSettings } from \"@/types\"\nimport Anthropic from \"@anthropic-ai/sdk\"\nimport { AnthropicStream, StreamingTextResponse } from \"ai\"\nimport { NextRequest, NextResponse } from \"next/server\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/anthropic/route.ts",
+      "line_number": 58,
+      "line_text": "    const anthropic = new Anthropic({",
+      "framework": "Anthropic",
+      "pattern_name": "call:new Anthropic",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of Anthropic client detected",
+      "snippet": "    )\n\n    const anthropic = new Anthropic({\n      apiKey: profile.anthropic_api_key || \"\"\n    })",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "anthropic",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/route.ts",
+      "line_number": 14,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { createClient } from \"@supabase/supabase-js\"\nimport { NextResponse } from \"next/server\"\nimport OpenAI from \"openai\"\n\nexport async function POST(req: Request) {",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/route.ts",
+      "line_number": 104,
+      "line_text": "      openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    let openai\n    if (profile.use_azure_openai) {\n      openai = new OpenAI({\n        apiKey: profile.azure_openai_api_key || \"\",\n        baseURL: `${profile.azure_openai_endpoint}/openai/deployments/${profile.azure_openai_embeddings_id}`,",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/route.ts",
+      "line_number": 111,
+      "line_text": "      openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "      })\n    } else {\n      openai = new OpenAI({\n        apiKey: profile.openai_api_key || \"\",\n        organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/route.ts",
+      "line_number": 119,
+      "line_text": "        model: \"text-embedding-3-small\",",
+      "framework": "",
+      "pattern_name": "model_ref:text-embedding-3-small",
+      "pattern_category": "model_reference",
+      "pattern_severity": "info",
+      "pattern_description": "Model name 'text-embedding-3-small' referenced",
+      "snippet": "    if (embeddingsProvider === \"openai\") {\n      const response = await openai.embeddings.create({\n        model: \"text-embedding-3-small\",\n        input: chunks.map(chunk => chunk.content)\n      })",
+      "model_name": "text-embedding-3-small",
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/custom/route.ts",
+      "line_number": 4,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { ChatSettings } from \"@/types\"\nimport { createClient } from \"@supabase/supabase-js\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/custom/route.ts",
+      "line_number": 6,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/custom/route.ts",
+      "line_number": 7,
+      "line_text": "import { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai/resources/chat/completions.mjs",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai/resources/chat/completions.mjs' detected",
+      "snippet": "import { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n\nexport const runtime: ServerRuntime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/custom/route.ts",
+      "line_number": 35,
+      "line_text": "    const custom = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    }\n\n    const custom = new OpenAI({\n      apiKey: customModel.api_key || \"\",\n      baseURL: customModel.base_url",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/assistants/openai/route.ts",
+      "line_number": 3,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\n\nexport const runtime: ServerRuntime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/assistants/openai/route.ts",
+      "line_number": 13,
+      "line_text": "    const openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    checkApiKey(profile.openai_api_key, \"OpenAI\")\n\n    const openai = new OpenAI({\n      apiKey: profile.openai_api_key || \"\",\n      organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openai/route.ts",
+      "line_number": 3,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openai/route.ts",
+      "line_number": 5,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openai/route.ts",
+      "line_number": 6,
+      "line_text": "import { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai/resources/chat/completions.mjs",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai/resources/chat/completions.mjs' detected",
+      "snippet": "import { ServerRuntime } from \"next\"\nimport OpenAI from \"openai\"\nimport { ChatCompletionCreateParamsBase } from \"openai/resources/chat/completions.mjs\"\n\nexport const runtime: ServerRuntime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/openai/route.ts",
+      "line_number": 22,
+      "line_text": "    const openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    checkApiKey(profile.openai_api_key, \"OpenAI\")\n\n    const openai = new OpenAI({\n      apiKey: profile.openai_api_key || \"\",\n      organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/command/route.ts",
+      "line_number": 3,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { CHAT_SETTING_LIMITS } from \"@/lib/chat-setting-limits\"\nimport { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport OpenAI from \"openai\"\n\nexport const runtime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/command/route.ts",
+      "line_number": 18,
+      "line_text": "    const openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    checkApiKey(profile.openai_api_key, \"OpenAI\")\n\n    const openai = new OpenAI({\n      apiKey: profile.openai_api_key || \"\",\n      organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/docx/route.ts",
+      "line_number": 8,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { createClient } from \"@supabase/supabase-js\"\nimport { NextResponse } from \"next/server\"\nimport OpenAI from \"openai\"\n\nexport async function POST(req: Request) {",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/docx/route.ts",
+      "line_number": 51,
+      "line_text": "      openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "    let openai\n    if (profile.use_azure_openai) {\n      openai = new OpenAI({\n        apiKey: profile.azure_openai_api_key || \"\",\n        baseURL: `${profile.azure_openai_endpoint}/openai/deployments/${profile.azure_openai_embeddings_id}`,",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/docx/route.ts",
+      "line_number": 58,
+      "line_text": "      openai = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "      })\n    } else {\n      openai = new OpenAI({\n        apiKey: profile.openai_api_key || \"\",\n        organization: profile.openai_organization_id",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/retrieval/process/docx/route.ts",
+      "line_number": 66,
+      "line_text": "        model: \"text-embedding-3-small\",",
+      "framework": "",
+      "pattern_name": "model_ref:text-embedding-3-small",
+      "pattern_category": "model_reference",
+      "pattern_severity": "info",
+      "pattern_description": "Model name 'text-embedding-3-small' referenced",
+      "snippet": "    if (embeddingsProvider === \"openai\") {\n      const response = await openai.embeddings.create({\n        model: \"text-embedding-3-small\",\n        input: chunks.map(chunk => chunk.content)\n      })",
+      "model_name": "text-embedding-3-small",
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/mistral/route.ts",
+      "line_number": 4,
+      "line_text": "import { OpenAIStream, StreamingTextResponse } from \"ai\"",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "import:ai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of Vercel AI SDK package 'ai' detected",
+      "snippet": "import { checkApiKey, getServerProfile } from \"@/lib/server/server-chat-helpers\"\nimport { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/mistral/route.ts",
+      "line_number": 5,
+      "line_text": "import OpenAI from \"openai\"",
+      "framework": "OpenAI",
+      "pattern_name": "import:openai",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of OpenAI package 'openai' detected",
+      "snippet": "import { ChatSettings } from \"@/types\"\nimport { OpenAIStream, StreamingTextResponse } from \"ai\"\nimport OpenAI from \"openai\"\n\nexport const runtime = \"edge\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "app/api/chat/mistral/route.ts",
+      "line_number": 22,
+      "line_text": "    const mistral = new OpenAI({",
+      "framework": "OpenAI",
+      "pattern_name": "call:new OpenAI",
+      "pattern_category": "api_call",
+      "pattern_severity": "info",
+      "pattern_description": "Instantiation of OpenAI client detected",
+      "snippet": "\n    // Mistral is compatible the OpenAI SDK\n    const mistral = new OpenAI({\n      apiKey: profile.mistral_api_key || \"\",\n      baseURL: \"https://api.mistral.ai/v1\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/build-prompt.ts",
+      "line_number": 28,
+      "line_text": "  fullPrompt += `User Instructions:\\n${prompt}`",
+      "framework": "",
+      "pattern_name": "prompt_injection:template_literal",
+      "pattern_category": "security",
+      "pattern_severity": "high",
+      "pattern_description": "User input interpolated into template literal \u2014 prompt injection risk",
+      "snippet": "  }\n\n  fullPrompt += `User Instructions:\\n${prompt}`\n\n  return fullPrompt",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "",
+      "owasp_id": "LLM01"
+    },
+    {
+      "file_path": "lib/build-prompt.ts",
+      "line_number": 84,
+      "line_text": "            `${chatMessage.message.content}\\n\\n${retrievalText}` as string",
+      "framework": "",
+      "pattern_name": "prompt_injection:template_literal",
+      "pattern_category": "security",
+      "pattern_severity": "high",
+      "pattern_description": "User input interpolated into template literal \u2014 prompt injection risk",
+      "snippet": "          ...chatMessage.message,\n          content:\n            `${chatMessage.message.content}\\n\\n${retrievalText}` as string\n        },\n        fileItems: []",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "",
+      "owasp_id": "LLM01"
+    },
+    {
+      "file_path": "lib/build-prompt.ts",
+      "line_number": 238,
+      "line_text": "      `${baseRole}:\\n${basePrompt}\\n\\nuser:\\n${visualMessageParts[0].text}\\n\\n`,",
+      "framework": "",
+      "pattern_name": "prompt_injection:template_literal",
+      "pattern_category": "security",
+      "pattern_severity": "high",
+      "pattern_description": "User input interpolated into template literal \u2014 prompt injection risk",
+      "snippet": "    role: \"user\",\n    parts: [\n      `${baseRole}:\\n${basePrompt}\\n\\nuser:\\n${visualMessageParts[0].text}\\n\\n`,\n      visualMessageParts.slice(1)\n    ]",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "",
+      "owasp_id": "LLM01"
+    },
+    {
+      "file_path": "lib/retrieval/processing/pdf.ts",
+      "line_number": 3,
+      "line_text": "import { PDFLoader } from \"langchain/document_loaders/fs/pdf\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/document_loaders/fs/pdf",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/document_loaders/fs/pdf' detected",
+      "snippet": "import { FileItemChunk } from \"@/types\"\nimport { encode } from \"gpt-tokenizer\"\nimport { PDFLoader } from \"langchain/document_loaders/fs/pdf\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/pdf.ts",
+      "line_number": 4,
+      "line_text": "import { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/text_splitter",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/text_splitter' detected",
+      "snippet": "import { encode } from \"gpt-tokenizer\"\nimport { PDFLoader } from \"langchain/document_loaders/fs/pdf\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/csv.ts",
+      "line_number": 3,
+      "line_text": "import { CSVLoader } from \"langchain/document_loaders/fs/csv\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/document_loaders/fs/csv",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/document_loaders/fs/csv' detected",
+      "snippet": "import { FileItemChunk } from \"@/types\"\nimport { encode } from \"gpt-tokenizer\"\nimport { CSVLoader } from \"langchain/document_loaders/fs/csv\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/csv.ts",
+      "line_number": 4,
+      "line_text": "import { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/text_splitter",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/text_splitter' detected",
+      "snippet": "import { encode } from \"gpt-tokenizer\"\nimport { CSVLoader } from \"langchain/document_loaders/fs/csv\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/json.ts",
+      "line_number": 3,
+      "line_text": "import { JSONLoader } from \"langchain/document_loaders/fs/json\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/document_loaders/fs/json",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/document_loaders/fs/json' detected",
+      "snippet": "import { FileItemChunk } from \"@/types\"\nimport { encode } from \"gpt-tokenizer\"\nimport { JSONLoader } from \"langchain/document_loaders/fs/json\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/json.ts",
+      "line_number": 4,
+      "line_text": "import { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/text_splitter",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/text_splitter' detected",
+      "snippet": "import { encode } from \"gpt-tokenizer\"\nimport { JSONLoader } from \"langchain/document_loaders/fs/json\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/docx.ts",
+      "line_number": 3,
+      "line_text": "import { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/text_splitter",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/text_splitter' detected",
+      "snippet": "import { FileItemChunk } from \"@/types\"\nimport { encode } from \"gpt-tokenizer\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/txt.ts",
+      "line_number": 3,
+      "line_text": "import { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/text_splitter",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/text_splitter' detected",
+      "snippet": "import { FileItemChunk } from \"@/types\"\nimport { encode } from \"gpt-tokenizer\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "lib/retrieval/processing/md.ts",
+      "line_number": 3,
+      "line_text": "import { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"",
+      "framework": "LangChain",
+      "pattern_name": "import:langchain/text_splitter",
+      "pattern_category": "import",
+      "pattern_severity": "info",
+      "pattern_description": "Import of LangChain package 'langchain/text_splitter' detected",
+      "snippet": "import { FileItemChunk } from \"@/types\"\nimport { encode } from \"gpt-tokenizer\"\nimport { RecursiveCharacterTextSplitter } from \"langchain/text_splitter\"\nimport { CHUNK_OVERLAP, CHUNK_SIZE } from \".\"\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 12,
+      "line_text": "OPENAI_API_KEY=",
+      "framework": "config",
+      "pattern_name": "env_var:OPENAI_API_KEY",
+      "pattern_category": "config_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI environment variable 'OPENAI_API_KEY' referenced",
+      "snippet": "\n# API Keys (Optional: Entering an API key here overrides the API keys globally for all users.)\nOPENAI_API_KEY=\nANTHROPIC_API_KEY=\nGOOGLE_GEMINI_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 13,
+      "line_text": "ANTHROPIC_API_KEY=",
+      "framework": "config",
+      "pattern_name": "env_var:ANTHROPIC_API_KEY",
+      "pattern_category": "config_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI environment variable 'ANTHROPIC_API_KEY' referenced",
+      "snippet": "# API Keys (Optional: Entering an API key here overrides the API keys globally for all users.)\nOPENAI_API_KEY=\nANTHROPIC_API_KEY=\nGOOGLE_GEMINI_API_KEY=\nMISTRAL_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "anthropic",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 15,
+      "line_text": "MISTRAL_API_KEY=",
+      "framework": "config",
+      "pattern_name": "env_var:MISTRAL_API_KEY",
+      "pattern_category": "config_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI environment variable 'MISTRAL_API_KEY' referenced",
+      "snippet": "ANTHROPIC_API_KEY=\nGOOGLE_GEMINI_API_KEY=\nMISTRAL_API_KEY=\nGROQ_API_KEY=\nPERPLEXITY_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "mistral",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 16,
+      "line_text": "GROQ_API_KEY=",
+      "framework": "config",
+      "pattern_name": "env_var:GROQ_API_KEY",
+      "pattern_category": "config_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI environment variable 'GROQ_API_KEY' referenced",
+      "snippet": "GOOGLE_GEMINI_API_KEY=\nMISTRAL_API_KEY=\nGROQ_API_KEY=\nPERPLEXITY_API_KEY=\nOPENROUTER_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "groq",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 24,
+      "line_text": "AZURE_OPENAI_API_KEY=",
+      "framework": "config",
+      "pattern_name": "env_var:AZURE_OPENAI_API_KEY",
+      "pattern_category": "config_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI environment variable 'AZURE_OPENAI_API_KEY' referenced",
+      "snippet": "\n# Azure API Information\nAZURE_OPENAI_API_KEY=\nAZURE_OPENAI_ENDPOINT=\nAZURE_GPT_35_TURBO_NAME=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "azure_openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 25,
+      "line_text": "AZURE_OPENAI_ENDPOINT=",
+      "framework": "config",
+      "pattern_name": "env_var:AZURE_OPENAI_ENDPOINT",
+      "pattern_category": "config_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI environment variable 'AZURE_OPENAI_ENDPOINT' referenced",
+      "snippet": "# Azure API Information\nAZURE_OPENAI_API_KEY=\nAZURE_OPENAI_ENDPOINT=\nAZURE_GPT_35_TURBO_NAME=\nAZURE_GPT_45_VISION_NAME=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "azure_openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 9,
+      "line_text": "NEXT_PUBLIC_OLLAMA_URL=http://localhost:11434",
+      "framework": "",
+      "pattern_name": "config_endpoint:ollama",
+      "pattern_category": "endpoint_reference",
+      "pattern_severity": "info",
+      "pattern_description": "AI endpoint URL for ollama detected",
+      "snippet": "\n# Ollama\nNEXT_PUBLIC_OLLAMA_URL=http://localhost:11434\n\n# API Keys (Optional: Entering an API key here overrides the API keys globally for all users.)",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "ollama",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 12,
+      "line_text": "OPENAI_API_KEY=",
+      "framework": "OpenAI",
+      "pattern_name": "env_reference:OPENAI_API_KEY",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "OpenAI credential 'OPENAI_API_KEY' referenced (value not hardcoded)",
+      "snippet": "\n# API Keys (Optional: Entering an API key here overrides the API keys globally for all users.)\nOPENAI_API_KEY=\nANTHROPIC_API_KEY=\nGOOGLE_GEMINI_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 13,
+      "line_text": "ANTHROPIC_API_KEY=",
+      "framework": "Anthropic",
+      "pattern_name": "env_reference:ANTHROPIC_API_KEY",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "Anthropic credential 'ANTHROPIC_API_KEY' referenced (value not hardcoded)",
+      "snippet": "# API Keys (Optional: Entering an API key here overrides the API keys globally for all users.)\nOPENAI_API_KEY=\nANTHROPIC_API_KEY=\nGOOGLE_GEMINI_API_KEY=\nMISTRAL_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "anthropic",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 15,
+      "line_text": "MISTRAL_API_KEY=",
+      "framework": "Mistral AI",
+      "pattern_name": "env_reference:MISTRAL_API_KEY",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "Mistral AI credential 'MISTRAL_API_KEY' referenced (value not hardcoded)",
+      "snippet": "ANTHROPIC_API_KEY=\nGOOGLE_GEMINI_API_KEY=\nMISTRAL_API_KEY=\nGROQ_API_KEY=\nPERPLEXITY_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "mistral",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 16,
+      "line_text": "GROQ_API_KEY=",
+      "framework": "Groq",
+      "pattern_name": "env_reference:GROQ_API_KEY",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "Groq credential 'GROQ_API_KEY' referenced (value not hardcoded)",
+      "snippet": "GOOGLE_GEMINI_API_KEY=\nMISTRAL_API_KEY=\nGROQ_API_KEY=\nPERPLEXITY_API_KEY=\nOPENROUTER_API_KEY=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "groq",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 17,
+      "line_text": "PERPLEXITY_API_KEY=",
+      "framework": "Perplexity",
+      "pattern_name": "env_reference:PERPLEXITY_API_KEY",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "Perplexity credential 'PERPLEXITY_API_KEY' referenced (value not hardcoded)",
+      "snippet": "MISTRAL_API_KEY=\nGROQ_API_KEY=\nPERPLEXITY_API_KEY=\nOPENROUTER_API_KEY=\n",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "perplexity",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 24,
+      "line_text": "AZURE_OPENAI_API_KEY=",
+      "framework": "Azure OpenAI",
+      "pattern_name": "env_reference:AZURE_OPENAI_API_KEY",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "Azure OpenAI credential 'AZURE_OPENAI_API_KEY' referenced (value not hardcoded)",
+      "snippet": "\n# Azure API Information\nAZURE_OPENAI_API_KEY=\nAZURE_OPENAI_ENDPOINT=\nAZURE_GPT_35_TURBO_NAME=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "azure_openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": ".env.local.example",
+      "line_number": 25,
+      "line_text": "AZURE_OPENAI_ENDPOINT=",
+      "framework": "Azure OpenAI",
+      "pattern_name": "env_reference:AZURE_OPENAI_ENDPOINT",
+      "pattern_category": "governance",
+      "pattern_severity": "info",
+      "pattern_description": "Azure OpenAI credential 'AZURE_OPENAI_ENDPOINT' referenced (value not hardcoded)",
+      "snippet": "# Azure API Information\nAZURE_OPENAI_API_KEY=\nAZURE_OPENAI_ENDPOINT=\nAZURE_GPT_35_TURBO_NAME=\nAZURE_GPT_45_VISION_NAME=",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "config_reference",
+      "provider": "azure_openai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "package.json",
+      "line_number": 29,
+      "line_text": "    \"@anthropic-ai/sdk\": \"^0.18.0\",",
+      "framework": "Anthropic",
+      "pattern_name": "dependency:@anthropic-ai/sdk",
+      "pattern_category": "ai_package",
+      "pattern_severity": "info",
+      "pattern_description": "AI package '@anthropic-ai/sdk' (Anthropic) version ^0.18.0 in dependencies",
+      "snippet": "  },\n  \"dependencies\": {\n    \"@anthropic-ai/sdk\": \"^0.18.0\",\n    \"@apidevtools/json-schema-ref-parser\": \"^11.1.0\",\n    \"@azure/openai\": \"^1.0.0-beta.8\",",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "anthropic",
+      "owasp_id": null
+    },
+    {
+      "file_path": "package.json",
+      "line_number": 32,
+      "line_text": "    \"@google/generative-ai\": \"^0.11.4\",",
+      "framework": "Google AI",
+      "pattern_name": "dependency:@google/generative-ai",
+      "pattern_category": "ai_package",
+      "pattern_severity": "info",
+      "pattern_description": "AI package '@google/generative-ai' (Google AI) version ^0.11.4 in dependencies",
+      "snippet": "    \"@apidevtools/json-schema-ref-parser\": \"^11.1.0\",\n    \"@azure/openai\": \"^1.0.0-beta.8\",\n    \"@google/generative-ai\": \"^0.11.4\",\n    \"@hookform/resolvers\": \"^3.3.2\",\n    \"@mistralai/mistralai\": \"^0.0.8\",",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "google_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "package.json",
+      "line_number": 34,
+      "line_text": "    \"@mistralai/mistralai\": \"^0.0.8\",",
+      "framework": "Mistral AI",
+      "pattern_name": "dependency:@mistralai/mistralai",
+      "pattern_category": "ai_package",
+      "pattern_severity": "info",
+      "pattern_description": "AI package '@mistralai/mistralai' (Mistral AI) version ^0.0.8 in dependencies",
+      "snippet": "    \"@google/generative-ai\": \"^0.11.4\",\n    \"@hookform/resolvers\": \"^3.3.2\",\n    \"@mistralai/mistralai\": \"^0.0.8\",\n    \"@radix-ui/react-accordion\": \"^1.1.2\",\n    \"@radix-ui/react-alert-dialog\": \"^1.0.5\",",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "mistral",
+      "owasp_id": null
+    },
+    {
+      "file_path": "package.json",
+      "line_number": 8,
+      "line_text": "    \"update\": \"git pull origin main && npm run db-migrate && npm run db-types\",",
+      "framework": "Vercel AI SDK",
+      "pattern_name": "dependency:ai",
+      "pattern_category": "ai_package",
+      "pattern_severity": "info",
+      "pattern_description": "AI package 'ai' (Vercel AI SDK) version ^2.2.31 in dependencies",
+      "snippet": "    \"chat\": \"supabase start && npm run db-types && npm run dev\",\n    \"restart\": \"supabase stop && npm run chat\",\n    \"update\": \"git pull origin main && npm run db-migrate && npm run db-types\",\n    \"prepare\": \"husky install\",\n    \"clean\": \"npm run lint:fix && npm run format:write\",",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "vercel_ai",
+      "owasp_id": null
+    },
+    {
+      "file_path": "package.json",
+      "line_number": 77,
+      "line_text": "    \"langchain\": \"^0.0.213\",",
+      "framework": "LangChain",
+      "pattern_name": "dependency:langchain",
+      "pattern_category": "ai_package",
+      "pattern_severity": "info",
+      "pattern_description": "AI package 'langchain' (LangChain) version ^0.0.213 in dependencies",
+      "snippet": "    \"i18next\": \"^23.7.16\",\n    \"i18next-resources-to-backend\": \"^1.2.0\",\n    \"langchain\": \"^0.0.213\",\n    \"lucide-react\": \"^0.292.0\",\n    \"mammoth\": \"^1.6.0\",",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "orchestration_framework",
+      "provider": "langchain",
+      "owasp_id": null
+    },
+    {
+      "file_path": "package.json",
+      "line_number": 31,
+      "line_text": "    \"@azure/openai\": \"^1.0.0-beta.8\",",
+      "framework": "OpenAI",
+      "pattern_name": "dependency:openai",
+      "pattern_category": "ai_package",
+      "pattern_severity": "info",
+      "pattern_description": "AI package 'openai' (OpenAI) version ^4.23.0 in dependencies",
+      "snippet": "    \"@anthropic-ai/sdk\": \"^0.18.0\",\n    \"@apidevtools/json-schema-ref-parser\": \"^11.1.0\",\n    \"@azure/openai\": \"^1.0.0-beta.8\",\n    \"@google/generative-ai\": \"^0.11.4\",\n    \"@hookform/resolvers\": \"^3.3.2\",",
+      "model_name": null,
+      "temperature": null,
+      "max_tokens": null,
+      "is_streaming": false,
+      "has_tools": false,
+      "component_type": "llm_provider",
+      "provider": "openai",
+      "owasp_id": null
+    }
+  ],
+  "summary": {
+    "total_findings": 81,
+    "files_scanned": 268,
+    "ai_files_count": 24,
+    "frameworks": {
+      "Vercel AI SDK": 10,
+      "OpenAI": 36,
+      "Google AI": 2,
+      "unknown": 7,
+      "Anthropic": 4,
+      "LangChain": 10,
+      "config": 6,
+      "Mistral AI": 2,
+      "Groq": 1,
+      "Perplexity": 1,
+      "Azure OpenAI": 2
+    },
+    "component_types": {
+      "orchestration_framework": 20,
+      "llm_provider": 47,
+      "config_reference": 14
+    },
+    "severities": {
+      "info": 78,
+      "high": 3
+    },
+    "owasp_counts": {
+      "LLM01": 3
+    },
+    "providers": {
+      "vercel_ai": 10,
+      "openai": 40,
+      "google_ai": 2,
+      "anthropic": 5,
+      "langchain": 10,
+      "mistral": 3,
+      "groq": 2,
+      "azure_openai": 4,
+      "ollama": 1,
+      "perplexity": 1
+    }
+  },
+  "risk": {
+    "overall_score": 30,
+    "grade": "B",
+    "breakdown": {
+      "secrets": {
+        "count": 0,
+        "weight": 25,
+        "score": 0
+      },
+      "owasp_critical": {
+        "count": 0,
+        "weight": 20,
+        "score": 0
+      },
+      "owasp_high": {
+        "count": 3,
+        "weight": 10,
+        "score": 30
+      },
+      "outdated_packages": {
+        "count": 0,
+        "weight": 5,
+        "score": 0
+      },
+      "provider_concentration": {
+        "count": 0,
+        "weight": 10,
+        "score": 0
+      },
+      "missing_safety_configs": {
+        "count": 0,
+        "weight": 3,
+        "score": 0
+      },
+      "excessive_agent_perms": {
+        "count": 0,
+        "weight": 15,
+        "score": 0
+      }
+    },
+    "severity_counts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "info": 81
+    }
+  },
+  "owasp": {
+    "categories": [
+      {
+        "id": "LLM01",
+        "name": "Prompt Injection",
+        "description": "User input concatenated into prompts without sanitization",
+        "remediation": "Use parameterized prompts, input validation, and output filtering",
+        "severity": "high",
+        "status": "detected",
+        "findings_count": 3,
+        "findings": [
+          {
+            "file_path": "lib/build-prompt.ts",
+            "line_number": 28,
+            "message": "",
+            "severity": "info",
+            "pattern_category": "security"
+          },
+          {
+            "file_path": "lib/build-prompt.ts",
+            "line_number": 84,
+            "message": "",
+            "severity": "info",
+            "pattern_category": "security"
+          },
+          {
+            "file_path": "lib/build-prompt.ts",
+            "line_number": 238,
+            "message": "",
+            "severity": "info",
+            "pattern_category": "security"
+          }
+        ]
+      },
+      {
+        "id": "LLM02",
+        "name": "Sensitive Information Disclosure",
+        "description": "Credentials or PII exposed in system prompts or LLM outputs",
+        "remediation": "Remove sensitive data from prompts, implement output filtering",
+        "severity": "high",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      },
+      {
+        "id": "LLM03",
+        "name": "Supply Chain Vulnerabilities",
+        "description": "Unverified model sources, outdated AI packages with known CVEs",
+        "remediation": "Pin package versions, use verified model sources, run dependency audits",
+        "severity": "critical",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      },
+      {
+        "id": "LLM05",
+        "name": "Improper Output Handling",
+        "description": "Unsanitized LLM output passed to eval(), exec(), SQL, shell, or HTML",
+        "remediation": "Never pass LLM output to code execution functions, sanitize all outputs",
+        "severity": "critical",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      },
+      {
+        "id": "LLM06",
+        "name": "Excessive Agency",
+        "description": "Agent configs with broad tool access, missing human-in-the-loop",
+        "remediation": "Apply least-privilege to agent tools, add human approval for sensitive actions",
+        "severity": "high",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      },
+      {
+        "id": "LLM07",
+        "name": "System Prompt Leakage",
+        "description": "API keys or secrets embedded in prompt templates or system prompts",
+        "remediation": "Use environment variables for secrets, never embed keys in prompts",
+        "severity": "medium",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      },
+      {
+        "id": "LLM08",
+        "name": "Vector and Embedding Weaknesses",
+        "description": "Unauthenticated vector DB connections, no access controls on embeddings",
+        "remediation": "Authenticate vector DB connections, implement access controls",
+        "severity": "medium",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      },
+      {
+        "id": "LLM10",
+        "name": "Unbounded Consumption",
+        "description": "Missing max_tokens, no rate limiting, no timeout on LLM calls",
+        "remediation": "Set max_tokens on all LLM calls, implement rate limiting and timeouts",
+        "severity": "low",
+        "status": "not_detected",
+        "findings_count": 0,
+        "findings": []
+      }
+    ],
+    "coverage": {
+      "detected": 1,
+      "partially_mitigated": 0,
+      "not_detected": 7,
+      "total": 8
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "5b713a54b0c6",
+        "type": "orchestration_framework",
+        "position": {
+          "x": 320.0,
+          "y": 0.0
+        },
+        "data": {
+          "label": "vercel_ai",
+          "provider": "vercel_ai",
+          "files": [
+            {
+              "file_path": "app/api/chat/tools/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/azure/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "app/api/chat/groq/route.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "app/api/chat/openrouter/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "app/api/chat/perplexity/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "app/api/chat/anthropic/route.ts",
+              "line_number": 6
+            },
+            {
+              "file_path": "app/api/chat/custom/route.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "app/api/chat/openai/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "app/api/chat/mistral/route.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "package.json",
+              "line_number": 8
+            }
+          ],
+          "file_count": 10,
+          "risk_score": 0,
+          "component_type": "orchestration_framework",
+          "metadata": {
+            "framework": [
+              "Vercel AI SDK"
+            ],
+            "pattern_category": [
+              "ai_package",
+              "import"
+            ],
+            "pattern_name": [
+              "dependency:ai",
+              "import:ai"
+            ]
+          },
+          "children": [],
+          "is_cluster": false,
+          "model_count": 0
+        }
+      },
+      {
+        "id": "00fe9528cd50",
+        "type": "llm_provider",
+        "position": {
+          "x": 960.0,
+          "y": 70.0
+        },
+        "data": {
+          "label": "Openai",
+          "provider": "openai",
+          "files": [
+            {
+              "file_path": "app/api/chat/tools/route.ts",
+              "line_number": 6
+            },
+            {
+              "file_path": "app/api/chat/tools/route.ts",
+              "line_number": 7
+            },
+            {
+              "file_path": "app/api/chat/tools/route.ts",
+              "line_number": 22
+            },
+            {
+              "file_path": "app/api/chat/azure/route.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "app/api/chat/azure/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/azure/route.ts",
+              "line_number": 47
+            },
+            {
+              "file_path": "app/api/chat/groq/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/groq/route.ts",
+              "line_number": 21
+            },
+            {
+              "file_path": "app/api/chat/openrouter/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/openrouter/route.ts",
+              "line_number": 6
+            },
+            {
+              "file_path": "app/api/chat/openrouter/route.ts",
+              "line_number": 22
+            },
+            {
+              "file_path": "app/api/chat/perplexity/route.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "app/api/chat/perplexity/route.ts",
+              "line_number": 21
+            },
+            {
+              "file_path": "app/api/retrieval/retrieve/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/retrieval/retrieve/route.ts",
+              "line_number": 38
+            },
+            {
+              "file_path": "app/api/retrieval/retrieve/route.ts",
+              "line_number": 45
+            },
+            {
+              "file_path": "app/api/retrieval/process/route.ts",
+              "line_number": 14
+            },
+            {
+              "file_path": "app/api/retrieval/process/route.ts",
+              "line_number": 104
+            },
+            {
+              "file_path": "app/api/retrieval/process/route.ts",
+              "line_number": 111
+            },
+            {
+              "file_path": "app/api/chat/custom/route.ts",
+              "line_number": 6
+            },
+            {
+              "file_path": "app/api/chat/custom/route.ts",
+              "line_number": 7
+            },
+            {
+              "file_path": "app/api/chat/custom/route.ts",
+              "line_number": 35
+            },
+            {
+              "file_path": "app/api/assistants/openai/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "app/api/assistants/openai/route.ts",
+              "line_number": 13
+            },
+            {
+              "file_path": "app/api/chat/openai/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/openai/route.ts",
+              "line_number": 6
+            },
+            {
+              "file_path": "app/api/chat/openai/route.ts",
+              "line_number": 22
+            },
+            {
+              "file_path": "app/api/command/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "app/api/command/route.ts",
+              "line_number": 18
+            },
+            {
+              "file_path": "app/api/retrieval/process/docx/route.ts",
+              "line_number": 8
+            },
+            {
+              "file_path": "app/api/retrieval/process/docx/route.ts",
+              "line_number": 51
+            },
+            {
+              "file_path": "app/api/retrieval/process/docx/route.ts",
+              "line_number": 58
+            },
+            {
+              "file_path": "app/api/chat/mistral/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/mistral/route.ts",
+              "line_number": 22
+            },
+            {
+              "file_path": "package.json",
+              "line_number": 31
+            },
+            {
+              "file_path": "app/api/retrieval/retrieve/route.ts",
+              "line_number": 53
+            },
+            {
+              "file_path": "app/api/retrieval/process/route.ts",
+              "line_number": 119
+            },
+            {
+              "file_path": "app/api/retrieval/process/docx/route.ts",
+              "line_number": 66
+            }
+          ],
+          "file_count": 38,
+          "risk_score": 0,
+          "component_type": "llm_provider",
+          "metadata": {
+            "framework": [
+              "OpenAI"
+            ],
+            "pattern_category": [
+              "ai_package",
+              "api_call",
+              "import",
+              "model_reference"
+            ],
+            "pattern_name": [
+              "call:new OpenAI",
+              "dependency:openai",
+              "import:openai",
+              "import:openai/resources/chat/completions.mjs",
+              "model_ref:text-embedding-3-small"
+            ],
+            "model_name": [
+              "text-embedding-3-small"
+            ]
+          },
+          "children": [
+            "openai",
+            "openai text-embedding-3-small",
+            "text-embedding-3-small"
+          ],
+          "is_cluster": true,
+          "model_count": 3
+        }
+      },
+      {
+        "id": "63c903073d50",
+        "type": "llm_provider",
+        "position": {
+          "x": 960.0,
+          "y": -210.0
+        },
+        "data": {
+          "label": "Google Ai",
+          "provider": "google_ai",
+          "files": [
+            {
+              "file_path": "app/api/chat/google/route.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "package.json",
+              "line_number": 32
+            }
+          ],
+          "file_count": 2,
+          "risk_score": 0,
+          "component_type": "llm_provider",
+          "metadata": {
+            "framework": [
+              "Google AI"
+            ],
+            "pattern_category": [
+              "ai_package",
+              "import"
+            ],
+            "pattern_name": [
+              "dependency:@google/generative-ai",
+              "import:@google/generative-ai"
+            ]
+          },
+          "children": [
+            "google_ai"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "ba838e56d2c3",
+        "type": "llm_provider",
+        "position": {
+          "x": 960.0,
+          "y": -350.0
+        },
+        "data": {
+          "label": "Anthropic",
+          "provider": "anthropic",
+          "files": [
+            {
+              "file_path": "app/api/chat/anthropic/route.ts",
+              "line_number": 5
+            },
+            {
+              "file_path": "app/api/chat/anthropic/route.ts",
+              "line_number": 58
+            },
+            {
+              "file_path": "package.json",
+              "line_number": 29
+            }
+          ],
+          "file_count": 3,
+          "risk_score": 0,
+          "component_type": "llm_provider",
+          "metadata": {
+            "framework": [
+              "Anthropic"
+            ],
+            "pattern_category": [
+              "ai_package",
+              "api_call",
+              "import"
+            ],
+            "pattern_name": [
+              "call:new Anthropic",
+              "dependency:@anthropic-ai/sdk",
+              "import:@anthropic-ai/sdk"
+            ]
+          },
+          "children": [
+            "anthropic"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "3c0863f95017",
+        "type": "llm_provider",
+        "position": {
+          "x": 960.0,
+          "y": 210.0
+        },
+        "data": {
+          "label": "prompt_injection:template_literal",
+          "provider": "",
+          "files": [
+            {
+              "file_path": "lib/build-prompt.ts",
+              "line_number": 28
+            },
+            {
+              "file_path": "lib/build-prompt.ts",
+              "line_number": 84
+            },
+            {
+              "file_path": "lib/build-prompt.ts",
+              "line_number": 238
+            }
+          ],
+          "file_count": 3,
+          "risk_score": 0,
+          "component_type": "llm_provider",
+          "metadata": {
+            "pattern_category": [
+              "security"
+            ],
+            "pattern_name": [
+              "prompt_injection:template_literal"
+            ]
+          },
+          "children": [],
+          "is_cluster": false,
+          "model_count": 0
+        }
+      },
+      {
+        "id": "37af9179454c",
+        "type": "orchestration_framework",
+        "position": {
+          "x": 320.0,
+          "y": -140.0
+        },
+        "data": {
+          "label": "langchain",
+          "provider": "langchain",
+          "files": [
+            {
+              "file_path": "lib/retrieval/processing/pdf.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "lib/retrieval/processing/pdf.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "lib/retrieval/processing/csv.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "lib/retrieval/processing/csv.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "lib/retrieval/processing/json.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "lib/retrieval/processing/json.ts",
+              "line_number": 4
+            },
+            {
+              "file_path": "lib/retrieval/processing/docx.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "lib/retrieval/processing/txt.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "lib/retrieval/processing/md.ts",
+              "line_number": 3
+            },
+            {
+              "file_path": "package.json",
+              "line_number": 77
+            }
+          ],
+          "file_count": 10,
+          "risk_score": 0,
+          "component_type": "orchestration_framework",
+          "metadata": {
+            "framework": [
+              "LangChain"
+            ],
+            "pattern_category": [
+              "ai_package",
+              "import"
+            ],
+            "pattern_name": [
+              "dependency:langchain",
+              "import:langchain/document_loaders/fs/csv",
+              "import:langchain/document_loaders/fs/json",
+              "import:langchain/document_loaders/fs/pdf",
+              "import:langchain/text_splitter"
+            ]
+          },
+          "children": [],
+          "is_cluster": false,
+          "model_count": 0
+        }
+      },
+      {
+        "id": "0eb80ed8443f",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": 210.0
+        },
+        "data": {
+          "label": "Openai",
+          "provider": "openai",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 12
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "framework": [
+              "OpenAI",
+              "config"
+            ],
+            "pattern_category": [
+              "config_reference",
+              "governance"
+            ],
+            "pattern_name": [
+              "env_reference:OPENAI_API_KEY",
+              "env_var:OPENAI_API_KEY"
+            ]
+          },
+          "children": [
+            "openai"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "58a68b3d6222",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": -490.0
+        },
+        "data": {
+          "label": "Anthropic",
+          "provider": "anthropic",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 13
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "framework": [
+              "Anthropic",
+              "config"
+            ],
+            "pattern_category": [
+              "config_reference",
+              "governance"
+            ],
+            "pattern_name": [
+              "env_reference:ANTHROPIC_API_KEY",
+              "env_var:ANTHROPIC_API_KEY"
+            ]
+          },
+          "children": [
+            "anthropic"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "5bc3c9406590",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": -70.0
+        },
+        "data": {
+          "label": "Mistral",
+          "provider": "mistral",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 15
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "framework": [
+              "Mistral AI",
+              "config"
+            ],
+            "pattern_category": [
+              "config_reference",
+              "governance"
+            ],
+            "pattern_name": [
+              "env_reference:MISTRAL_API_KEY",
+              "env_var:MISTRAL_API_KEY"
+            ]
+          },
+          "children": [
+            "mistral"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "ead992c948a8",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": -210.0
+        },
+        "data": {
+          "label": "Groq",
+          "provider": "groq",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 16
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "framework": [
+              "Groq",
+              "config"
+            ],
+            "pattern_category": [
+              "config_reference",
+              "governance"
+            ],
+            "pattern_name": [
+              "env_reference:GROQ_API_KEY",
+              "env_var:GROQ_API_KEY"
+            ]
+          },
+          "children": [
+            "groq"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "c28ed9e9b4f0",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": -350.0
+        },
+        "data": {
+          "label": "Azure Openai",
+          "provider": "azure_openai",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 24
+            },
+            {
+              "file_path": ".env.local.example",
+              "line_number": 25
+            }
+          ],
+          "file_count": 2,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "framework": [
+              "Azure OpenAI",
+              "config"
+            ],
+            "pattern_category": [
+              "config_reference",
+              "governance"
+            ],
+            "pattern_name": [
+              "env_reference:AZURE_OPENAI_API_KEY",
+              "env_reference:AZURE_OPENAI_ENDPOINT",
+              "env_var:AZURE_OPENAI_API_KEY",
+              "env_var:AZURE_OPENAI_ENDPOINT"
+            ]
+          },
+          "children": [
+            "azure_openai"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "aea98948b8b5",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": 70.0
+        },
+        "data": {
+          "label": "Ollama",
+          "provider": "ollama",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 9
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "pattern_category": [
+              "endpoint_reference"
+            ],
+            "pattern_name": [
+              "config_endpoint:ollama"
+            ]
+          },
+          "children": [
+            "ollama"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "8f341241327b",
+        "type": "config_reference",
+        "position": {
+          "x": 0.0,
+          "y": 350.0
+        },
+        "data": {
+          "label": "Perplexity",
+          "provider": "perplexity",
+          "files": [
+            {
+              "file_path": ".env.local.example",
+              "line_number": 17
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "config_reference",
+          "metadata": {
+            "framework": [
+              "Perplexity"
+            ],
+            "pattern_category": [
+              "governance"
+            ],
+            "pattern_name": [
+              "env_reference:PERPLEXITY_API_KEY"
+            ]
+          },
+          "children": [
+            "perplexity"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      },
+      {
+        "id": "7358c9c268c2",
+        "type": "llm_provider",
+        "position": {
+          "x": 960.0,
+          "y": -70.0
+        },
+        "data": {
+          "label": "Mistral",
+          "provider": "mistral",
+          "files": [
+            {
+              "file_path": "package.json",
+              "line_number": 34
+            }
+          ],
+          "file_count": 1,
+          "risk_score": 0,
+          "component_type": "llm_provider",
+          "metadata": {
+            "framework": [
+              "Mistral AI"
+            ],
+            "pattern_category": [
+              "ai_package"
+            ],
+            "pattern_name": [
+              "dependency:@mistralai/mistralai"
+            ]
+          },
+          "children": [
+            "mistral"
+          ],
+          "is_cluster": true,
+          "model_count": 1
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-5b713a54b0c6-00fe9528cd50",
+        "source": "5b713a54b0c6",
+        "target": "00fe9528cd50",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-5b713a54b0c6-63c903073d50",
+        "source": "5b713a54b0c6",
+        "target": "63c903073d50",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-5b713a54b0c6-ba838e56d2c3",
+        "source": "5b713a54b0c6",
+        "target": "ba838e56d2c3",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-5b713a54b0c6-7358c9c268c2",
+        "source": "5b713a54b0c6",
+        "target": "7358c9c268c2",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-63c903073d50-37af9179454c",
+        "source": "63c903073d50",
+        "target": "37af9179454c",
+        "label": "co-located",
+        "type": "default",
+        "animated": false
+      },
+      {
+        "id": "e-63c903073d50-5b713a54b0c6",
+        "source": "63c903073d50",
+        "target": "5b713a54b0c6",
+        "label": "co-located",
+        "type": "default",
+        "animated": false
+      },
+      {
+        "id": "e-ba838e56d2c3-37af9179454c",
+        "source": "ba838e56d2c3",
+        "target": "37af9179454c",
+        "label": "co-located",
+        "type": "default",
+        "animated": false
+      },
+      {
+        "id": "e-ba838e56d2c3-5b713a54b0c6",
+        "source": "ba838e56d2c3",
+        "target": "5b713a54b0c6",
+        "label": "co-located",
+        "type": "default",
+        "animated": false
+      },
+      {
+        "id": "e-37af9179454c-7358c9c268c2",
+        "source": "37af9179454c",
+        "target": "7358c9c268c2",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-37af9179454c-ba838e56d2c3",
+        "source": "37af9179454c",
+        "target": "ba838e56d2c3",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-37af9179454c-63c903073d50",
+        "source": "37af9179454c",
+        "target": "63c903073d50",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-37af9179454c-00fe9528cd50",
+        "source": "37af9179454c",
+        "target": "00fe9528cd50",
+        "label": "import-chain",
+        "type": "step",
+        "animated": false
+      },
+      {
+        "id": "e-7358c9c268c2-5b713a54b0c6",
+        "source": "7358c9c268c2",
+        "target": "5b713a54b0c6",
+        "label": "co-located",
+        "type": "default",
+        "animated": false
+      },
+      {
+        "id": "e-7358c9c268c2-37af9179454c",
+        "source": "7358c9c268c2",
+        "target": "37af9179454c",
+        "label": "co-located",
+        "type": "default",
+        "animated": false
+      }
+    ]
+  }
+}

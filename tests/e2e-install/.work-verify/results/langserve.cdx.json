@@ -1,0 +1,93 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-09-25T23:10:35.458670+00:00",
+    "tools": [
+      {
+        "vendor": "ScanLLM",
+        "name": "scanllm",
+        "version": "2.3.2"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "import:langchain/runnables/remote",
+      "group": "langchain",
+      "properties": [
+        {
+          "name": "scanllm:component_type",
+          "value": "orchestration_framework"
+        },
+        {
+          "name": "scanllm:provider",
+          "value": "langchain"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "import:langchain",
+      "group": "langchain",
+      "properties": [
+        {
+          "name": "scanllm:component_type",
+          "value": "orchestration_framework"
+        },
+        {
+          "name": "scanllm:provider",
+          "value": "langchain"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "import:langserve",
+      "group": "langchain",
+      "properties": [
+        {
+          "name": "scanllm:component_type",
+          "value": "orchestration_framework"
+        },
+        {
+          "name": "scanllm:provider",
+          "value": "langchain"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "import:langsmith",
+      "group": "langchain",
+      "properties": [
+        {
+          "name": "scanllm:component_type",
+          "value": "orchestration_framework"
+        },
+        {
+          "name": "scanllm:provider",
+          "value": "langchain"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "github_action:langchain",
+      "group": "langchain",
+      "properties": [
+        {
+          "name": "scanllm:component_type",
+          "value": "config_reference"
+        },
+        {
+          "name": "scanllm:provider",
+          "value": "langchain"
+        }
+      ]
+    }
+  ],
+  "dependencies": []
+}
