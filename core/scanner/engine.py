@@ -43,6 +43,9 @@ EXCLUDE_DIRS: set[str] = {
     "node_modules", ".git", "dist", "build", "__pycache__",
     ".venv", "venv", ".pytest_cache", ".mypy_cache", ".tox",
     ".eggs", ".ruff_cache", ".cache", "vendor",
+    # ScanLLM's own output. Without this a saved scan is re-ingested by the
+    # next scan, so findings compound and results stop being reproducible.
+    ".scanllm",
 }
 
 # Directories skipped during a quick (non-full) scan
