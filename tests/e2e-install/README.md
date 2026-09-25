@@ -71,7 +71,8 @@ to create, not just on "it ran".
 
 ### Bug status
 
-Fixed since 2.3.2 and now guarded by blocking CHECKs — these cannot regress:
+All seven bugs found against 2.3.2 are fixed and guarded by blocking CHECKs,
+so none can regress:
 
 | # | Bug | Effect of the fix |
 |---|---|---|
@@ -81,21 +82,28 @@ Fixed since 2.3.2 and now guarded by blocking CHECKs — these cannot regress:
 | 4 | `scan` could not gate CI | `--fail-on <grade\|severity>`; bare `scan` still exits 0 |
 | 5 | `doctor` hint rendered `pip install 'scanllm'` (Rich ate `[server]`) | hint keeps the extra |
 | 6 | `pyproject` required the dropped `typer[all]` extra | install is warning-free |
-| 7 | `.scanllm/` was not excluded, so each scan re-ingested the previous scan's output — findings inflated 81 → 108 and the saved file grew 97KB → 1.5MB over four runs | scans are idempotent |
+| 7 | `.scanllm/` was not excluded, so each scan re-ingested the previous scan's output — findings inflated 81 → 108, saved file grew 97KB → 1.5MB over four runs | scans are idempotent |
 
-Still open:
+Plus the schema contract: every finding now carries `severity` and
+`finding_type`, and `risk.severity_counts` / `summary.severities` are derived
+from one shared counter so they cannot drift apart again.
 
-| Bug | Notes |
-|---|---|
-| `findings[]` has `pattern_severity` but no `severity` / `finding_type`, so JSON consumers read `null` | schema work in progress |
-| `risk.severity_counts` contradicts `summary.severities` in the same document | same |
+### Known gaps (not bugs this kit covers yet)
+
+- **`backend/app/scanner/` is a separate, un-fixed copy.** The deployed
+  `scanllm-backend` service imports `app.scanner.*`, not `core.scanner.*`, and
+  still carries the original false-positive rules. This kit only exercises the
+  CLI. Fixes must be ported, or the two trees consolidated.
+- **Finding order is non-deterministic** between runs of identical code
+  (concurrent file walk). Counts and content are stable, so checks pass, but
+  it makes `scanllm diff` noisier than it should be.
 
 ### Current baseline
 
-| repo | findings | grade |
-|---|---|---|
-| langserve | 57 | A (10) |
-| chatbot-ui | 81 | B (30) |
+| repo | findings | grade | high |
+|---|---|---|---|
+| langserve | 57 | A (10) | 0 |
+| chatbot-ui | 81 | B (30) | 3 (all true positives in `lib/build-prompt.ts`) |
 
 If your run reports DRIFT against these, decide whether the new number is
 correct before updating it. Drift is a prompt to think, not a failure.
