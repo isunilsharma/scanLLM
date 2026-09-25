@@ -10,6 +10,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ._finding import make_finding as _make_finding
+
 logger = logging.getLogger(__name__)
 
 # ── Compiled regex patterns ──────────────────────────────────────────────────
@@ -49,6 +51,24 @@ _RE_MODEL_PARAM = re.compile(
 )
 
 # Template literal prompt injection: `...${userInput}...`
+# A template literal is only a prompt-injection risk if the file actually
+# builds prompts. Without this gate the rule fires on every `${...}` in a
+# codebase -- auth redirects, UI ids, file paths -- which buries the real hits.
+_RE_PROMPT_CONTEXT = re.compile(
+    r"\b(prompt|systemMessage|system_message|completion|chatSettings"
+    r"|messages\s*[:=]|llm|openai|anthropic|tokenizer)\b",
+    re.IGNORECASE,
+)
+
+# Error formatting and UI plumbing interpolate user-ish values constantly and
+# never reach a model. Excluding them is what makes the rule trustworthy.
+_RE_NON_PROMPT_LINE = re.compile(
+    r"(new\s+Error|throw\s|console\.(log|error|warn)|redirect\("
+    r"|\w*(?:err|error)\w*\.message\b|\.status\b|\bfailed\b"
+    r"|aria-|Id\}|_id\b)",
+    re.IGNORECASE,
+)
+
 _RE_TEMPLATE_INJECTION = re.compile(
     r"""`[^`]*\$\{[^}]*(user[_]?input|request|query|message|prompt|body|payload|req\.body|req\.query|req\.params)[^}]*\}[^`]*`""",
     re.IGNORECASE | re.MULTILINE,
@@ -61,45 +81,6 @@ _RE_MCP_SERVER_CALL = re.compile(
 )
 
 
-def _make_finding(
-    *,
-    file_path: str,
-    line_number: int,
-    line_text: str = "",
-    framework: str = "",
-    pattern_name: str = "",
-    pattern_category: str = "",
-    pattern_severity: str = "info",
-    pattern_description: str = "",
-    snippet: str = "",
-    model_name: str | None = None,
-    temperature: float | None = None,
-    max_tokens: int | None = None,
-    is_streaming: bool = False,
-    has_tools: bool = False,
-    component_type: str = "",
-    provider: str = "",
-    owasp_id: str | None = None,
-) -> dict[str, Any]:
-    return {
-        "file_path": file_path,
-        "line_number": line_number,
-        "line_text": line_text,
-        "framework": framework,
-        "pattern_name": pattern_name,
-        "pattern_category": pattern_category,
-        "pattern_severity": pattern_severity,
-        "pattern_description": pattern_description,
-        "snippet": snippet,
-        "model_name": model_name,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "is_streaming": is_streaming,
-        "has_tools": has_tools,
-        "component_type": component_type,
-        "provider": provider,
-        "owasp_id": owasp_id,
-    }
 
 
 def _get_snippet(lines: list[str], lineno: int, context: int = 2) -> str:
@@ -176,7 +157,7 @@ class JSScanner:
         self._scan_imports(lines, relative_path, idx, findings)
         self._scan_calls(lines, relative_path, idx, findings)
         self._scan_model_params(lines, relative_path, idx, findings)
-        self._scan_template_injection(lines, relative_path, findings)
+        self._scan_template_injection(lines, relative_path, findings, source)
         self._scan_mcp_calls(lines, relative_path, findings)
 
         return findings
@@ -319,8 +300,15 @@ class JSScanner:
         lines: list[str],
         relative_path: str,
         findings: list[dict[str, Any]],
+        source: str = "",
     ) -> None:
+        # Gate on file-level prompt context: no prompts here, no LLM01.
+        if not _RE_PROMPT_CONTEXT.search(source or "\n".join(lines)):
+            return
+
         for i, line in enumerate(lines, start=1):
+            if _RE_NON_PROMPT_LINE.search(line):
+                continue
             if _RE_TEMPLATE_INJECTION.search(line):
                 findings.append(_make_finding(
                     file_path=relative_path,

@@ -14,17 +14,15 @@ from typing import Any
 
 import yaml
 
+from ..scanner._finding import SEVERITY_LEVELS, count_severities
+
 logger = logging.getLogger(__name__)
 
 _RULES_PATH = Path(__file__).parent / "rules.yaml"
 
 # OWASP severity → internal severity bucket
-_SEVERITY_ORDER = {
-    "critical": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 3,
-    "info": 4,
+_SEVERITY_ORDER: dict[str, int] = {
+    level: index for index, level in enumerate(SEVERITY_LEVELS)
 }
 
 
@@ -139,24 +137,27 @@ class RiskEngine:
         for f in findings:
             cat = (f.get("pattern_category") or "").lower()
             comp = (f.get("component_type") or "").lower()
-            severity = (f.get("severity") or "").lower()
             owasp_id = (f.get("owasp_id") or "").upper()
 
             # Secrets
             if comp == "secret" or cat == "secret":
                 secrets += 1
 
-            # OWASP classification
+            # OWASP classification.
+            #
+            # Only findings carrying an OWASP id contribute here.  There used
+            # to be a fallback onto the finding's own severity, but it read a
+            # ``severity`` key no scanner emitted, so it never ran.  Now that
+            # the schema is unified that fallback would suddenly fire and
+            # inflate every existing score — a scoring change, not the schema
+            # fix this is.  Reinstating it deliberately belongs in its own
+            # change, with re-baselined grades.
             if owasp_id:
                 owasp_sev = self._owasp_severity(owasp_id)
                 if owasp_sev == "critical":
                     owasp_critical += 1
                 elif owasp_sev == "high":
                     owasp_high += 1
-            elif severity == "critical":
-                owasp_critical += 1
-            elif severity == "high":
-                owasp_high += 1
 
             # Outdated packages
             if cat in ("outdated_package", "vulnerable_package", "supply_chain"):
@@ -214,18 +215,12 @@ class RiskEngine:
 
     @staticmethod
     def _count_severities(findings: list[dict[str, Any]]) -> dict[str, int]:
-        """Count findings by severity level."""
-        counts: dict[str, int] = {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0,
-        }
-        for f in findings:
-            sev = (f.get("severity") or "info").lower()
-            if sev in counts:
-                counts[sev] += 1
-            else:
-                counts["info"] += 1
-        return counts
+        """Count findings by severity level.
+
+        Delegates to the shared tally used for ``summary.severities`` so the
+        two counts reported for one scan are the same numbers by
+        construction.  This method previously kept its own loop, and read a
+        ``severity`` key the scanners never emitted — every finding fell
+        through to ``info``.
+        """
+        return count_severities(findings)

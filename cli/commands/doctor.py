@@ -7,6 +7,7 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 
 from cli.config import ScanLLMConfig
 
@@ -71,7 +72,7 @@ def doctor(
             console.print(f"  [green]\u2713[/green] {mod} installed ({feature})")
         except ImportError:
             console.print(f"  [yellow]![/yellow] {mod} not installed (needed for {feature})")
-            console.print(f"     [dim]\u2192 {install_cmd}[/dim]")
+            console.print(f"     [dim]\u2192 {escape(install_cmd)}[/dim]")
 
     # .scanllm directory
     console.print()

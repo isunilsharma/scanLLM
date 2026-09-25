@@ -270,16 +270,23 @@ cd backend && pytest tests/scanner/ -v
 ruff format backend/ && ruff check backend/ --fix
 ```
 
-## Current State
-- Production demo live at scanllm.ai
+## Current State (v2.3.1)
+- Production live at scanllm.ai, PyPI package: `pip install scanllm`
 - All 5 development phases COMPLETE (see ROADMAP.md for details)
 - 7 specialized scanners (Python AST, JS/TS, config, dependencies, notebooks, secrets) — 3,000+ lines
-- Dependency graph with interactive React Flow visualization
+- Dependency graph with provider clustering (React Flow), dagre layout, filter toggles
 - Risk scoring (0-100, A-F grades), OWASP LLM Top 10 mapping
 - AI-BOM (CycloneDX 1.6), PDF reports, LLM-powered analysis
-- CLI tool (910 lines), GitHub Actions integration, org/team management
+- CLI: 14 commands (scan, init, diff, ui, watch, fix, score, doctor, export, push, auth, policy, report, telemetry)
+- CLI-to-cloud sync: `scanllm push` + `scanllm auth` for uploading local scans to cloud dashboard
+- Policy management: full CRUD backend API + frontend editor with create/edit/delete/import
+- Enterprise dark theme across all dashboard pages (zinc-950/900, cyan accents)
+- Developer Docs dropdown with grade definitions page (/docs/grading)
+- CLI dashboard: left sidebar layout with scan switcher
+- GitHub Actions integration, pre-commit hooks, SARIF output
 - 145+ tests passing across all modules
-- See ROADMAP.md for next feature prioritization (open-source vs paid tiers)
+- Default `--save` on scan (enables push, diff, history, UI workflows)
+- See IMPLEMENTATION_PLAN.md for next-generation features (MCP scanning, model risk DB, red teaming, compliance)
 
 ## Competitive Moat — Why ScanLLM Wins
 
@@ -311,6 +318,14 @@ Once ScanLLM is in a team's GitHub Actions pipeline with configured policies, hi
 - **Full SAST/SCA** (Snyk, Cycode) — ScanLLM integrates with these tools, does not replace them
 
 **Positioning:** ScanLLM is the scanning engine layer that feeds into your existing security and governance stack. It produces the AI inventory that your GRC platform, your SAST tool, and your compliance team all need but cannot generate themselves.
+
+### 6. Local Execution → Cloud Reporting → Centralized Governance
+The core business model creates a flywheel:
+- **Developers** interact with CLI tools (`scanllm scan`, `scanllm agent-scan`) and IDE hooks on their local machines. The open-source CLI is the free entry point that gets developers hooked.
+- **Scans sync to cloud** via `scanllm push` — local results flow to the ScanLLM cloud dashboard automatically (default: `--save` is on).
+- **Security/platform teams** see everything aggregated in the cloud dashboard where they set policies, track trends, and generate compliance reports.
+- **Policies flow back down** to local tooling — CI/CD blocking rules, Agent Shield rules, and IDE warnings all enforce centrally-defined policies locally.
+- **The paid enterprise layer** is the cloud platform (org-wide visibility, compliance reports, policy enforcement, historical trends). Everything syncs end-to-end.
 
 ## Target Customers
 

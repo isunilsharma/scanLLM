@@ -1,0 +1,1412 @@
+# ScanLLM Model Risk Intelligence Database
+#
+# Curated risk profiles for AI models. Each profile scores the model across
+# the OWASP LLM Top 10 (2025) categories and six risk dimensions:
+#
+#   1. Prompt injection susceptibility  (25%)
+#   2. Data privacy posture             (20%)
+#   3. Supply chain integrity           (15%)
+#   4. Output safety                    (15%)
+#   5. License compliance risk          (15%)
+#   6. Transparency & documentation     (10%)
+#
+# Ratings: susceptible | moderate | low | not_applicable
+# Risk index: 0-100 (lower is better)
+# Risk grade: A (0-20), B (21-40), C (41-60), D (61-80), F (81-100)
+#
+# Last full review: 2026-03-15
+# Maintainer: ScanLLM Intelligence Team
+
+schema_version: "1.0"
+
+models:
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  OpenAI Models                                                      ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  gpt-4o:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-05-13"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "No built-in input filtering; relies on application-level controls"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data scope undisclosed; PII possible in outputs"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API; no local model artifacts to tamper with"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Can generate executable code, SQL, shell commands without guardrails"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Function calling support; tool use requires application-level constraints"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "System prompts extractable via known jailbreak techniques"
+      LLM08_vector_embedding:
+        rating: not_applicable
+        notes: "Not an embedding model"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "No server-side token limits by default; must set max_tokens"
+    risk_index: 34
+    risk_grade: C
+    mitigations:
+      - "Implement input validation/sanitization before LLM calls"
+      - "Never expose raw LLM output to SQL/shell/eval contexts"
+      - "Use output filtering for PII before returning to user"
+      - "Set max_tokens on all API calls to prevent unbounded generation"
+    license_risk: "Proprietary API; usage governed by OpenAI Terms of Service. Data may be used for model improvement unless opted out via API settings."
+
+  gpt-4o-mini:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-07-18"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Smaller model with weaker instruction following; more susceptible to injection"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Same training data concerns as GPT-4o"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API; no local artifacts"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Generates code and structured output that may be unsafe if executed directly"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Function calling supported"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "System prompt extraction possible; lower robustness than GPT-4o"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Lower cost but still requires max_tokens enforcement"
+    risk_index: 38
+    risk_grade: B
+    mitigations:
+      - "Apply same safeguards as GPT-4o; smaller models may need stricter input filtering"
+      - "Validate all structured output before execution"
+      - "Set max_tokens to prevent runaway generation"
+    license_risk: "Proprietary API; same terms as GPT-4o."
+
+  gpt-4-turbo:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-04-09"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "No built-in input filtering; similar profile to GPT-4o"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data through Apr 2024; PII in outputs possible"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Generates executable code patterns"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "System prompt leakage via known techniques"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "128K context window; large requests possible"
+    risk_index: 35
+    risk_grade: B
+    mitigations:
+      - "Implement input validation layer"
+      - "Sanitize outputs before rendering or execution"
+      - "Monitor token usage; set max_tokens"
+    license_risk: "Proprietary API. Being superseded by GPT-4o; consider migration."
+
+  gpt-3.5-turbo:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2023-03-01"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Older model with weaker safety alignment; highly susceptible to injection"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Older training data; less refined PII handling"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Less reliable structured output; higher risk of malformed outputs"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Easily extractable system prompts"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "16K context; lower risk of runaway costs"
+    risk_index: 42
+    risk_grade: C
+    mitigations:
+      - "Consider upgrading to GPT-4o-mini for better safety alignment at similar cost"
+      - "Implement strict input validation; this model is more susceptible to jailbreaks"
+      - "Never use for safety-critical applications"
+    license_risk: "Proprietary API. Model approaching end-of-life; plan migration."
+
+  o1:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-12-17"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Chain-of-thought reasoning provides some injection resistance; not immune"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Extended reasoning may expose more training data patterns"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Reasoning chains may produce more complex code outputs"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Developer messages partially protected by reasoning layer"
+      LLM10_unbounded_consumption:
+        rating: susceptible
+        notes: "Reasoning tokens significantly increase cost; no user-controllable reasoning budget"
+    risk_index: 30
+    risk_grade: B
+    mitigations:
+      - "Monitor reasoning token usage carefully; costs can spike unpredictably"
+      - "Set max_completion_tokens to control total output"
+      - "Validate chain-of-thought outputs before using in downstream logic"
+    license_risk: "Proprietary API; premium pricing tier."
+
+  o3:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2025-04-16"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Advanced reasoning provides better injection resistance than base models"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Extended reasoning windows may leak more contextual information"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Highly capable code generation; outputs require careful sandboxing"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Improved system prompt adherence but not fully leak-proof"
+      LLM10_unbounded_consumption:
+        rating: susceptible
+        notes: "Reasoning-heavy; token costs can be 10-50x base model for complex queries"
+    risk_index: 28
+    risk_grade: B
+    mitigations:
+      - "Implement reasoning budget controls via max_completion_tokens"
+      - "Monitor per-request costs; implement circuit breakers"
+      - "Sandbox all generated code before execution"
+    license_risk: "Proprietary API; highest pricing tier. Budget controls essential."
+
+  o3-mini:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2025-01-31"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Reasoning capability provides some resistance; less robust than full o3"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Similar data privacy posture to other OpenAI models"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Code generation capable; standard output sanitization required"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Better system prompt adherence than GPT-4o"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Lower cost than o3 but still uses reasoning tokens"
+    risk_index: 30
+    risk_grade: B
+    mitigations:
+      - "Set max_completion_tokens to control reasoning costs"
+      - "Validate structured outputs before downstream use"
+    license_risk: "Proprietary API."
+
+  o4-mini:
+    provider: openai
+    type: llm
+    license: proprietary_commercial
+    release_date: "2025-04-16"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Improved instruction hierarchy for injection resistance"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Standard OpenAI data privacy posture"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Tool use and code generation capable; output validation required"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Native tool use; requires application-level permission boundaries"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Improved system prompt protection vs earlier models"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Reasoning model with lower cost profile than o3"
+    risk_index: 28
+    risk_grade: B
+    mitigations:
+      - "Implement tool use permission boundaries"
+      - "Set max_completion_tokens"
+      - "Validate all tool call arguments before execution"
+    license_risk: "Proprietary API."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Anthropic Models                                                    ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  claude-sonnet-4-20250514:
+    provider: anthropic
+    type: llm
+    license: proprietary_commercial
+    release_date: "2025-05-14"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Constitutional AI training provides strong but not perfect injection resistance"
+      LLM02_sensitive_data:
+        rating: low
+        notes: "Anthropic does not train on API data by default; strong privacy posture"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API; no local model artifacts"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Capable code generator; outputs should still be validated"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Tool use and computer use supported; requires careful permission scoping"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "System prompt confidentiality supported but not guaranteed against adversarial extraction"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "max_tokens required in API; natural cost control"
+    risk_index: 22
+    risk_grade: B
+    mitigations:
+      - "Use system prompt caching for cost control"
+      - "Implement tool use permission boundaries for computer use"
+      - "Validate generated code before execution"
+    license_risk: "Proprietary API; Anthropic Usage Policy applies. API data not used for training by default."
+
+  claude-3.5-sonnet:
+    provider: anthropic
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-10-22"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Constitutional AI training; moderate injection resistance"
+      LLM02_sensitive_data:
+        rating: low
+        notes: "Anthropic does not train on API data by default"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Strong code generation; output sanitization recommended"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "System prompts can be extracted with sophisticated attacks"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "max_tokens parameter required"
+    risk_index: 24
+    risk_grade: B
+    mitigations:
+      - "Implement input validation despite Constitutional AI protections"
+      - "Sanitize outputs before rendering in web contexts"
+      - "Being superseded by Claude Sonnet 4; consider upgrade path"
+    license_risk: "Proprietary API; Anthropic Usage Policy."
+
+  claude-3-haiku:
+    provider: anthropic
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-03-13"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Smaller model; somewhat more susceptible to injection than larger Claude models"
+      LLM02_sensitive_data:
+        rating: low
+        notes: "Anthropic data privacy policy applies"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Code generation capable but less sophisticated"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "System prompt extraction possible with effort"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Low cost per token; natural consumption limit"
+    risk_index: 26
+    risk_grade: B
+    mitigations:
+      - "Apply stricter input validation for smaller model"
+      - "Use for lower-risk tasks; escalate to larger models for sensitive operations"
+    license_risk: "Proprietary API."
+
+  claude-3-opus:
+    provider: anthropic
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-02-29"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Strongest instruction following among Claude 3 family; good injection resistance"
+      LLM02_sensitive_data:
+        rating: low
+        notes: "Anthropic data privacy policy applies"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Highly capable code generation; comprehensive output validation needed"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Better system prompt adherence but extraction still possible"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Highest cost in Claude 3 family; monitor usage closely"
+    risk_index: 22
+    risk_grade: B
+    mitigations:
+      - "Monitor costs due to premium pricing"
+      - "Being superseded by newer Claude models; plan migration"
+      - "Implement standard output validation"
+    license_risk: "Proprietary API; premium pricing tier."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Google Models                                                       ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  gemini-2.0-flash:
+    provider: google
+    type: llm
+    license: proprietary_commercial
+    release_date: "2025-02-05"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Multimodal inputs increase injection surface via images/audio"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Google data handling policies; training data includes web crawl"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API via Google Cloud"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Multimodal output including code execution; broad attack surface"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Native tool use, code execution, and Google Search grounding"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "System instructions extractable; less robust than competitor models"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Large context window (1M tokens); cost control via maxOutputTokens"
+    risk_index: 40
+    risk_grade: B
+    mitigations:
+      - "Validate multimodal inputs; images can contain hidden injection payloads"
+      - "Restrict tool use permissions in Gemini API calls"
+      - "Implement output filtering before rendering"
+      - "Set maxOutputTokens on all requests"
+    license_risk: "Proprietary API; Google Cloud Terms of Service. Data handling governed by Google AI data policies."
+
+  gemini-1.5-pro:
+    provider: google
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-05-14"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Large context window increases injection surface; multimodal attack vectors"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Google data handling; web-crawled training data"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Code generation and structured output capable"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "System instruction extraction demonstrated in research"
+      LLM10_unbounded_consumption:
+        rating: susceptible
+        notes: "2M token context window; very high potential per-request cost"
+    risk_index: 38
+    risk_grade: B
+    mitigations:
+      - "Limit context window usage; avoid filling full 2M token window"
+      - "Implement request-level cost budgets"
+      - "Validate all inputs in multimodal requests"
+    license_risk: "Proprietary API; Google Cloud Terms."
+
+  gemini-1.5-flash:
+    provider: google
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-05-14"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Smaller model; less robust instruction following under adversarial conditions"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Google data handling policies apply"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Standard code generation capability"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Easier system prompt extraction than Pro variant"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Lower cost per token than Pro; still set limits"
+    risk_index: 36
+    risk_grade: B
+    mitigations:
+      - "Use for lower-sensitivity tasks"
+      - "Implement strict input validation"
+      - "Set output token limits"
+    license_risk: "Proprietary API."
+
+  gemma-2:
+    provider: google
+    type: llm
+    license: gemma_open
+    release_date: "2024-06-27"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Open-weights model; fine-tuning can remove safety alignment"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data composition partially disclosed; web-crawled data"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; model weights from HuggingFace or Kaggle need hash verification"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Moderate code generation capability"
+      LLM06_excessive_agency:
+        rating: low
+        notes: "Limited native tool calling in base model"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; system prompt protection depends entirely on deployment"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Self-hosted; resource limits controlled by infrastructure"
+    risk_index: 42
+    risk_grade: C
+    mitigations:
+      - "Verify model weight checksums after download"
+      - "Deploy behind authentication and rate limiting"
+      - "Do not fine-tune away safety alignment without thorough testing"
+    license_risk: "Gemma Terms of Use; free for most commercial use. Attribution required. Restrictions on use in prohibited applications."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Meta / Llama Models                                                 ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  llama-3.1-8b:
+    provider: meta
+    type: llm
+    license: llama_community
+    release_date: "2024-07-23"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Smallest Llama 3.1; weakest safety alignment in the family"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data includes web crawl; model can reproduce training data fragments"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; weights from HuggingFace/Meta need hash verification"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Limited code generation vs larger models"
+      LLM06_excessive_agency:
+        rating: low
+        notes: "Basic tool calling; limited capability"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; system prompt protection minimal"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Self-hosted; efficient at 8B parameters"
+    risk_index: 48
+    risk_grade: C
+    mitigations:
+      - "Verify model weight checksums"
+      - "Deploy with rate limiting and authentication"
+      - "Use for low-risk tasks; avoid safety-critical applications"
+    license_risk: "Llama Community License; free below 700M monthly active users. Must include 'Built with Llama' attribution."
+
+  llama-3.1-70b:
+    provider: meta
+    type: llm
+    license: llama_community
+    release_date: "2024-07-23"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Open-weights model; fine-tuning can weaken safety alignment"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Web-crawled training data; PII reproduction possible"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; model weights from HuggingFace need hash verification"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Strong code generation; outputs require careful sandboxing"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Function calling support without built-in permission boundaries"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; deployment must enforce prompt protection"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Large model; significant GPU memory and compute requirements"
+    risk_index: 52
+    risk_grade: C
+    mitigations:
+      - "Verify model weight checksums after download"
+      - "Implement application-level injection detection"
+      - "Sandbox all code execution outputs"
+      - "Monitor GPU utilization and set request timeouts"
+    license_risk: "Llama Community License; restricts use above 700M monthly active users. Requires attribution."
+
+  llama-3.1-405b:
+    provider: meta
+    type: llm
+    license: llama_community
+    release_date: "2024-07-23"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Largest Llama 3.1; best safety alignment in the family but still open-weights"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Web-crawled training data"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Very large model; complex deployment; multiple weight shards to verify"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Frontier-level code generation capability"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Full function calling support; strong agent capabilities"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; system prompt security is deployment-dependent"
+      LLM10_unbounded_consumption:
+        rating: susceptible
+        notes: "Enormous compute requirements; multi-GPU deployment mandatory"
+    risk_index: 50
+    risk_grade: C
+    mitigations:
+      - "Verify all weight shard checksums"
+      - "Implement robust rate limiting due to high per-request cost"
+      - "Deploy with strict resource quotas"
+      - "Sandbox all generated code"
+    license_risk: "Llama Community License; same restrictions as other Llama models."
+
+  llama-3.2:
+    provider: meta
+    type: llm
+    license: llama_community
+    release_date: "2024-09-25"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Smaller models (1B/3B) have weaker safety alignment; vision variants add multimodal injection surface"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Web-crawled training data; vision models may leak image content"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; weight verification required"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Moderate code generation capability"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; minimal built-in prompt protection"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Small models; efficient resource usage"
+    risk_index: 46
+    risk_grade: C
+    mitigations:
+      - "Validate multimodal inputs for vision variants"
+      - "Verify model weight checksums"
+      - "Use for edge/mobile deployment with appropriate guardrails"
+    license_risk: "Llama Community License. Some variants (1B/3B) suitable for edge deployment."
+
+  llama-4-scout:
+    provider: meta
+    type: llm
+    license: llama_community
+    release_date: "2025-04-05"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Mixture-of-experts architecture; improved safety alignment over Llama 3"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Extended training data; web-crawled content"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted MoE model; complex weight structure requires thorough verification"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Strong code generation with tool use capabilities"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Native tool calling; requires permission boundaries"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Improved instruction hierarchy over Llama 3"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "MoE architecture is efficient but still requires significant resources"
+    risk_index: 44
+    risk_grade: C
+    mitigations:
+      - "Verify MoE weight checksums for all expert shards"
+      - "Implement tool use permission controls"
+      - "Monitor expert activation patterns for anomalies"
+    license_risk: "Llama Community License; same terms as Llama 3.x."
+
+  llama-4-maverick:
+    provider: meta
+    type: llm
+    license: llama_community
+    release_date: "2025-04-05"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Larger MoE model; better safety alignment than Scout"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Extended training data corpus"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Large MoE model; complex deployment with many weight shards"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Frontier-level capability; strong code generation"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Full tool calling and agent capabilities"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Improved but still open-weights"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Large model; multi-GPU deployment required"
+    risk_index: 46
+    risk_grade: C
+    mitigations:
+      - "Deploy with robust resource management"
+      - "Implement tool use boundaries"
+      - "Sandbox all code generation output"
+    license_risk: "Llama Community License."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Mistral Models                                                      ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  mistral-large:
+    provider: mistral
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-11-18"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Improved safety guardrails in latest version; moderate resistance"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data includes web crawl; EU-based company with GDPR awareness"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API via La Plateforme"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Strong code generation; function calling capable"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Native function calling with JSON schema enforcement"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "System prompt protection available but not guaranteed"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "128K context; set max_tokens"
+    risk_index: 32
+    risk_grade: B
+    mitigations:
+      - "Use JSON schema enforcement for structured outputs"
+      - "Implement input validation"
+      - "Set max_tokens on all requests"
+    license_risk: "Proprietary API; Mistral AI Terms of Service."
+
+  mistral-medium:
+    provider: mistral
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-04-11"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Mid-tier safety alignment"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Standard Mistral data handling"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Standard code generation capability"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "System prompt partially protectable"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Moderate cost profile"
+    risk_index: 34
+    risk_grade: B
+    mitigations:
+      - "Standard input/output validation"
+      - "Set max_tokens"
+    license_risk: "Proprietary API."
+
+  mistral-small:
+    provider: mistral
+    type: llm
+    license: proprietary_commercial
+    release_date: "2024-09-18"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Smaller model; less robust safety alignment"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Standard Mistral data handling"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Basic code generation"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Easier to extract system prompts from smaller models"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Low cost per token"
+    risk_index: 38
+    risk_grade: B
+    mitigations:
+      - "Use for lower-sensitivity tasks"
+      - "Implement strict input validation"
+    license_risk: "Proprietary API."
+
+  mixtral-8x7b:
+    provider: mistral
+    type: llm
+    license: apache_2_0
+    release_date: "2023-12-11"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Open-weights MoE model; safety alignment can be removed via fine-tuning"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Web-crawled training data; older model"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; weight verification required; many fine-tuned variants on HuggingFace"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Moderate code generation capability"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; no built-in prompt protection"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Efficient MoE architecture; self-hosted resource control"
+    risk_index: 48
+    risk_grade: C
+    mitigations:
+      - "Verify model weights are from official Mistral source"
+      - "Check for tampered fine-tuned variants"
+      - "Deploy with rate limiting"
+    license_risk: "Apache 2.0; fully permissive for commercial use. No restrictions on derivative works."
+
+  codestral:
+    provider: mistral
+    type: llm
+    license: mistral_non_production
+    release_date: "2024-05-29"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Code-focused model; injection via code context possible"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Trained on code data; may reproduce proprietary code patterns"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Available via API and self-hosted"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Designed to generate code; all output should be treated as potentially executable"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Code-focused context; standard extraction risks"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Efficient for code tasks"
+    risk_index: 36
+    risk_grade: B
+    mitigations:
+      - "Sandbox all generated code before execution"
+      - "Implement code review gates for AI-generated code"
+      - "Check license compliance for generated code"
+    license_risk: "Mistral AI Non-Production License for open-weights version. API version under standard Mistral terms. Check license before production deployment."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Cohere Models                                                       ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  command-r-plus:
+    provider: cohere
+    type: llm
+    license: cc_by_nc
+    release_date: "2024-08-30"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "RAG-optimized model; grounding reduces but does not eliminate injection"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Multilingual training data; web-crawled content"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Available via API and self-hosted"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Generates citations and structured output; standard validation needed"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Built-in tool use and RAG connectors"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Preamble system can be extracted"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "128K context; moderate cost"
+    risk_index: 32
+    risk_grade: B
+    mitigations:
+      - "Validate RAG citations for accuracy"
+      - "Implement input validation even with grounding"
+      - "Set max_tokens on API calls"
+    license_risk: "CC-BY-NC 4.0 for open-weights version; commercial use requires Cohere API or separate license. Verify license before production deployment."
+
+  command-r:
+    provider: cohere
+    type: llm
+    license: cc_by_nc
+    release_date: "2024-08-30"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "RAG-optimized; similar profile to Command R+"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Multilingual training data"
+      LLM03_supply_chain:
+        rating: low
+        notes: "API and self-hosted options"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Standard output validation recommended"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Preamble extraction possible"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Lower cost than Command R+"
+    risk_index: 34
+    risk_grade: B
+    mitigations:
+      - "Same mitigations as Command R+"
+      - "Validate RAG grounding outputs"
+    license_risk: "CC-BY-NC 4.0 for open-weights; API under Cohere terms."
+
+  embed-v3:
+    provider: cohere
+    type: embedding
+    license: proprietary_commercial
+    release_date: "2024-03-07"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: not_applicable
+        notes: "Embedding model; does not generate text"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Embeddings may encode PII from input text; embedding spaces are invertible"
+      LLM03_supply_chain:
+        rating: low
+        notes: "Hosted API"
+      LLM05_output_handling:
+        rating: not_applicable
+        notes: "Outputs are vectors, not executable content"
+      LLM08_vector_embedding:
+        rating: moderate
+        notes: "Embedding inversion attacks can recover input text; access control on vector stores essential"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Low cost per token for embeddings"
+    risk_index: 20
+    risk_grade: A
+    mitigations:
+      - "Implement access controls on vector databases storing these embeddings"
+      - "Do not embed PII without encryption or access controls"
+      - "Monitor for embedding inversion attacks"
+    license_risk: "Proprietary API; Cohere Terms of Service."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  DeepSeek Models                                                     ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  deepseek-v3:
+    provider: deepseek
+    type: llm
+    license: deepseek_license
+    release_date: "2024-12-26"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Open-weights model; safety alignment less extensively tested than commercial APIs"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data composition partially disclosed; Chinese internet data included"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; weights from HuggingFace; verify checksums"
+      LLM05_output_handling:
+        rating: susceptible
+        notes: "Strong code generation capability; frontier-level for open model"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Function calling supported; permission boundaries needed"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; system prompt protection is deployment-dependent"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "Large model; significant compute requirements"
+    risk_index: 54
+    risk_grade: C
+    mitigations:
+      - "Verify model weight integrity"
+      - "Deploy with comprehensive input/output filtering"
+      - "Sandbox all code generation output"
+      - "Review DeepSeek license terms for your use case"
+    license_risk: "DeepSeek License; permits commercial use with some restrictions. Review terms for data handling and export compliance requirements."
+
+  deepseek-r1:
+    provider: deepseek
+    type: llm
+    license: mit
+    release_date: "2025-01-20"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Reasoning model; chain-of-thought provides some injection resistance"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Reasoning traces may expose more information than standard completions"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; weight verification required; many distilled variants exist"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Strong reasoning output; validate conclusions before acting on them"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Reasoning capability enhances agent use; requires boundaries"
+      LLM07_system_prompt:
+        rating: moderate
+        notes: "Reasoning traces can inadvertently reveal system prompt content"
+      LLM10_unbounded_consumption:
+        rating: susceptible
+        notes: "Reasoning tokens can be very long; hard to predict costs"
+    risk_index: 48
+    risk_grade: C
+    mitigations:
+      - "Monitor reasoning token usage"
+      - "Filter reasoning traces before exposing to end users"
+      - "Verify distilled model variants for safety alignment"
+      - "Set max_tokens to control reasoning length"
+    license_risk: "MIT License; fully permissive. Distilled variants may have different licenses."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Other Open Models                                                   ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  phi-3:
+    provider: microsoft
+    type: llm
+    license: mit
+    release_date: "2024-04-23"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Small model (3.8B parameters); limited safety training; highly susceptible"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Trained on synthetic and curated data; lower PII risk than web-crawled models"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; Microsoft provides checksums via HuggingFace"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Limited code generation vs larger models"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Small model; trivially extractable system prompts"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Very efficient; suitable for edge deployment"
+    risk_index: 44
+    risk_grade: C
+    mitigations:
+      - "Do not use for safety-critical applications"
+      - "Implement comprehensive input filtering"
+      - "Best suited for constrained, well-defined tasks"
+    license_risk: "MIT License; fully permissive for commercial use."
+
+  qwen-2.5:
+    provider: alibaba
+    type: llm
+    license: apache_2_0
+    release_date: "2024-09-19"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: susceptible
+        notes: "Open-weights model; safety alignment varies across size variants"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data includes Chinese internet content; multilingual"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; weights from HuggingFace/ModelScope; verify checksums"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Strong code generation in larger variants"
+      LLM06_excessive_agency:
+        rating: moderate
+        notes: "Function calling supported in instruction-tuned variants"
+      LLM07_system_prompt:
+        rating: susceptible
+        notes: "Open model; system prompt protection depends on deployment"
+      LLM10_unbounded_consumption:
+        rating: low
+        notes: "Multiple size variants for efficient deployment"
+    risk_index: 46
+    risk_grade: C
+    mitigations:
+      - "Verify model weight integrity from official sources"
+      - "Deploy with input/output filtering"
+      - "Review compliance requirements for your jurisdiction"
+    license_risk: "Apache 2.0 for most variants; some larger variants may have additional terms. Verify for specific variant."
+
+  # ╔══════════════════════════════════════════════════════════════════════╗
+  # ║  Stability AI Models                                                 ║
+  # ╚══════════════════════════════════════════════════════════════════════╝
+
+  stable-diffusion-xl:
+    provider: stability_ai
+    type: image_generation
+    license: openrail_m
+    release_date: "2023-07-26"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Text-to-image; prompt manipulation can produce harmful content"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Trained on LAION-5B; contains copyrighted images and possibly PII"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; many community fine-tunes with unknown safety profiles"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Generated images may contain harmful, NSFW, or copyrighted content"
+      LLM07_system_prompt:
+        rating: not_applicable
+        notes: "No system prompt concept in image generation"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "GPU-intensive generation; implement queue limits"
+    risk_index: 48
+    risk_grade: C
+    mitigations:
+      - "Implement NSFW content filtering on outputs"
+      - "Add prompt filtering for harmful content requests"
+      - "Verify model weights and LoRA adapters"
+      - "Implement generation rate limiting"
+    license_risk: "OpenRAIL-M License; requires adherence to use restrictions. Cannot generate illegal, harmful, or deceptive content. Attribution recommended."
+
+  stable-diffusion-3:
+    provider: stability_ai
+    type: image_generation
+    license: stability_community
+    release_date: "2024-06-12"
+    last_assessed: "2026-03-15"
+    owasp_risks:
+      LLM01_prompt_injection:
+        rating: moderate
+        notes: "Improved prompt understanding; prompt injection still possible"
+      LLM02_sensitive_data:
+        rating: moderate
+        notes: "Training data more curated than SDXL; some copyright concerns remain"
+      LLM03_supply_chain:
+        rating: moderate
+        notes: "Self-hosted; community fine-tunes proliferating"
+      LLM05_output_handling:
+        rating: moderate
+        notes: "Higher quality output increases deepfake risk"
+      LLM07_system_prompt:
+        rating: not_applicable
+        notes: "No system prompt concept"
+      LLM10_unbounded_consumption:
+        rating: moderate
+        notes: "More compute-intensive than SDXL"
+    risk_index: 44
+    risk_grade: C
+    mitigations:
+      - "Implement output content filtering"
+      - "Add watermarking to generated images"
+      - "Rate limit generation requests"
+    license_risk: "Stability Community License; non-commercial use free. Commercial use requires Stability AI API or enterprise agreement."
+
+# ── Fuzzy match aliases ─────────────────────────────────────────────────
+# Maps common variant names to their canonical profile key.
+# The model_risk_db.py engine uses these for fuzzy matching.
+
+aliases:
+  # OpenAI aliases
+  "gpt4o": "gpt-4o"
+  "gpt-4-o": "gpt-4o"
+  "gpt4o-mini": "gpt-4o-mini"
+  "gpt-4o-mini-2024-07-18": "gpt-4o-mini"
+  "gpt-4o-2024-05-13": "gpt-4o"
+  "gpt-4o-2024-08-06": "gpt-4o"
+  "gpt-4o-2024-11-20": "gpt-4o"
+  "gpt-4-turbo-2024-04-09": "gpt-4-turbo"
+  "gpt-4-turbo-preview": "gpt-4-turbo"
+  "gpt-4-1106-preview": "gpt-4-turbo"
+  "gpt-4-0125-preview": "gpt-4-turbo"
+  "gpt-35-turbo": "gpt-3.5-turbo"
+  "gpt-3.5-turbo-0125": "gpt-3.5-turbo"
+  "gpt-3.5-turbo-1106": "gpt-3.5-turbo"
+  "gpt-3.5-turbo-16k": "gpt-3.5-turbo"
+  "o1-preview": "o1"
+  "o1-2024-12-17": "o1"
+  "o1-mini": "o3-mini"
+  "o3-2025-04-16": "o3"
+  "o3-mini-2025-01-31": "o3-mini"
+  "o4-mini-2025-04-16": "o4-mini"
+  "chatgpt-4o-latest": "gpt-4o"
+
+  # Anthropic aliases
+  "claude-3-5-sonnet-20241022": "claude-3.5-sonnet"
+  "claude-3-5-sonnet-latest": "claude-3.5-sonnet"
+  "claude-3-5-sonnet-v2": "claude-3.5-sonnet"
+  "claude-sonnet-4": "claude-sonnet-4-20250514"
+  "claude-3-haiku-20240307": "claude-3-haiku"
+  "claude-3-opus-20240229": "claude-3-opus"
+  "claude-haiku": "claude-3-haiku"
+  "claude-opus": "claude-3-opus"
+  "claude-sonnet": "claude-sonnet-4-20250514"
+
+  # Google aliases
+  "gemini-2.0-flash-001": "gemini-2.0-flash"
+  "gemini-2.0-flash-lite": "gemini-2.0-flash"
+  "gemini-1.5-pro-latest": "gemini-1.5-pro"
+  "gemini-1.5-pro-002": "gemini-1.5-pro"
+  "gemini-1.5-flash-latest": "gemini-1.5-flash"
+  "gemini-1.5-flash-002": "gemini-1.5-flash"
+  "gemini-pro": "gemini-1.5-pro"
+  "gemini-flash": "gemini-1.5-flash"
+  "gemma-2-9b": "gemma-2"
+  "gemma-2-27b": "gemma-2"
+  "gemma-2-2b": "gemma-2"
+
+  # Meta aliases
+  "llama-3.1-8b-instruct": "llama-3.1-8b"
+  "llama-3.1-70b-instruct": "llama-3.1-70b"
+  "llama-3.1-405b-instruct": "llama-3.1-405b"
+  "meta-llama/llama-3.1-8b": "llama-3.1-8b"
+  "meta-llama/llama-3.1-70b": "llama-3.1-70b"
+  "meta-llama/llama-3.1-405b": "llama-3.1-405b"
+  "llama3.1-8b": "llama-3.1-8b"
+  "llama3.1-70b": "llama-3.1-70b"
+  "llama3.1-405b": "llama-3.1-405b"
+  "llama-3.2-1b": "llama-3.2"
+  "llama-3.2-3b": "llama-3.2"
+  "llama-3.2-11b-vision": "llama-3.2"
+  "llama-3.2-90b-vision": "llama-3.2"
+  "llama-4-scout-17b-16e": "llama-4-scout"
+  "llama-4-maverick-17b-128e": "llama-4-maverick"
+
+  # Mistral aliases
+  "mistral-large-latest": "mistral-large"
+  "mistral-large-2411": "mistral-large"
+  "mistral-medium-latest": "mistral-medium"
+  "mistral-small-latest": "mistral-small"
+  "mistral-small-2409": "mistral-small"
+  "mixtral-8x7b-instruct": "mixtral-8x7b"
+  "mixtral-8x7b-v0.1": "mixtral-8x7b"
+  "codestral-2405": "codestral"
+  "codestral-latest": "codestral"
+
+  # Cohere aliases
+  "command-r-plus-08-2024": "command-r-plus"
+  "command-r-08-2024": "command-r"
+  "embed-english-v3.0": "embed-v3"
+  "embed-multilingual-v3.0": "embed-v3"
+
+  # DeepSeek aliases
+  "deepseek-chat": "deepseek-v3"
+  "deepseek-coder-v3": "deepseek-v3"
+  "deepseek-reasoner": "deepseek-r1"
+  "deepseek-r1-distill-llama-70b": "deepseek-r1"
+  "deepseek-r1-distill-qwen-32b": "deepseek-r1"
+
+  # Other aliases
+  "phi-3-mini": "phi-3"
+  "phi-3-mini-4k-instruct": "phi-3"
+  "phi-3-small": "phi-3"
+  "phi-3-medium": "phi-3"
+  "qwen2.5": "qwen-2.5"
+  "qwen-2.5-72b": "qwen-2.5"
+  "qwen-2.5-32b": "qwen-2.5"
+  "qwen-2.5-7b": "qwen-2.5"
+  "qwen-2.5-coder": "qwen-2.5"
+
+  # Stability aliases
+  "sdxl": "stable-diffusion-xl"
+  "sdxl-1.0": "stable-diffusion-xl"
+  "stable-diffusion-xl-base-1.0": "stable-diffusion-xl"
+  "sd3": "stable-diffusion-3"
+  "stable-diffusion-3-medium": "stable-diffusion-3"
+  "sd3-medium": "stable-diffusion-3"

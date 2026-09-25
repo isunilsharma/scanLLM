@@ -29,6 +29,17 @@ BANNER = r"""[bold cyan]
   [dim]AI Dependency Intelligence[/dim]
 """
 
+# ── CI gating (--fail-on) ───────────────────────────────────────────────────
+
+_GRADE_ORDER: dict[str, int] = {"A": 0, "B": 1, "C": 2, "D": 3, "F": 4}
+
+_SEVERITY_RANK: dict[str, int] = {
+    "critical": 0,
+    "high": 1,
+    "medium": 2,
+    "low": 3,
+}
+
 
 def _load_core() -> tuple[Any, Any, Any, Any, Any, Any]:
     """Import core modules with a helpful error if missing."""
@@ -64,10 +75,21 @@ def scan(
     output: str = typer.Option("table", "--output", "-o", help="Output format: table, json, sarif, cyclonedx"),
     severity: str = typer.Option(None, "--severity", "-s", help="Minimum severity filter: critical, high, medium, low"),
     full_scan: bool = typer.Option(False, "--full-scan", "-f", help="Include test/docs/example directories"),
-    save: bool = typer.Option(False, "--save", help="Save scan results to .scanllm/scans/"),
+    save: bool = typer.Option(True, "--save/--no-save", help="Save scan results to .scanllm/scans/"),
     policy: str = typer.Option(None, "--policy", "-p", help="Policy file to evaluate against"),
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Minimal output (just summary)"),
     no_banner: bool = typer.Option(False, "--no-banner", help="Skip the ASCII banner"),
+    fail_on: str = typer.Option(
+        None,
+        "--fail-on",
+        metavar="THRESHOLD",
+        help=(
+            "Exit 1 when the scan hits this threshold (for CI gating). "
+            "Grade (A, B, C, D, F): fails at that grade or worse. "
+            "Severity (critical, high, medium, low): fails when any finding is at that "
+            "severity or higher. Omit to always exit 0."
+        ),
+    ),
 ) -> None:
     """Scan a codebase for AI/LLM dependencies, risks, and policy violations."""
     # Resolve path
@@ -78,6 +100,9 @@ def scan(
     if not scan_path.is_dir():
         console.print(f"[bold red]Error:[/bold red] Path is not a directory: {scan_path}")
         raise typer.Exit(code=1)
+
+    # Validate the CI gate threshold up-front so bad input fails fast
+    fail_on_kind, fail_on_threshold = _parse_fail_on(fail_on)
 
     # Show banner (only for table output, not piped formats)
     if not no_banner and output == "table" and not quiet:
@@ -223,9 +248,75 @@ def scan(
         console.print("  Supported formats: table, json, sarif, cyclonedx")
         raise typer.Exit(code=1)
 
+    # Exit with non-zero code if the CI gate tripped
+    if fail_on_kind and _gate_tripped(
+        fail_on_kind, fail_on_threshold, risk_result, scan_result.get("findings", [])
+    ):
+        raise typer.Exit(code=1)
+
     # Exit with non-zero code if policy failed
     if policy_result and not policy_result.get("passed", True):
         raise typer.Exit(code=1)
+
+
+def _parse_fail_on(value: str | None) -> tuple[str | None, str]:
+    """Validate ``--fail-on`` and return ``(kind, threshold)``.
+
+    ``kind`` is ``"grade"``, ``"severity"``, or ``None`` when the flag was not
+    supplied.  Invalid values exit with code 2 rather than raising.
+    """
+    if value is None:
+        return None, ""
+
+    candidate = value.strip()
+    if candidate.upper() in _GRADE_ORDER:
+        return "grade", candidate.upper()
+    if candidate.lower() in _SEVERITY_RANK:
+        return "severity", candidate.lower()
+
+    console.print(
+        f"[bold red]Error:[/bold red] Invalid --fail-on value: [yellow]{value}[/yellow]\n"
+        f"  Expected a grade ([cyan]A, B, C, D, F[/cyan]) "
+        f"or a severity ([cyan]critical, high, medium, low[/cyan])."
+    )
+    raise typer.Exit(code=2)
+
+
+def _finding_severity(finding: dict[str, Any]) -> str:
+    """Normalized severity for a finding, matching the table renderer."""
+    return (finding.get("severity") or finding.get("pattern_severity") or "info").lower()
+
+
+def _gate_tripped(
+    kind: str,
+    threshold: str,
+    risk_result: dict[str, Any] | None,
+    findings: list[dict[str, Any]],
+) -> bool:
+    """Return True (and explain on stderr) when the ``--fail-on`` gate trips."""
+    if kind == "grade":
+        grade = ((risk_result or {}).get("grade") or "A").upper()
+        actual = _GRADE_ORDER.get(grade)
+        if actual is None or actual < _GRADE_ORDER[threshold]:
+            return False
+        console.print(
+            f"[bold red]✗[/bold red] scan failed policy gate: "
+            f"grade [bold]{grade}[/bold] is at or below threshold [bold]{threshold}[/bold]"
+        )
+        return True
+
+    limit = _SEVERITY_RANK[threshold]
+    matched = sum(
+        1 for f in findings if _SEVERITY_RANK.get(_finding_severity(f), 99) <= limit
+    )
+    if not matched:
+        return False
+    console.print(
+        f"[bold red]✗[/bold red] scan failed policy gate: "
+        f"{matched} finding{'s' if matched != 1 else ''} at or above "
+        f"severity [bold]{threshold}[/bold]"
+    )
+    return True
 
 
 def _run_policy_check(
