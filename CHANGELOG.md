@@ -5,6 +5,59 @@ All notable changes to ScanLLM will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-09-25
+
+### Changed
+
+- **Risk scores and grades will move on upgrade.** Several high-severity
+  detections were false positives that inflated scores. Repositories will
+  generally grade better than before. Teams with CI thresholds, saved
+  baselines, or trend dashboards should expect a step change and re-baseline.
+  Measured on public repos: `mckaywrigley/chatbot-ui` F (100) to B (30),
+  `langchain-ai/langserve` B (30) to A (10).
+
+### Fixed
+
+- Secret scanning no longer reports identifier assignments as credentials. The
+  generic `api_key = "..."` rule matched `api_key` as a substring of any
+  identifier and accepted any 8+ character value, so a TypeScript enum of key
+  *names* (`OPENAI_API_KEY = "OPENAI_API_KEY"`) was reported as eight hardcoded
+  secrets. Values are now checked for plausibility (env-var-name shapes,
+  interpolation, paths, prose, and low entropy are rejected).
+- Prompt-injection detection no longer fires on every JavaScript template
+  literal. The rule matched any `${...}` containing a word like "message" or
+  "request", flagging `${error.message}` and `${request.status}` as LLM01. It
+  is now gated on file-level prompt context and skips error formatting and UI
+  plumbing. Measured: keeps 3/3 true positives, drops 10/10 false positives.
+- `scan --severity` now filters results instead of being ignored.
+- Scans are reproducible. `.scanllm/` was not excluded from the file walk, so
+  each scan re-ingested the previous scan's saved output: findings inflated
+  81 to 108 and the saved artifact grew 97KB to 1.5MB over four runs.
+- `doctor` remediation hints keep their extras. Rich parsed `[server]` as a
+  style tag and deleted it, rendering `pip install 'scanllm'`.
+- Installing no longer warns about the `typer[all]` extra, which typer dropped
+  in 0.13.
+- Every finding now carries `severity` and `finding_type`. Consumers reading
+  `findings[].severity` previously got `null`. `risk.severity_counts` and
+  `summary.severities` contradicted each other and are now derived from one
+  shared counter.
+- The hosted backend produced different results from the CLI. It carried
+  byte-identical copies of every scanner and scoring module, so none of the
+  above fixes reached it. All are now thin re-exports over `core`, removing
+  roughly 3,400 lines of duplication.
+
+### Added
+
+- `scan --fail-on <grade|severity>` exits 1 when a threshold is breached, so
+  scans can gate CI. A bare `scan` still exits 0, unchanged.
+- The findings table collapses duplicate rows with occurrence counts, caps
+  output, and stays readable at 80 columns. A file emitting 18 identical
+  import rows now shows one row with a count.
+- `tests/e2e-install/`, a clean-room harness that pip installs the package the
+  way a new user would, scans pinned open-source repos, and asserts on
+  detection quality. Run `./run.sh --source local` before tagging and
+  `--source pypi==<version>` after publishing.
+
 ## [2.3.0] - 2026-04-02
 
 ### Added
