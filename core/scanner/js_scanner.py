@@ -49,6 +49,24 @@ _RE_MODEL_PARAM = re.compile(
 )
 
 # Template literal prompt injection: `...${userInput}...`
+# A template literal is only a prompt-injection risk if the file actually
+# builds prompts. Without this gate the rule fires on every `${...}` in a
+# codebase -- auth redirects, UI ids, file paths -- which buries the real hits.
+_RE_PROMPT_CONTEXT = re.compile(
+    r"\b(prompt|systemMessage|system_message|completion|chatSettings"
+    r"|messages\s*[:=]|llm|openai|anthropic|tokenizer)\b",
+    re.IGNORECASE,
+)
+
+# Error formatting and UI plumbing interpolate user-ish values constantly and
+# never reach a model. Excluding them is what makes the rule trustworthy.
+_RE_NON_PROMPT_LINE = re.compile(
+    r"(new\s+Error|throw\s|console\.(log|error|warn)|redirect\("
+    r"|\w*(?:err|error)\w*\.message\b|\.status\b|\bfailed\b"
+    r"|aria-|Id\}|_id\b)",
+    re.IGNORECASE,
+)
+
 _RE_TEMPLATE_INJECTION = re.compile(
     r"""`[^`]*\$\{[^}]*(user[_]?input|request|query|message|prompt|body|payload|req\.body|req\.query|req\.params)[^}]*\}[^`]*`""",
     re.IGNORECASE | re.MULTILINE,
@@ -176,7 +194,7 @@ class JSScanner:
         self._scan_imports(lines, relative_path, idx, findings)
         self._scan_calls(lines, relative_path, idx, findings)
         self._scan_model_params(lines, relative_path, idx, findings)
-        self._scan_template_injection(lines, relative_path, findings)
+        self._scan_template_injection(lines, relative_path, findings, source)
         self._scan_mcp_calls(lines, relative_path, findings)
 
         return findings
@@ -319,8 +337,15 @@ class JSScanner:
         lines: list[str],
         relative_path: str,
         findings: list[dict[str, Any]],
+        source: str = "",
     ) -> None:
+        # Gate on file-level prompt context: no prompts here, no LLM01.
+        if not _RE_PROMPT_CONTEXT.search(source or "\n".join(lines)):
+            return
+
         for i, line in enumerate(lines, start=1):
+            if _RE_NON_PROMPT_LINE.search(line):
+                continue
             if _RE_TEMPLATE_INJECTION.search(line):
                 findings.append(_make_finding(
                     file_path=relative_path,

@@ -6,7 +6,9 @@ Scans .env files, source code, and configuration files.
 from __future__ import annotations
 
 import logging
+import math
 import re
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
@@ -130,6 +132,45 @@ _RE_CODE_ASSIGNMENT = re.compile(
     r"""(?:api_key|apikey|api_token|token|secret|password|credential)\s*=\s*['"]((?!os\.environ|os\.getenv|process\.env).{8,})['"]""",
     re.IGNORECASE,
 )
+
+# Values that match an env-var *name* shape are references, not credentials.
+# e.g. the TS enum `OPENAI_API_KEY = "OPENAI_API_KEY"` is a key name, not a key.
+_RE_ENV_VAR_NAME = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
+
+# Obvious non-secret value shapes: interpolation, templating, paths, prose.
+_NON_SECRET_PREFIXES = ("${", "{{", "<", "process.env", "os.environ", "$(")
+
+
+def _shannon_entropy(value: str) -> float:
+    """Bits of entropy per character. Real credentials score high; words do not."""
+    if not value:
+        return 0.0
+    counts = Counter(value)
+    length = len(value)
+    return -sum(
+        (n / length) * math.log2(n / length) for n in counts.values()
+    )
+
+
+def _is_plausible_secret(value: str) -> bool:
+    """Reject values that cannot be real credentials.
+
+    The generic ``api_key = "..."`` pattern is inherently noisy: it fires on
+    any identifier containing ``api_key`` regardless of what is assigned. This
+    filters the assignments that are structurally incapable of being secrets,
+    which is what separates a finding from a false alarm.
+    """
+    v = value.strip()
+    if len(v) < 12:
+        return False
+    if _RE_ENV_VAR_NAME.match(v):
+        return False
+    if v.startswith(_NON_SECRET_PREFIXES):
+        return False
+    if " " in v or "/" in v:
+        return False
+    return _shannon_entropy(v) >= 3.0
+
 
 _RE_OS_ENVIRON = re.compile(
     r"""os\.(?:environ(?:\.get)?\s*\[?\s*|getenv\s*\(\s*)['"]([A-Z][A-Z0-9_]+)['"]""",
@@ -348,7 +389,14 @@ class SecretScanner:
                 secret_val = m.group(1)
                 # Make sure it is not a placeholder or env var reference
                 if not re.search(r"(os\.getenv|os\.environ|process\.env|config\.|settings\.)", line):
-                    if not re.search(r"(?:xxx|placeholder|your.key|changeme|TODO|REPLACE)", secret_val, re.IGNORECASE):
+                    if (
+                    not re.search(
+                        r"(?:xxx|placeholder|your.key|changeme|TODO|REPLACE)",
+                        secret_val,
+                        re.IGNORECASE,
+                    )
+                    and _is_plausible_secret(secret_val)
+                ):
                         masked = secret_val[:4] + "..." if len(secret_val) > 8 else "****"
                         findings.append(_make_finding(
                             file_path=relative_path,
