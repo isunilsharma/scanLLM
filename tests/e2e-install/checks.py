@@ -174,6 +174,36 @@ def main():
     check("gate: invalid --fail-on exits 2 without a traceback",
           _exit("gate-bogus.exit") == "2", f"got {_exit('gate-bogus.exit')}")
 
+    # ------------------------------------------- table readability --------
+    # 57 findings used to print as 57 rows, truncated to `impo…` at 80 cols.
+    for name, data in (("langserve", ls), ("chatbot-ui", cb)):
+        t80 = os.path.join(R, f"{name}.table80.txt")
+        if not (data and os.path.exists(t80)):
+            continue
+        txt = open(t80).read()
+        check(f"{name}: table collapses duplicate findings",
+              "unique" in txt or "more findings" in txt,
+              "no dedup marker in header/caption")
+        check(f"{name}: severity column is not truncated at 80 cols",
+              "Sever…" not in txt and "Seve…" not in txt)
+        check(f"{name}: finding column is not truncated to uselessness",
+              "impo…" not in txt)
+        # Count only rows inside the findings table, not the Rich panels
+        # that follow it (those also start with a box-drawing char).
+        rows, inside = 0, False
+        for line in txt.splitlines():
+            if line.startswith("\u250f"):        # table top border
+                inside = True
+            elif line.startswith("\u2514"):      # table bottom border
+                inside = False
+            elif inside and line.startswith("\u2502"):
+                rows += 1
+        check(f"{name}: table is capped to a readable number of rows",
+              rows <= 30, f"{rows} table rows")
+        check(f"{name}: no line exceeds 80 columns",
+              all(len(l) <= 80 for l in txt.splitlines()),
+              f"widest={max((len(l) for l in txt.splitlines()), default=0)}")
+
     # ------------------------------------------- known bugs still open ----
     if cb:
         f0 = (cb.get("findings") or [{}])[0]

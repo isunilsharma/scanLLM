@@ -113,6 +113,7 @@ for d in "$REPOS"/*/; do
   code=$?
   echo "$code" > "$RESULTS/$name.exit"
   COLUMNS=200 "$SCANLLM" scan "$d" --no-banner > "$RESULTS/$name.table.txt" 2>&1
+  COLUMNS=80  "$SCANLLM" scan "$d" --no-banner > "$RESULTS/$name.table80.txt" 2>&1
   COLUMNS=200 "$SCANLLM" scan "$d" -o sarif     --no-banner > "$RESULTS/$name.sarif.json" 2>/dev/null
   COLUMNS=200 "$SCANLLM" scan "$d" -o cyclonedx --no-banner > "$RESULTS/$name.cdx.json"   2>/dev/null
   COLUMNS=200 "$SCANLLM" scan "$d" -o json -s high --no-banner > "$RESULTS/$name.high.json" 2>/dev/null
