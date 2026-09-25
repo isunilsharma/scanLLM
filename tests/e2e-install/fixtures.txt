@@ -1,0 +1,5 @@
+# Pinned open-source fixture repos for end-to-end install testing.
+# Format: name<TAB>git-url<TAB>commit-sha
+# Commits are pinned so expected findings stay reproducible over time.
+langserve	https://github.com/langchain-ai/langserve.git	27e57afeda13007a7f4e007c5d1f5e8489963aa4
+chatbot-ui	https://github.com/mckaywrigley/chatbot-ui.git	81328b61d2a4ab597a7a057be70e785cf756d9f8

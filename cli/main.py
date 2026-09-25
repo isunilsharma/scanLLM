@@ -6,7 +6,7 @@ from __future__ import annotations
 import typer
 from rich.console import Console
 
-from cli.commands import scan, init_cmd, policy, diff, ui, watch, report, fix, push, auth
+from cli.commands import scan, init_cmd, policy, diff, ui, watch, report, fix, push, auth, agent_scan
 from cli.commands import score as score_cmd
 from cli.commands import doctor as doctor_cmd
 from cli.commands import export as export_cmd

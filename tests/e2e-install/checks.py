@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""Assertions for the ScanLLM end-to-end install kit.
+
+Three kinds of check:
+
+  CHECK  — behaviour that must hold. A failure is a release blocker.
+  DRIFT  — detection counts on pinned repos. A change is not automatically
+           wrong (signatures evolve), but it must be looked at, so it is
+           reported loudly and does not fail the run.
+  KNOWN  — a bug confirmed present in 2.3.2. Still broken => xfail (no
+           failure). Fixed => XPASS, which tells you to promote it to CHECK.
+
+Add new CHECKs here whenever you ship a feature; that is what makes this a
+regression net rather than a one-off smoke test.
+"""
+import argparse
+import json
+import os
+import sys
+
+PASS, FAIL, XFAIL, XPASS, DRIFTED = [], [], [], [], []
+
+
+def _load(results, name):
+    p = os.path.join(results, name)
+    if not os.path.exists(p) or os.path.getsize(p) == 0:
+        return None
+    try:
+        with open(p) as fh:
+            return json.load(fh)
+    except json.JSONDecodeError:
+        return None
+
+
+def check(label, ok, detail=""):
+    (PASS if ok else FAIL).append((label, detail))
+
+
+def known(label, still_broken, detail=""):
+    """Register a known 2.3.2 bug. still_broken=True -> xfail."""
+    (XFAIL if still_broken else XPASS).append((label, detail))
+
+
+def drift(label, actual, expected):
+    if actual == expected:
+        PASS.append((f"{label} == {expected}", ""))
+    else:
+        DRIFTED.append((label, f"expected {expected}, got {actual}"))
+
+
+def findings_at(data, path_frag, pattern=None):
+    out = []
+    for f in data.get("findings", []):
+        if path_frag in (f.get("file_path") or ""):
+            if pattern is None or pattern in (f.get("pattern_name") or ""):
+                out.append(f)
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--results", required=True)
+    ap.add_argument("--version", default="")
+    ap.add_argument("--source", default="")
+    a = ap.parse_args()
+    R = a.results
+
+    # ---------------------------------------------------------- install ---
+    check("CLI reports a version", bool(a.version), a.version)
+    if a.source.startswith("pypi=="):
+        want = a.source.split("==", 1)[1]
+        check(f"installed version matches requested {want}",
+              a.version == want, f"got {a.version}")
+
+    doctor = ""
+    if os.path.exists(os.path.join(R, "doctor.txt")):
+        doctor = open(os.path.join(R, "doctor.txt")).read()
+    check("doctor runs and self-reports version",
+          f"scanllm {a.version}" in doctor)
+    check("doctor loads AI signatures", "signatures loaded" in doctor)
+
+    # --------------------------------------------------------- per repo ---
+    ls = _load(R, "langserve.json")
+    cb = _load(R, "chatbot-ui.json")
+    check("langserve scan produced valid JSON", ls is not None)
+    check("chatbot-ui scan produced valid JSON", cb is not None)
+
+    for name, data in (("langserve", ls), ("chatbot-ui", cb)):
+        if not data:
+            continue
+        s = data.get("summary", {})
+        check(f"{name}: has summary/risk/owasp/graph blocks",
+              all(k in data for k in ("summary", "risk", "owasp", "graph")))
+        check(f"{name}: scanned > 0 files", s.get("files_scanned", 0) > 0)
+        check(f"{name}: found AI components", s.get("total_findings", 0) > 0)
+        check(f"{name}: risk score in 0..100",
+              0 <= data.get("risk", {}).get("overall_score", -1) <= 100)
+        check(f"{name}: risk grade assigned",
+              data.get("risk", {}).get("grade") in list("ABCDF"))
+
+        # SARIF / CycloneDX must be well-formed for CI + compliance consumers
+        sarif = _load(R, f"{name}.sarif.json")
+        check(f"{name}: SARIF is valid JSON with runs[]",
+              bool(sarif) and isinstance(sarif.get("runs"), list))
+        cdx = _load(R, f"{name}.cdx.json")
+        check(f"{name}: CycloneDX is valid JSON with components[]",
+              bool(cdx) and isinstance(cdx.get("components"), list))
+        if cdx:
+            check(f"{name}: CycloneDX declares bomFormat",
+                  cdx.get("bomFormat") == "CycloneDX")
+
+    # ------------------------------------------- true-positive detection ---
+    if ls:
+        provs = set(ls["summary"].get("providers", {}))
+        check("langserve: detects langchain", "langchain" in provs, str(provs))
+        drift("langserve: total findings", ls["summary"]["total_findings"], 60)
+        drift("langserve: ai files", ls["summary"]["ai_files_count"], 13)
+
+    if cb:
+        provs = set(cb["summary"].get("providers", {}))
+        for want in ("openai", "anthropic", "langchain"):
+            check(f"chatbot-ui: detects {want}", want in provs, str(sorted(provs)))
+        check("chatbot-ui: detects a local/self-hosted runtime (ollama)",
+              "ollama" in provs, str(sorted(provs)))
+        # This one is a genuine prompt-injection surface: user text is
+        # interpolated into an LLM prompt. It must keep being flagged.
+        bp = findings_at(cb, "lib/build-prompt.ts", "prompt_injection")
+        check("chatbot-ui: flags real prompt construction in lib/build-prompt.ts",
+              len(bp) >= 3, f"{len(bp)} hits")
+        drift("chatbot-ui: total findings", cb["summary"]["total_findings"], 98)
+        drift("chatbot-ui: providers detected", len(provs), 10)
+
+    # ------------------------------------------- known bugs as of 2.3.2 ----
+    if cb:
+        # 1. TypeScript enum of key *names* reported as hardcoded credentials.
+        vk = findings_at(cb, "types/valid-keys.ts", "hardcoded_credential")
+        known("FP: types/valid-keys.ts enum counted as hardcoded credentials",
+              len(vk) > 0, f"{len(vk)} false secrets -> pins grade to F")
+
+        # 2. Any JS template literal flagged as prompt injection.
+        noise = (findings_at(cb, "login/page.tsx", "template_literal")
+                 + findings_at(cb, "components/ui/form.tsx", "template_literal")
+                 + findings_at(cb, "db/storage/files.ts", "template_literal"))
+        known("FP: template literals in non-LLM code flagged as LLM01",
+              len(noise) > 0, f"{len(noise)} hits in auth/ui/storage code")
+
+        # 3. findings[] carries pattern_severity but no severity/finding_type,
+        #    so JSON consumers see null.
+        f0 = (cb.get("findings") or [{}])[0]
+        known("schema: findings[] lacks 'severity' and 'finding_type' keys",
+              "severity" not in f0 or "finding_type" not in f0,
+              f"keys present: {sorted(f0)[:6]}...")
+
+        # 4. Two severity tallies in one document disagree.
+        rs = cb["risk"].get("severity_counts", {})
+        ss = cb["summary"].get("severities", {})
+        known("schema: risk.severity_counts contradicts summary.severities",
+              rs.get("high", 0) != ss.get("high", 0),
+              f"risk={rs.get('high')} vs summary={ss.get('high')}")
+
+        # 5. --severity filter is ignored.
+        hi = _load(R, "chatbot-ui.high.json")
+        if hi:
+            known("cli: --severity high does not filter results",
+                  hi["summary"]["total_findings"] == cb["summary"]["total_findings"],
+                  f"{hi['summary']['total_findings']} vs unfiltered "
+                  f"{cb['summary']['total_findings']}")
+
+        # 6. Grade F still exits 0, so `scanllm scan` alone cannot gate CI.
+        ep = os.path.join(R, "chatbot-ui.exit")
+        if os.path.exists(ep):
+            code = open(ep).read().strip()
+            known("cli: exit code is 0 even at grade F (no CI gating)",
+                  code == "0" and cb["risk"]["grade"] == "F", f"exit={code}")
+
+    # 7. Rich markup eats the extras name in doctor's remediation hint.
+    if doctor and "not installed" in doctor:
+        known("doctor: Rich markup swallows extras in 'pip install scanllm[server]'",
+              "scanllm[server]" not in doctor,
+              "hint renders as `pip install 'scanllm'`")
+
+    # ----------------------------------------------------------- report ---
+    w = sys.stdout.write
+    w(f"\n  {len(PASS)} passed   {len(FAIL)} failed   "
+      f"{len(DRIFTED)} drifted   {len(XFAIL)} known-bugs   "
+      f"{len(XPASS)} newly-fixed\n\n")
+    for label, detail in FAIL:
+        w(f"  \033[31mFAIL \033[0m {label}" + (f"  ({detail})\n" if detail else "\n"))
+    for label, detail in DRIFTED:
+        w(f"  \033[33mDRIFT\033[0m {label}  ({detail})\n")
+    for label, detail in XFAIL:
+        w(f"  \033[90mKNOWN\033[0m {label}" + (f"  ({detail})\n" if detail else "\n"))
+    for label, detail in XPASS:
+        w(f"  \033[32mFIXED\033[0m {label} -- promote this to a CHECK\n")
+    if not FAIL:
+        w("\n  \033[32mAll blocking checks passed.\033[0m\n")
+    return 1 if FAIL else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -69,3 +69,12 @@ test_reports/
 
 # Package lock at root (frontend has its own)
 /package-lock.json
+
+# Local MCP server config (contains API keys)
+.mcp.json
+
+# Editor/agent local config
+.claude/
+
+# Backup files
+*.bak

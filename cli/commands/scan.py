@@ -64,7 +64,7 @@ def scan(
     output: str = typer.Option("table", "--output", "-o", help="Output format: table, json, sarif, cyclonedx"),
     severity: str = typer.Option(None, "--severity", "-s", help="Minimum severity filter: critical, high, medium, low"),
     full_scan: bool = typer.Option(False, "--full-scan", "-f", help="Include test/docs/example directories"),
-    save: bool = typer.Option(False, "--save", help="Save scan results to .scanllm/scans/"),
+    save: bool = typer.Option(True, "--save/--no-save", help="Save scan results to .scanllm/scans/"),
     policy: str = typer.Option(None, "--policy", "-p", help="Policy file to evaluate against"),
     quiet: bool = typer.Option(False, "--quiet", "-q", help="Minimal output (just summary)"),
     no_banner: bool = typer.Option(False, "--no-banner", help="Skip the ASCII banner"),

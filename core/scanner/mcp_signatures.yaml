@@ -1,0 +1,298 @@
+# MCP & Agent Skill Security Detection Patterns
+# Used by mcp_scanner.py and skill_scanner.py to identify risks in
+# MCP server configurations and agent skill definitions.
+
+# ── Prompt injection indicators ────────────────────────────────────────────
+prompt_injection:
+  # Instruction-override phrases found in tool descriptions
+  instruction_patterns:
+    - "ignore previous"
+    - "ignore all previous"
+    - "ignore above"
+    - "disregard previous"
+    - "disregard all"
+    - "disregard above"
+    - "forget previous"
+    - "forget all previous"
+    - "instead of"
+    - "override"
+    - "you must"
+    - "you should always"
+    - "always respond"
+    - "never mention"
+    - "do not reveal"
+    - "pretend you are"
+    - "act as if"
+    - "from now on"
+    - "new instructions"
+    - "system prompt"
+    - "ignore safety"
+    - "bypass"
+    - "jailbreak"
+
+  # Obfuscation indicators in tool descriptions
+  obfuscation_patterns:
+    - pattern: "base64"
+      description: "Base64-encoded content in tool description"
+    - pattern: "\\\\u[0-9a-fA-F]{4}"
+      description: "Unicode escape sequences in tool description"
+    - pattern: "\\\\x[0-9a-fA-F]{2}"
+      description: "Hex escape sequences in tool description"
+    - pattern: "\\u200b|\\u200c|\\u200d|\\ufeff"
+      description: "Zero-width characters in tool description"
+
+  # Anomalous description length (chars)
+  max_normal_description_length: 500
+
+# ── Tool shadowing ─────────────────────────────────────────────────────────
+tool_shadowing:
+  # Common built-in/trusted tool names that should not be overridden
+  builtin_tool_names:
+    - "read_file"
+    - "write_file"
+    - "list_directory"
+    - "search_files"
+    - "execute_command"
+    - "run_terminal_command"
+    - "bash"
+    - "shell"
+    - "terminal"
+    - "browser"
+    - "web_search"
+    - "edit_file"
+    - "create_file"
+    - "delete_file"
+    - "move_file"
+    - "copy_file"
+    - "read"
+    - "write"
+    - "grep"
+    - "find"
+    - "curl"
+    - "fetch"
+    - "http"
+    - "request"
+
+# ── Toxic flow capability mappings ─────────────────────────────────────────
+toxic_flows:
+  # Capability categories derived from server args, commands, and tool names
+  capability_indicators:
+    filesystem_read:
+      keywords: ["read", "file", "fs", "cat", "open", "load", "glob", "find", "search", "list_dir", "directory"]
+      description: "Can read local files"
+    filesystem_write:
+      keywords: ["write", "save", "create_file", "edit", "modify", "append", "delete", "remove", "move", "rename"]
+      description: "Can modify local files"
+    network_send:
+      keywords: ["http", "fetch", "request", "post", "send", "email", "smtp", "webhook", "notify", "upload", "curl", "api"]
+      description: "Can send data over the network"
+    shell_exec:
+      keywords: ["exec", "shell", "bash", "terminal", "command", "run", "subprocess", "spawn", "eval"]
+      description: "Can execute shell commands"
+    database_access:
+      keywords: ["sql", "query", "database", "db", "postgres", "mysql", "sqlite", "mongo", "redis"]
+      description: "Can access databases"
+    credential_access:
+      keywords: ["secret", "password", "credential", "token", "key", "auth", "login", "keychain", "vault"]
+      description: "Can access credentials"
+    browser_control:
+      keywords: ["browser", "puppeteer", "playwright", "selenium", "chrome", "navigate", "screenshot"]
+      description: "Can control a web browser"
+
+  # Dangerous capability chain combinations (source -> sink)
+  dangerous_chains:
+    - source: "filesystem_read"
+      sink: "network_send"
+      severity: "high"
+      description: "Tool chain can read local files and send them over the network (data exfiltration risk)"
+    - source: "credential_access"
+      sink: "network_send"
+      severity: "critical"
+      description: "Tool chain can access credentials and send them externally (credential theft risk)"
+    - source: "database_access"
+      sink: "network_send"
+      severity: "high"
+      description: "Tool chain can query databases and exfiltrate data over the network"
+    - source: "filesystem_read"
+      sink: "shell_exec"
+      severity: "high"
+      description: "Tool chain can read files and execute shell commands (code execution risk)"
+    - source: "network_send"
+      sink: "shell_exec"
+      severity: "critical"
+      description: "Tool chain can fetch remote content and execute it locally (remote code execution risk)"
+    - source: "credential_access"
+      sink: "shell_exec"
+      severity: "critical"
+      description: "Tool chain can access credentials and execute arbitrary commands"
+    - source: "browser_control"
+      sink: "filesystem_write"
+      severity: "medium"
+      description: "Tool chain can download web content and write to local filesystem"
+    - source: "database_access"
+      sink: "shell_exec"
+      severity: "high"
+      description: "Tool chain can query databases and execute shell commands"
+
+# ── Overprivileged server detection ────────────────────────────────────────
+overprivileged:
+  # Arguments/env vars that indicate dangerous capabilities
+  filesystem_indicators:
+    args: ["/", "~", "$HOME", "--allow-write", "--root", "--directory"]
+    env: ["HOME", "USERPROFILE"]
+    description: "Server has broad filesystem access"
+  network_indicators:
+    args: ["--allow-net", "--allow-http", "--port", "--host", "0.0.0.0"]
+    env: ["HTTP_PROXY", "HTTPS_PROXY"]
+    description: "Server has network access"
+  shell_indicators:
+    args: ["--allow-exec", "--allow-run", "--shell", "bash", "sh", "/bin/sh", "/bin/bash", "cmd.exe", "powershell"]
+    env: ["SHELL", "COMSPEC"]
+    description: "Server has shell execution access"
+
+# ── Unverified server sources ──────────────────────────────────────────────
+unverified_sources:
+  # Trusted package scopes/prefixes for npm
+  trusted_npm_scopes:
+    - "@modelcontextprotocol/"
+    - "@anthropic-ai/"
+    - "@openai/"
+    - "@google/"
+    - "@microsoft/"
+    - "@aws-sdk/"
+    - "@cloudflare/"
+    - "@supabase/"
+    - "@vercel/"
+
+  # Trusted package prefixes for pip
+  trusted_pip_prefixes:
+    - "mcp-server-"
+    - "anthropic"
+    - "openai"
+    - "google-"
+    - "azure-"
+    - "aws-"
+
+  # Patterns indicating untrusted sources
+  untrusted_patterns:
+    - pattern: "github\\.com/[^/]+/[^/]+"
+      description: "Server installed directly from GitHub repository"
+    - pattern: "^git\\+"
+      description: "Server installed from git URL"
+    - pattern: "^https?://"
+      description: "Server installed from raw URL"
+    - pattern: "^\\."
+      description: "Server running from local relative path"
+
+# ── Transport security ─────────────────────────────────────────────────────
+transport:
+  # Servers with these capabilities should prefer SSE over stdio
+  sensitive_capabilities:
+    - "filesystem_read"
+    - "credential_access"
+    - "database_access"
+    - "shell_exec"
+
+# ── Agent skill risk patterns ──────────────────────────────────────────────
+skill_risks:
+  # Malware payload indicators
+  malware_patterns:
+    - pattern: "\\bexec\\s*\\("
+      description: "Dynamic code execution via exec()"
+    - pattern: "\\beval\\s*\\("
+      description: "Dynamic code execution via eval()"
+    - pattern: "\\bcompile\\s*\\("
+      description: "Runtime code compilation"
+    - pattern: "base64\\.b64decode"
+      description: "Base64 decoding (potential payload deobfuscation)"
+    - pattern: "\\bos\\.system\\s*\\("
+      description: "Shell command execution via os.system()"
+    - pattern: "subprocess\\.(run|call|Popen|check_output)"
+      description: "Shell command execution via subprocess"
+    - pattern: "\\bctypes\\b"
+      description: "C-level memory/library access via ctypes"
+    - pattern: "__import__\\s*\\("
+      description: "Dynamic module import"
+    - pattern: "\\bpickle\\.(loads?|load)\\b"
+      description: "Pickle deserialization (potential code execution)"
+    - pattern: "\\bmarshall?\\.loads?\\b"
+      description: "Marshal deserialization (potential code execution)"
+
+  # Credential harvesting patterns
+  credential_harvesting:
+    - pattern: "(api_key|api_token|password|secret|credential|auth_token|access_token)\\s*="
+      description: "Direct credential assignment"
+    - pattern: "getpass\\."
+      description: "Interactive password prompt"
+    - pattern: "keyring\\."
+      description: "System keychain access"
+    - pattern: "(ssh_key|private_key|pem_file)"
+      description: "SSH/TLS key reference"
+
+  # Secret patterns (values that look like real keys)
+  hardcoded_secrets:
+    - pattern: "sk-[a-zA-Z0-9]{20,}"
+      description: "OpenAI API key pattern"
+    - pattern: "sk-ant-[a-zA-Z0-9]{20,}"
+      description: "Anthropic API key pattern"
+    - pattern: "ghp_[a-zA-Z0-9]{36}"
+      description: "GitHub personal access token"
+    - pattern: "gho_[a-zA-Z0-9]{36}"
+      description: "GitHub OAuth token"
+    - pattern: "glpat-[a-zA-Z0-9\\-]{20,}"
+      description: "GitLab personal access token"
+    - pattern: "AKIA[0-9A-Z]{16}"
+      description: "AWS access key ID"
+    - pattern: "xox[bpors]-[a-zA-Z0-9\\-]{10,}"
+      description: "Slack token"
+    - pattern: "AIza[0-9A-Za-z\\-_]{35}"
+      description: "Google API key"
+    - pattern: "pcsk_[a-zA-Z0-9]{20,}"
+      description: "Pinecone API key"
+    - pattern: "hf_[a-zA-Z0-9]{20,}"
+      description: "Hugging Face token"
+
+  # External content fetch patterns
+  external_fetch:
+    - pattern: "requests\\.get\\s*\\("
+      description: "HTTP GET request (potential remote content fetch)"
+    - pattern: "urllib\\.request\\.urlopen"
+      description: "URL fetch via urllib"
+    - pattern: "httpx\\.(get|post|AsyncClient)"
+      description: "HTTP request via httpx"
+    - pattern: "aiohttp\\.ClientSession"
+      description: "Async HTTP client session"
+    - pattern: "wget|curl"
+      description: "Shell-based download command"
+
+  # Data exfiltration patterns (read + send combined)
+  exfiltration:
+    - read_pattern: "(open\\(|read\\(|Path\\(|os\\.listdir|glob\\.|pathlib\\.)"
+      send_pattern: "(requests\\.(post|put)|httpx\\.(post|put)|urllib\\.request\\.urlopen|aiohttp)"
+      description: "Reads local files and sends data to external endpoint"
+
+  # Permission escalation
+  permission_escalation:
+    - pattern: "os\\.chmod\\s*\\("
+      description: "File permission modification"
+    - pattern: "os\\.setuid\\s*\\("
+      description: "User ID change (privilege escalation)"
+    - pattern: "os\\.setgid\\s*\\("
+      description: "Group ID change (privilege escalation)"
+    - pattern: "sudo"
+      description: "Sudo command usage"
+    - pattern: "runas"
+      description: "Windows runas usage"
+
+  # Cross-tool manipulation
+  cross_tool:
+    - pattern: "\\.cursor/mcp\\.json"
+      description: "Modifies Cursor MCP configuration"
+    - pattern: "claude_desktop_config\\.json"
+      description: "Modifies Claude Desktop configuration"
+    - pattern: "mcp_config\\.json"
+      description: "Modifies MCP configuration files"
+    - pattern: "settings\\.json.*mcp"
+      description: "Modifies VS Code MCP settings"
+    - pattern: "\\.claude/"
+      description: "Modifies Claude Code configuration"
