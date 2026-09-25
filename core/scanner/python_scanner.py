@@ -11,6 +11,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ._finding import make_finding as _make_finding
+
 logger = logging.getLogger(__name__)
 
 # Variables names commonly tied to user-controlled input
@@ -27,46 +29,6 @@ _LLM_OUTPUT_VARS = frozenset({
 })
 
 
-def _make_finding(
-    *,
-    file_path: str,
-    line_number: int,
-    line_text: str = "",
-    framework: str = "",
-    pattern_name: str = "",
-    pattern_category: str = "",
-    pattern_severity: str = "info",
-    pattern_description: str = "",
-    snippet: str = "",
-    model_name: str | None = None,
-    temperature: float | None = None,
-    max_tokens: int | None = None,
-    is_streaming: bool = False,
-    has_tools: bool = False,
-    component_type: str = "",
-    provider: str = "",
-    owasp_id: str | None = None,
-) -> dict[str, Any]:
-    """Construct a normalised Finding dict."""
-    return {
-        "file_path": file_path,
-        "line_number": line_number,
-        "line_text": line_text,
-        "framework": framework,
-        "pattern_name": pattern_name,
-        "pattern_category": pattern_category,
-        "pattern_severity": pattern_severity,
-        "pattern_description": pattern_description,
-        "snippet": snippet,
-        "model_name": model_name,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "is_streaming": is_streaming,
-        "has_tools": has_tools,
-        "component_type": component_type,
-        "provider": provider,
-        "owasp_id": owasp_id,
-    }
 
 
 def _get_source_line(source_lines: list[str], lineno: int) -> str:

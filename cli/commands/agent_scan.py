@@ -15,6 +15,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 from rich.text import Text
 
+from core.scanner._finding import SEVERITY_LEVELS, count_severities
+
 console = Console(stderr=True)
 stdout_console = Console()
 
@@ -40,11 +42,7 @@ _SEVERITY_STYLES: dict[str, str] = {
 }
 
 _SEVERITY_ORDER: dict[str, int] = {
-    "critical": 0,
-    "high": 1,
-    "medium": 2,
-    "low": 3,
-    "info": 4,
+    level: index for index, level in enumerate(SEVERITY_LEVELS)
 }
 
 
@@ -241,18 +239,14 @@ def _output_table(
         lines.append(f"  [bold]Skill Files:[/bold] {len(skill_findings)} issues found")
 
     total_findings = len(all_findings)
-    severities: dict[str, int] = {}
-    for f in all_findings:
-        sev = (f.get("pattern_severity") or "info").lower()
-        severities[sev] = severities.get(sev, 0) + 1
+    severities: dict[str, int] = count_severities(all_findings)
 
-    if severities:
-        parts = []
-        for sev in ("critical", "high", "medium", "low", "info"):
-            count = severities.get(sev, 0)
-            if count > 0:
-                style = _SEVERITY_STYLES.get(sev, "dim")
-                parts.append(f"[{style}]{count} {sev}[/{style}]")
+    parts = [
+        f"[{_SEVERITY_STYLES.get(sev, 'dim')}]{count} {sev}[/{_SEVERITY_STYLES.get(sev, 'dim')}]"
+        for sev, count in severities.items()
+        if count > 0
+    ]
+    if parts:
         lines.append(f"  [bold]Findings:[/bold] {' | '.join(parts)}")
     else:
         lines.append("  [bold]Findings:[/bold] None")

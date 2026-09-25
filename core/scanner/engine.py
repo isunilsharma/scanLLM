@@ -14,6 +14,7 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+from ._finding import count_severities
 from .python_scanner import PythonScanner
 from .js_scanner import JSScanner
 from .config_scanner import ConfigScanner
@@ -284,9 +285,12 @@ class ScanEngine:
         ai_files: set[str] = set()
         frameworks: dict[str, int] = {}
         component_types: dict[str, int] = {}
-        severities: dict[str, int] = {}
         owasp_counts: dict[str, int] = {}
         providers: dict[str, int] = {}
+
+        # Shared with RiskEngine.severity_counts so the two tallies for one
+        # scan can never disagree.
+        severities: dict[str, int] = count_severities(findings)
 
         for f in findings:
             ai_files.add(f["file_path"])
@@ -296,9 +300,6 @@ class ScanEngine:
 
             ct = f.get("component_type") or "unknown"
             component_types[ct] = component_types.get(ct, 0) + 1
-
-            sev = f.get("pattern_severity") or "info"
-            severities[sev] = severities.get(sev, 0) + 1
 
             owasp = f.get("owasp_id")
             if owasp:

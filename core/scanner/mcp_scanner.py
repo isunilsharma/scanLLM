@@ -26,6 +26,8 @@ from typing import Any
 import networkx as nx
 import yaml
 
+from ._finding import count_severities, make_agent_finding
+
 logger = logging.getLogger(__name__)
 
 # ── Signature loading ──────────────────────────────────────────────────────
@@ -104,28 +106,24 @@ def _make_finding(
     snippet: str = "",
     owasp_id: str | None = None,
 ) -> dict[str, Any]:
-    """Construct a finding dict compatible with the core engine format."""
-    return {
-        "file_path": file_path,
-        "line_number": line_number,
-        "line_text": snippet,
-        "framework": "mcp",
-        "pattern_name": risk_id,
-        "pattern_category": "agent_security",
-        "pattern_severity": severity,
-        "pattern_description": description,
-        "snippet": snippet,
-        "model_name": None,
-        "temperature": None,
-        "max_tokens": None,
-        "is_streaming": False,
-        "has_tools": False,
-        "component_type": "mcp_server",
-        "provider": server_name,
-        "owasp_id": owasp_id,
-        "remediation": remediation,
-        "risk_id": risk_id,
-    }
+    """Construct a finding dict compatible with the core engine format.
+
+    Binds the MCP-specific constants onto the shared constructor; the dict
+    itself is built in one place (``_finding.make_finding``).
+    """
+    return make_agent_finding(
+        file_path=file_path,
+        line_number=line_number,
+        risk_id=risk_id,
+        severity=severity,
+        description=description,
+        framework="mcp",
+        component_type="mcp_server",
+        remediation=remediation,
+        provider=server_name,
+        snippet=snippet,
+        owasp_id=owasp_id,
+    )
 
 
 # ── MCPScanner ─────────────────────────────────────────────────────────────
@@ -859,11 +857,9 @@ class MCPScanner:
         for c in configs:
             platforms[c.platform] = platforms.get(c.platform, 0) + len(c.servers)
 
-        severities: dict[str, int] = {}
+        severities: dict[str, int] = count_severities(findings)
         risk_ids: dict[str, int] = {}
         for f in findings:
-            sev = f.get("pattern_severity", "info")
-            severities[sev] = severities.get(sev, 0) + 1
             rid = f.get("risk_id", "")
             risk_ids[rid] = risk_ids.get(rid, 0) + 1
 
