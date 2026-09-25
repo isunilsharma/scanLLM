@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from rich.console import Console
@@ -161,79 +162,299 @@ def get_fix_hint(finding: dict[str, Any]) -> str:
 
 # ── Findings table ──────────────────────────────────────────────────────────
 
+#: Maximum number of (deduplicated) rows rendered before the table is capped.
+DEFAULT_MAX_ROWS: int = 25
+
+_ELLIPSIS: str = "…"
+_TIMES: str = "×"
+
+
+def _severity_of(finding: dict[str, Any]) -> str:
+    """Normalized severity for a finding ('critical' … 'info')."""
+    return (finding.get("severity") or finding.get("pattern_severity") or "info").lower()
+
+
+def _label_of(finding: dict[str, Any]) -> str:
+    """Human-readable name of what was detected."""
+    return str(finding.get("pattern_name") or finding.get("message") or "unknown")
+
+
+def _provider_of(finding: dict[str, Any]) -> str:
+    """Provider/framework attributed to a finding, or '' when unknown."""
+    return str(finding.get("provider") or finding.get("framework") or "")
+
+
+@dataclass
+class FindingGroup:
+    """A display-only roll-up of identical findings within a single file.
+
+    ``finding`` references the first member of the group and is never mutated:
+    grouping affects only what the terminal table renders, never the findings
+    list used for JSON/SARIF/CycloneDX output, counts, or risk scoring.
+    """
+
+    finding: dict[str, Any]
+    count: int = 1
+    first_line: int | None = None
+
+
+def group_findings(findings: list[dict[str, Any]]) -> list[FindingGroup]:
+    """Collapse repeated detections into one entry per (file, kind, provider).
+
+    Severity and OWASP id are part of the key too, so rows that would render
+    differently are never merged. Insertion order is preserved.
+    """
+    groups: dict[tuple[str, str, str, str, str], FindingGroup] = {}
+
+    for f in findings:
+        key = (
+            str(f.get("file_path") or ""),
+            _label_of(f),
+            _provider_of(f),
+            _severity_of(f),
+            str(f.get("owasp_id") or ""),
+        )
+        raw_line = f.get("line_number")
+        line = raw_line if isinstance(raw_line, int) else None
+
+        existing = groups.get(key)
+        if existing is None:
+            groups[key] = FindingGroup(finding=f, count=1, first_line=line)
+        else:
+            existing.count += 1
+            if line is not None and (existing.first_line is None or line < existing.first_line):
+                existing.first_line = line
+
+    return list(groups.values())
+
+
+def _sort_groups(groups: list[FindingGroup]) -> list[FindingGroup]:
+    """Severity first (critical → info), then most-repeated, then by path."""
+    return sorted(
+        groups,
+        key=lambda g: (
+            _SEVERITY_ORDER.get(_severity_of(g.finding), 4),
+            -g.count,
+            str(g.finding.get("file_path") or ""),
+            _label_of(g.finding),
+        ),
+    )
+
+
+# ── Width-aware column layout ───────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class _ColumnSpec:
+    """Layout rules for one findings-table column.
+
+    ``priority`` 0 means the column is never dropped; higher numbers are
+    dropped first when the terminal is too narrow to fit every minimum width.
+    ``flex`` is the share of any leftover width the column claims.
+    """
+
+    key: str
+    header: str
+    min_width: int
+    max_width: int
+    flex: int = 0
+    priority: int = 0
+    style: str = ""
+    justify: str = "left"
+
+
+_COLUMN_SPECS: tuple[_ColumnSpec, ...] = (
+    _ColumnSpec("file", "File", 22, 60, flex=3, priority=0, style="cyan"),
+    _ColumnSpec("finding", "Finding", 22, 44, flex=2, priority=0),
+    _ColumnSpec("count", "Count", 5, 7, flex=0, priority=1, style="dim", justify="right"),
+    # Severity is short and load-bearing: fixed at exactly len("critical").
+    _ColumnSpec("severity", "Severity", 8, 8, flex=0, priority=0),
+    _ColumnSpec("owasp", "OWASP", 5, 6, flex=0, priority=2, style="yellow"),
+    _ColumnSpec("provider", "Provider", 9, 16, flex=1, priority=3, style="magenta"),
+    _ColumnSpec("fix", "Fix", 14, 34, flex=2, priority=4, style="dim"),
+)
+
+# Rich renders 2 cells of padding plus one border per column, plus a trailing border.
+_PER_COLUMN_CHROME: int = 3
+_TABLE_EDGE_CHROME: int = 1
+
+#: Absolute floor a flexible column may be shrunk to on very narrow terminals.
+_FLOOR_WIDTH: int = 8
+
+
+def _layout_columns(
+    specs: tuple[_ColumnSpec, ...] | list[_ColumnSpec],
+    total_width: int,
+) -> list[tuple[_ColumnSpec, int]]:
+    """Pick which columns fit in ``total_width`` and how wide each should be."""
+    columns: list[_ColumnSpec] = list(specs)
+
+    def chrome(count: int) -> int:
+        return _PER_COLUMN_CHROME * count + _TABLE_EDGE_CHROME
+
+    # Drop the least important columns until every minimum width fits.
+    while len(columns) > 1:
+        if chrome(len(columns)) + sum(c.min_width for c in columns) <= total_width:
+            break
+        droppable = [c for c in columns if c.priority > 0]
+        if not droppable:
+            break
+        columns.remove(max(droppable, key=lambda c: c.priority))
+
+    widths: dict[str, int] = {c.key: c.min_width for c in columns}
+    leftover = total_width - chrome(len(columns)) - sum(widths.values())
+
+    # Very narrow terminal: even the undroppable columns overflow. Shrink the
+    # flexible ones toward a hard floor; fixed columns (Severity) stay intact.
+    deficit = -leftover
+    while deficit > 0:
+        shrinkable = [c for c in columns if c.flex and widths[c.key] > _FLOOR_WIDTH]
+        if not shrinkable:
+            break
+        widths[max(shrinkable, key=lambda c: widths[c.key]).key] -= 1
+        deficit -= 1
+
+    # Hand leftover space to flexible columns, capped at their max width.
+    while leftover > 0:
+        growable = [c for c in columns if c.flex and widths[c.key] < c.max_width]
+        if not growable:
+            break
+        flex_total = sum(c.flex for c in growable)
+        handed_out = 0
+        for c in growable:
+            share = min(leftover * c.flex // flex_total, c.max_width - widths[c.key])
+            widths[c.key] += share
+            handed_out += share
+        if handed_out == 0:
+            # Integer division starved everyone; give the remainder to the
+            # widest-flex column so the space is not wasted.
+            best = max(growable, key=lambda c: c.flex)
+            widths[best.key] += min(leftover, best.max_width - widths[best.key])
+            break
+        leftover -= handed_out
+
+    return [(c, widths[c.key]) for c in columns]
+
+
+def _truncate_left(text: str, max_len: int) -> str:
+    """Trim from the left so the tail (filename, line number) stays visible."""
+    if max_len <= 0:
+        return ""
+    if len(text) <= max_len:
+        return text
+    if max_len == 1:
+        return _ELLIPSIS
+    tail = text[-(max_len - 1):]
+    # Prefer starting at a path separator so whole segments are shown.
+    sep = tail.find("/")
+    if 0 <= sep < max(1, max_len // 3):
+        tail = tail[sep:]
+    return _ELLIPSIS + tail
+
+
+def _truncate_right(text: str, max_len: int) -> str:
+    """Trim from the right, keeping the most significant prefix."""
+    if max_len <= 0:
+        return ""
+    if len(text) <= max_len:
+        return text
+    if max_len == 1:
+        return _ELLIPSIS
+    return text[: max_len - 1] + _ELLIPSIS
+
+
+def _location_cell(group: FindingGroup, width: int) -> str:
+    """'path/to/file.py:42', left-truncated to keep the filename readable."""
+    location = str(group.finding.get("file_path") or "")
+    if group.first_line is not None:
+        location = f"{location}:{group.first_line}"
+    return _truncate_left(location, width)
+
+
 def print_findings_table(
     findings: list[dict[str, Any]],
     severity_filter: str | None = None,
     show_hints: bool = True,
+    max_rows: int = DEFAULT_MAX_ROWS,
 ) -> None:
-    """Print the findings as a Rich table, optionally filtered by severity."""
+    """Print findings as a deduplicated, severity-sorted, width-aware table.
+
+    Repeated detections of the same thing in the same file collapse into a
+    single row carrying an occurrence count, and the table is capped at
+    ``max_rows`` rows (pass 0 for no cap). Display-only: ``findings`` is never
+    mutated, so every other output format and all counts are unaffected.
+    """
     # Apply severity filter
     if severity_filter:
         min_order = _SEVERITY_ORDER.get(severity_filter.lower(), 4)
         findings = [
             f for f in findings
-            if _SEVERITY_ORDER.get((f.get("severity") or f.get("pattern_severity") or "info").lower(), 4) <= min_order
+            if _SEVERITY_ORDER.get(_severity_of(f), 4) <= min_order
         ]
-
-    # Sort by severity (critical first)
-    findings = sorted(
-        findings,
-        key=lambda f: _SEVERITY_ORDER.get(
-            (f.get("severity") or f.get("pattern_severity") or "info").lower(), 4
-        ),
-    )
 
     if not findings:
         console.print("\n  [dim]No findings to display.[/dim]\n")
         return
 
+    groups = _sort_groups(group_findings(findings))
+    total_findings = len(findings)
+
+    visible = groups if max_rows <= 0 else groups[:max_rows]
+    hidden_findings = sum(g.count for g in groups[len(visible):])
+
+    if len(groups) < total_findings:
+        title = f"Findings ({total_findings} total, {len(groups)} unique)"
+    else:
+        title = f"Findings ({total_findings} total)"
+
+    caption: str | None = None
+    if hidden_findings:
+        caption = (
+            f"{_ELLIPSIS} and {hidden_findings} more findings "
+            f"(use -o json for the full list)"
+        )
+
+    specs = _COLUMN_SPECS if show_hints else tuple(c for c in _COLUMN_SPECS if c.key != "fix")
+    layout = _layout_columns(specs, console.width)
+    widths: dict[str, int] = {spec.key: width for spec, width in layout}
+
     table = Table(
-        title=f"Findings ({len(findings)} total)",
+        title=title,
+        caption=caption,
+        caption_style="dim",
         show_header=True,
         header_style="bold",
         border_style="dim",
         padding=(0, 1),
     )
-    table.add_column("File", style="cyan", max_width=35, no_wrap=True)
-    table.add_column("Finding", max_width=30)
-    table.add_column("Provider", style="magenta", max_width=14)
-    table.add_column("Severity", max_width=10)
-    table.add_column("OWASP", style="yellow", max_width=8)
-    if show_hints:
-        table.add_column("Fix", style="dim", max_width=25)
+    for spec, width in layout:
+        table.add_column(
+            spec.header,
+            style=spec.style or None,
+            width=width,
+            justify=spec.justify,  # type: ignore[arg-type]
+            no_wrap=True,
+            overflow="ellipsis",
+        )
 
-    for f in findings:
-        file_path = f.get("file_path", "")
-        # Truncate long paths from the left
-        if len(file_path) > 35:
-            file_path = "..." + file_path[-32:]
+    for group in visible:
+        f = group.finding
+        label = _label_of(f)
+        # If the terminal was too narrow for a Count column, keep the
+        # occurrence count visible by folding it into the finding name.
+        if "count" not in widths and group.count > 1:
+            label = f"{label} {_TIMES}{group.count}"
 
-        finding_name = f.get("pattern_name", f.get("message", ""))
-        if len(finding_name) > 30:
-            finding_name = finding_name[:27] + "..."
-
-        provider = f.get("provider", "") or f.get("framework", "") or "-"
-        severity = (f.get("severity") or f.get("pattern_severity") or "info").lower()
-        owasp = f.get("owasp_id", "") or ""
-
-        if show_hints:
-            hint = get_fix_hint(f)
-            table.add_row(
-                file_path,
-                finding_name,
-                provider,
-                _severity_text(severity),
-                owasp,
-                hint,
-            )
-        else:
-            table.add_row(
-                file_path,
-                finding_name,
-                provider,
-                _severity_text(severity),
-                owasp,
-            )
+        cells: dict[str, Any] = {
+            "file": _location_cell(group, widths.get("file", 0)),
+            "finding": _truncate_right(label, widths.get("finding", 0)),
+            "count": f"{_TIMES}{group.count}" if group.count > 1 else "",
+            "severity": _severity_text(_severity_of(f)),
+            "owasp": str(f.get("owasp_id") or ""),
+            "provider": _provider_of(f) or "-",
+            "fix": _truncate_right(get_fix_hint(f), widths.get("fix", 0)),
+        }
+        table.add_row(*(cells[spec.key] for spec, _ in layout))
 
     console.print()
     console.print(table)
@@ -520,6 +741,5 @@ def print_diff_result(scan_diff: dict[str, Any]) -> None:
 
 
 def _truncate_path(path: str, max_len: int = 35) -> str:
-    if len(path) > max_len:
-        return "..." + path[-(max_len - 3):]
-    return path
+    """Shorten a path from the left, keeping the filename visible."""
+    return _truncate_left(path, max_len)
