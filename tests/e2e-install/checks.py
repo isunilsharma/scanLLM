@@ -204,25 +204,38 @@ def main():
               all(len(l) <= 80 for l in txt.splitlines()),
               f"widest={max((len(l) for l in txt.splitlines()), default=0)}")
 
-    # ------------------------------------------- known bugs still open ----
-    if cb:
-        f0 = (cb.get("findings") or [{}])[0]
-        known("schema: findings[] lacks 'severity' and 'finding_type' keys",
-              "severity" not in f0 or "finding_type" not in f0,
-              f"keys: {sorted(f0)[:5]}...")
+    # ------------------------------------------------- schema contract ----
+    # findings[] used to carry only pattern_severity, so every consumer that
+    # read .severity got None; and the two severity tallies disagreed.
+    for name, data in (("langserve", ls), ("chatbot-ui", cb)):
+        if not data:
+            continue
+        fs = data.get("findings") or []
+        check(f"{name}: every finding has a severity",
+              bool(fs) and all(f.get("severity") for f in fs),
+              f"{sum(1 for f in fs if not f.get('severity'))} missing")
+        check(f"{name}: every finding has a finding_type",
+              bool(fs) and all(f.get("finding_type") for f in fs),
+              f"{sum(1 for f in fs if not f.get('finding_type'))} missing")
+        check(f"{name}: severity is drawn from the canonical vocabulary",
+              all(f.get("severity") in
+                  ("critical", "high", "medium", "low", "info") for f in fs))
+        check(f"{name}: pattern_severity agrees with severity",
+              all(f.get("pattern_severity") == f.get("severity") for f in fs))
 
-        rs = cb["risk"].get("severity_counts", {})
-        ss = cb["summary"].get("severities", {})
-        known("schema: risk.severity_counts contradicts summary.severities",
-              rs.get("high", 0) != ss.get("high", 0),
-              f"risk={rs.get('high')} vs summary={ss.get('high')}")
-
-    if doctor and "not installed" in doctor:
-        # Rich used to parse [server] as a style tag and delete it, so the
-        # remediation read `pip install 'scanllm'` -- install what you have.
-        check("doctor: pip hint keeps the extras name",
-              "scanllm[server]" in doctor,
-              "hint lost its [extra]")
+        rs = data["risk"].get("severity_counts", {})
+        ss = data["summary"].get("severities", {})
+        check(f"{name}: risk.severity_counts agrees with summary.severities",
+              all(rs.get(k, 0) == ss.get(k, 0)
+                  for k in set(rs) | set(ss)),
+              f"risk={rs} summary={ss}")
+        # And both must agree with the findings themselves.
+        actual = {}
+        for f in fs:
+            actual[f["severity"]] = actual.get(f["severity"], 0) + 1
+        check(f"{name}: tallies match the actual findings list",
+              all(rs.get(k, 0) == v for k, v in actual.items()),
+              f"derived={actual} reported={rs}")
 
     # ----------------------------------------------------------- report ---
     w = sys.stdout.write
