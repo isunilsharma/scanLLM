@@ -69,18 +69,33 @@ Four outcomes:
 a smoke test into a regression net. Assert on the true positive you intended
 to create, not just on "it ran".
 
-### Known bugs recorded against 2.3.2
+### Bug status
 
-| # | Bug |
+Fixed since 2.3.2 and now guarded by blocking CHECKs — these cannot regress:
+
+| # | Bug | Effect of the fix |
+|---|---|---|
+| 1 | `types/valid-keys.ts` — a TS enum of key *names* counted as 8 hardcoded credentials | chatbot-ui **F → B** |
+| 2 | Any JS template literal with `${}` flagged as LLM01, including auth redirects and UI code | 20 high → 3 high; all 3 remaining are real |
+| 3 | `scan --severity high` did not filter | filter works |
+| 4 | `scan` could not gate CI | `--fail-on <grade\|severity>`; bare `scan` still exits 0 |
+| 5 | `doctor` hint rendered `pip install 'scanllm'` (Rich ate `[server]`) | hint keeps the extra |
+| 6 | `pyproject` required the dropped `typer[all]` extra | install is warning-free |
+| 7 | `.scanllm/` was not excluded, so each scan re-ingested the previous scan's output — findings inflated 81 → 108 and the saved file grew 97KB → 1.5MB over four runs | scans are idempotent |
+
+Still open:
+
+| Bug | Notes |
 |---|---|
-| 1 | `types/valid-keys.ts` — a TS enum of key *names* counted as 8 hardcoded credentials, which alone pins the grade to F |
-| 2 | Any JS template literal with `${}` flagged as LLM01 prompt injection, including auth redirects and UI code |
-| 3 | `findings[]` has `pattern_severity` but no `severity` / `finding_type`, so JSON consumers read `null` |
-| 4 | `risk.severity_counts` contradicts `summary.severities` in the same document |
-| 5 | `scan --severity high` does not filter (already fixed in the working tree) |
-| 6 | `scan` exits 0 even at grade F, so it cannot gate CI on its own |
-| 7 | `doctor` remediation renders as `pip install 'scanllm'` — Rich parses `[server]` as a style tag and drops it. Fix with `rich.markup.escape()` or `markup=False`, not with quoting |
+| `findings[]` has `pattern_severity` but no `severity` / `finding_type`, so JSON consumers read `null` | schema work in progress |
+| `risk.severity_counts` contradicts `summary.severities` in the same document | same |
 
-Also seen during install: `pyproject.toml` requires `typer[all]`, but typer
-≥0.13 dropped the `all` extra, so every install prints
-`WARNING: typer 0.23.2 does not provide the extra 'all'`.
+### Current baseline
+
+| repo | findings | grade |
+|---|---|---|
+| langserve | 57 | A (10) |
+| chatbot-ui | 81 | B (30) |
+
+If your run reports DRIFT against these, decide whether the new number is
+correct before updating it. Drift is a prompt to think, not a failure.
